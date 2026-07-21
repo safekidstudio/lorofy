@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/input.dart';
-import 'package:lorofy/components/ui/svg_asset.dart';
+import 'package:lorofy/components/ui/wavy_divider.dart';
+import 'package:lorofy/components/ui/social_button.dart';
+import 'package:lorofy/components/ui/top_bar.dart';
+import 'package:lorofy/components/ui/page_wrapper.dart';
+import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import '../providers/register_controller.dart';
 
@@ -46,173 +50,80 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         ? _parseError(registerState.error)
         : null;
 
-    return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
-      resizeToAvoidBottomInset: true,
-      child: Stack(
+    return PageWrapper(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1. Background Image
-          Positioned.fill(
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Image.asset(
-                    'assets/images/auth_bg_1.png',
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        Container(color: CupertinoColors.black),
-                  ),
-                ),
-                Positioned.fill(
-                  child: Container(
-                    color: CupertinoColors.black.withOpacity(0.4),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              // 1. Header Back Button
+              const TopBar(),
+              const Spacer(),
 
-          // 2. Scrollable content
-          Positioned(
-            bottom: 4,
-            left: 4,
-            right: 4,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
+              // 2. Title "What's your email?"
+              Text(
+                "What's your email?",
+                style: TextStyle(
+                  fontFamily: AppTextStyles.titleFontFamily,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF232321),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 28),
+
+              // 3. Flat email input field (without top label text)
+              Input(
+                placeholder: 'example@lorofy.com',
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                disabled: isLoading,
+                errorMessage: errorMessage,
+              ),
+              const SizedBox(height: 28),
+
+              // 4. Centered, smaller Continue button
+              Center(
+                child: SizedBox(
+                  width: 180,
+                  child: Button.primary(
+                    text: 'Continue',
+                    isLoading: isLoading,
+                    onPressed: isLoading ? null : _onContinue,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
+
+              // 5. Wavy Divider
+              const WavyDivider(text: 'Or'),
+              const SizedBox(height: 24),
+
+              // 6. Circular Social Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: AppColors.card,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(AppRadius.xl),
-                      ),
+                  SocialIconButton(
+                    svgPath: 'assets/icons/apple-drawing.svg',
+                    onPressed: () => AppToast.show(
+                      context,
+                      message: 'Apple Sign-in is coming soon!',
+                      type: ToastType.info,
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Header row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CupertinoButton(
-                              padding: EdgeInsets.zero,
-                              onPressed: () => context.pop(),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.inputBg,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  CupertinoIcons.left_chevron,
-                                  size: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-
-                            Text(
-                              'Signup',
-                              style: AppTextStyles.titleMedium.copyWith(
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 36),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        Text(
-                          'Create your account',
-                          style: AppTextStyles.titleLarge,
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Email field
-                        Input(
-                          label: 'Email address',
-                          placeholder: 'alexsmith@gmail.com',
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          disabled: isLoading,
-                          errorMessage: errorMessage,
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Continue button
-                        Button.primary(
-                          text: 'Continue',
-                          isLoading: isLoading,
-                          onPressed: isLoading ? null : _onContinue,
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Divider
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                height: 1,
-                                color: AppColors.border,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
-                              child: Text(
-                                'or',
-                                style: AppTextStyles.body.copyWith(
-                                  color: AppColors.secondary,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(
-                                height: 1,
-                                color: AppColors.border,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 20),
-                        Button.outline(
-                          text: 'Continue with Google',
-                          prefix: const SVG(
-                            'assets/logos/google.svg',
-                            width: 18,
-                            height: 18,
-                          ),
-                          onPressed: () {},
-                        ),
-                        const SizedBox(height: 10),
-                        Button.outline(
-                          text: 'Continue with Apple',
-                          prefix: const SVG(
-                            'assets/logos/apple.svg',
-                            width: 18,
-                            height: 18,
-                          ),
-                          onPressed: () {},
-                        ),
-                      ],
+                  ),
+                  const SizedBox(width: 20),
+                  SocialIconButton(
+                    svgPath: 'assets/icons/google-drawing.svg',
+                    onPressed: () => AppToast.show(
+                      context,
+                      message: 'Google Sign-in is coming soon!',
+                      type: ToastType.info,
                     ),
                   ),
                 ],
               ),
-            ),
+              const Spacer(),
+            ],
           ),
-        ],
-      ),
     );
   }
 

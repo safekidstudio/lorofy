@@ -56,12 +56,13 @@ class AppRadius {
 
 class AppTextStyles {
   // Định nghĩa Font Family trùng tên với khai báo trong pubspec.yaml
-  static const String fontFamily = 'Inter';
+  static const String fontFamily = 'Fredoka';
+  static const String titleFontFamily = 'NerkoOne';
 
   // 1. Tiêu đề lớn màn hình (Welcome back, Create your own account)
   static const TextStyle titleLarge = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 22,
+    fontFamily: titleFontFamily,
+    fontSize: 28,
     fontWeight: FontWeight.w700,
     color: AppColors.primary,
     letterSpacing: -0.5,
@@ -70,8 +71,8 @@ class AppTextStyles {
 
   // Tiêu đề phụ
   static const TextStyle titleMedium = TextStyle(
-    fontFamily: fontFamily,
-    fontSize: 17,
+    fontFamily: titleFontFamily,
+    fontSize: 20,
     fontWeight: FontWeight.w600,
     color: AppColors.primary,
     letterSpacing: -0.3,

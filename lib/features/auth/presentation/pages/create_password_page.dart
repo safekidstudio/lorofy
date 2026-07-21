@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/input.dart';
+import 'package:lorofy/components/ui/page_wrapper.dart';
+import 'package:lorofy/components/ui/top_bar.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import '../providers/create_password_controller.dart';
 
@@ -17,7 +18,8 @@ class CreatePasswordPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<CreatePasswordPage> createState() => _CreatePasswordPageState();
+  ConsumerState<CreatePasswordPage> createState() =>
+      _CreatePasswordPageState();
 }
 
 class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
@@ -32,7 +34,6 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
     super.dispose();
   }
 
-  // Tính toán password strength (0-3)
   int _getPasswordStrength(String password) {
     if (password.isEmpty) return 0;
     int score = 0;
@@ -46,9 +47,9 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
     final password = _passwordController.text;
     final confirm = _confirmController.text;
 
-    // Validation
     if (password.length < 6) {
-      setState(() => _validationError = 'Password must be at least 6 characters');
+      setState(
+          () => _validationError = 'Password must be at least 6 characters');
       return;
     }
     if (password != confirm) {
@@ -58,253 +59,151 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
     setState(() => _validationError = null);
 
     await ref.read(createPasswordControllerProvider.notifier).createAccount(
-      signupToken: widget.signupToken,
-      password: password,
-      email: widget.email,
-    );
-
-    // Nếu thành công, authProvider sẽ tự đổi state → router tự redirect về /
-    // Nếu có lỗi, hiển thị bên dưới
+          signupToken: widget.signupToken,
+          password: password,
+          email: widget.email,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     final createState = ref.watch(createPasswordControllerProvider);
     final isLoading = createState.isLoading;
-    final serverError = createState.hasError
-        ? _parseError(createState.error)
-        : null;
+    final serverError =
+        createState.hasError ? _parseError(createState.error) : null;
     final password = _passwordController.text;
     final strength = _getPasswordStrength(password);
-    final screenHeight = MediaQuery.of(context).size.height;
 
-    return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
-      resizeToAvoidBottomInset: true,
-      child: Stack(
+    return PageWrapper(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1. Background Image
-          Positioned.fill(
-            child: Stack(
+          // 1. Back button
+          const TopBar(),
+          const Spacer(),
+
+          // 2. Title
+          Text(
+            'Create your\npassword',
+            style: TextStyle(
+              fontFamily: AppTextStyles.titleFontFamily,
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              color: const Color(0xFF232321),
+              height: 1.15,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+
+          Text(
+            'Please create your strong password',
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.secondary,
+              fontSize: 14,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+
+          // 3. Password field
+          Input(
+            placeholder: 'Password',
+            controller: _passwordController,
+            obscureText: true,
+            disabled: isLoading,
+            onChanged: (_) => setState(() {}),
+            errorMessage:
+                _validationError != null && _validationError!.contains('least')
+                    ? _validationError
+                    : null,
+          ),
+
+          // 4. Password strength bar
+          if (password.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            _PasswordStrengthBar(strength: strength),
+            const SizedBox(height: 4),
+            Text(
+              _strengthLabel(strength),
+              style: AppTextStyles.body.copyWith(
+                fontSize: 12,
+                color: _strengthColor(strength),
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 16),
+
+          // 5. Confirm password field
+          Input(
+            placeholder: 'Confirm password',
+            controller: _confirmController,
+            obscureText: true,
+            disabled: isLoading,
+            onChanged: (_) => setState(() {}),
+            errorMessage: _validationError != null &&
+                    _validationError!.contains('match')
+                ? _validationError
+                : null,
+          ),
+
+          // 6. Server error
+          if (serverError != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              serverError,
+              style: AppTextStyles.body.copyWith(
+                color: CupertinoColors.systemRed,
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+
+          const SizedBox(height: 28),
+
+          // 7. Create button
+          Center(
+            child: SizedBox(
+              width: 180,
+              child: Button.primary(
+                text: 'Create',
+                isLoading: isLoading,
+                onPressed: isLoading ? null : _handleSubmit,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // 8. Terms note
+          Text.rich(
+            TextSpan(
+              text: 'By creating an account you agree to our ',
+              style: AppTextStyles.caption,
               children: [
-                Positioned.fill(
-                  child: Image.asset(
-                    'assets/images/auth_bg_1.png',
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        Container(color: CupertinoColors.black),
+                TextSpan(
+                  text: 'Terms of Service',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                Positioned.fill(
-                  child: Container(
-                    color: CupertinoColors.black.withOpacity(0.4),
+                const TextSpan(text: ' and '),
+                TextSpan(
+                  text: 'Privacy Policy',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
+            textAlign: TextAlign.center,
           ),
 
-          // 2. Scrollable content
-          Positioned(
-            bottom: 4,
-            left: 4,
-            right: 4,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: AppColors.card,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(AppRadius.lg),
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Header
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CupertinoButton(
-                              padding: EdgeInsets.zero,
-                              onPressed: isLoading ? null : () => context.pop(),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.inputBg,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  CupertinoIcons.left_chevron,
-                                  size: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              'Create Password',
-                              style: AppTextStyles.titleMedium.copyWith(
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 36),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Title & subtitle
-                        Text(
-                          'Set your password',
-                          style: AppTextStyles.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Choose a strong password to protect your account',
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.secondary,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Password field
-                        Input(
-                          label: 'Password',
-                          placeholder: '••••••••',
-                          controller: _passwordController,
-                          obscureText: true,
-                          disabled: isLoading,
-                          onChanged: (_) => setState(() {}),
-                          errorMessage: _validationError != null &&
-                                  _validationError!.contains('least')
-                              ? _validationError
-                              : null,
-                        ),
-
-                        // Password strength indicator
-                        if (password.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          _PasswordStrengthBar(strength: strength),
-                          const SizedBox(height: 4),
-                          Text(
-                            _strengthLabel(strength),
-                            style: AppTextStyles.body.copyWith(
-                              fontSize: 12,
-                              color: _strengthColor(strength),
-                            ),
-                          ),
-                        ],
-
-                        const SizedBox(height: 16),
-
-                        // Confirm password field
-                        Input(
-                          label: 'Confirm Password',
-                          placeholder: '••••••••',
-                          controller: _confirmController,
-                          obscureText: true,
-                          disabled: isLoading,
-                          onChanged: (_) => setState(() {}),
-                          errorMessage: _validationError != null &&
-                                  _validationError!.contains('match')
-                              ? _validationError
-                              : null,
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // Server error
-                        if (serverError != null) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  CupertinoColors.systemRed.withOpacity(0.08),
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.sm),
-                              border: Border.all(
-                                color: CupertinoColors.systemRed
-                                    .withOpacity(0.3),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  CupertinoIcons.exclamationmark_circle,
-                                  size: 16,
-                                  color: CupertinoColors.systemRed,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    serverError,
-                                    style: AppTextStyles.body.copyWith(
-                                      color: CupertinoColors.systemRed,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-
-                        // Submit button
-                        Button.primary(
-                          text: 'Create Account',
-                          isLoading: isLoading,
-                          onPressed: isLoading ? null : _handleSubmit,
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Terms note
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text.rich(
-                            TextSpan(
-                              text: 'By creating an account you agree to our ',
-                              style: AppTextStyles.caption,
-                              children: [
-                                TextSpan(
-                                  text: 'Terms of Service',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const TextSpan(text: ' and '),
-                                TextSpan(
-                                  text: 'Privacy Policy',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          const Spacer(),
         ],
       ),
     );
@@ -339,8 +238,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
   String _parseError(Object? error) {
     if (error == null) return 'Something went wrong';
     final msg = error.toString();
-    if (msg.contains('Signup token is invalid') ||
-        msg.contains('expired')) {
+    if (msg.contains('Signup token is invalid') || msg.contains('expired')) {
       return 'Session expired. Please restart the registration.';
     }
     if (msg.contains('already registered')) {

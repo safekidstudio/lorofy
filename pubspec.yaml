@@ -47,18 +47,26 @@ flutter:
   assets:
     - assets/logos/
     - assets/images/
+    - assets/illustrations/
+    - assets/icons/
 
   fonts:
-    - family: Inter
+    - family: Fredoka
       fonts:
-        - asset: assets/fonts/Inter_18pt-Regular.ttf
+        - asset: assets/fonts/Fredoka-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Fredoka-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Inter_18pt-Medium.ttf
+        - asset: assets/fonts/Fredoka-Medium.ttf
           weight: 500
-        - asset: assets/fonts/Inter_18pt-SemiBold.ttf
+        - asset: assets/fonts/Fredoka-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Inter_18pt-Bold.ttf
+        - asset: assets/fonts/Fredoka-Bold.ttf
           weight: 700
+    - family: NerkoOne
+      fonts:
+        - asset: assets/fonts/NerkoOne-Regular.ttf
+          weight: 400
 
 flutter_launcher_icons:
   android: "launcher_icon"

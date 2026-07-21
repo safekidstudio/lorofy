@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lorofy/components/ui/drawing_container.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
-enum ButtonVariant { primary, secondary, outline, ghost, link, destructive }
+enum ButtonVariant { primary, secondary, ghost, link, destructive }
 
 class Button extends StatelessWidget {
   final String text;
@@ -58,22 +60,6 @@ class Button extends StatelessWidget {
     disabled: disabled,
   );
 
-  factory Button.outline({
-    required String text,
-    VoidCallback? onPressed,
-    Widget? prefix,
-    Widget? suffix,
-    bool isLoading = false,
-    bool disabled = false,
-  }) => Button(
-    text: text,
-    onPressed: onPressed,
-    variant: ButtonVariant.outline,
-    prefix: prefix,
-    suffix: suffix,
-    isLoading: isLoading,
-    disabled: disabled,
-  );
 
   factory Button.destructive({
     required String text,
@@ -138,21 +124,16 @@ class Button extends StatelessWidget {
 
     switch (variant) {
       case ButtonVariant.primary:
-        backgroundColor = AppColors.primary;
-        textColor = AppColors.background;
-        break;
-      case ButtonVariant.secondary:
-        backgroundColor = AppColors.card; // Hoặc AppColors.secondary tùy dự án
-        textColor = AppColors.primary;
-        break;
-      case ButtonVariant.destructive:
-        backgroundColor = CupertinoColors.systemRed; // Màu đỏ đặc trưng xóa/hủy
+        backgroundColor = const Color(0xFF232321);
         textColor = CupertinoColors.white;
         break;
-      case ButtonVariant.outline:
-        backgroundColor = CupertinoColors.transparent;
-        textColor = AppColors.primary;
-        border = Border.all(color: AppColors.border, width: 1);
+      case ButtonVariant.secondary:
+        backgroundColor = const Color(0xFFE4E4E6);
+        textColor = const Color(0xFF232321);
+        break;
+      case ButtonVariant.destructive:
+        backgroundColor = CupertinoColors.systemRed;
+        textColor = CupertinoColors.white;
         break;
       case ButtonVariant.ghost:
         backgroundColor = CupertinoColors.transparent;
@@ -164,56 +145,116 @@ class Button extends StatelessWidget {
         break;
     }
 
+    final bool useDrawingStyle = variant == ButtonVariant.primary ||
+        variant == ButtonVariant.secondary ||
+        variant == ButtonVariant.destructive;
+
+    Widget buttonBody = isLoading
+        ? _SvgLoader(color: textColor)
+        : Row(
+            mainAxisSize: MainAxisSize.min, // Giúp button co giãn theo nội dung nếu cần
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Prefix Icon
+              if (prefix != null) ...[prefix!, const SizedBox(width: 8)],
+              // Text chính
+              Text(
+                text,
+                style: AppTextStyles.buttonText.copyWith(
+                  fontFamily: AppTextStyles.titleFontFamily,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                  color: textColor,
+                  decoration: variant == ButtonVariant.link
+                      ? TextDecoration.underline
+                      : TextDecoration.none,
+                ),
+              ),
+              // Suffix Icon
+              if (suffix != null) ...[const SizedBox(width: 8), suffix!],
+            ],
+          );
+
+    Widget innerContainer;
+    if (useDrawingStyle) {
+      innerContainer = DrawingContainer(
+        height: 56,
+        fillColor: backgroundColor,
+        borderColor: CupertinoColors.transparent,
+        borderWidth: 0.0,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: buttonBody,
+      );
+    } else {
+      innerContainer = Container(
+        height: variant == ButtonVariant.link ? null : 56,
+        padding: variant == ButtonVariant.link
+            ? EdgeInsets.zero
+            : const EdgeInsets.symmetric(horizontal: 16),
+        alignment: Alignment.center,
+        decoration: variant == ButtonVariant.link
+            ? null
+            : BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: border,
+              ),
+        child: buttonBody,
+      );
+    }
+
     return Opacity(
       // Shadcn giảm độ mờ (0.5) khi button bị disabled
       opacity: isButtonDisabled ? 0.5 : 1.0,
       child: CupertinoButton(
         padding: EdgeInsets.zero, // Triệt tiêu padding mặc định của Cupertino
         onPressed: isButtonDisabled ? null : onPressed,
-        minimumSize: Size(
-          0,
-          0,
-        ), // Cho phép container quyết định độ cao tối thiểu
+        minimumSize: const Size(0, 0), // Cho phép container quyết định độ cao tối thiểu
         focusNode: FocusNode(skipTraversal: true),
-        child: Container(
-          height: variant == ButtonVariant.link ? null : 56,
-          padding: variant == ButtonVariant.link
-              ? EdgeInsets.zero
-              : const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.center,
-          decoration: variant == ButtonVariant.link
-              ? null
-              : BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  border: border,
-                ),
-          child: isLoading
-              ? CupertinoActivityIndicator(
-                  color: textColor,
-                ) // Hiện loading spinner
-              : Row(
-                  mainAxisSize: MainAxisSize
-                      .min, // Giúp button co giãn theo nội dung nếu cần
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Prefix Icon
-                    if (prefix != null) ...[prefix!, const SizedBox(width: 8)],
-                    // Text chính
-                    Text(
-                      text,
-                      style: AppTextStyles.buttonText.copyWith(
-                        color: textColor,
-                        decoration: variant == ButtonVariant.link
-                            ? TextDecoration.underline
-                            : TextDecoration.none,
-                      ),
-                    ),
-                    // Suffix Icon
-                    if (suffix != null) ...[const SizedBox(width: 8), suffix!],
-                  ],
-                ),
-        ),
+        child: innerContainer,
+      ),
+    );
+  }
+}
+
+/// Rotating SVG loader using assets/icons/loader.svg
+class _SvgLoader extends StatefulWidget {
+  final Color color;
+  const _SvgLoader({required this.color});
+
+  @override
+  State<_SvgLoader> createState() => _SvgLoaderState();
+}
+
+class _SvgLoaderState extends State<_SvgLoader>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RotationTransition(
+      turns: _ctrl,
+      child: SvgPicture.asset(
+        'assets/icons/loader.svg',
+        width: 22,
+        height: 22,
+        colorFilter: ColorFilter.mode(widget.color, BlendMode.srcIn),
       ),
     );
   }

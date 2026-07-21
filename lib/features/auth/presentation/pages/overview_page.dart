@@ -1,138 +1,87 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/ui/button.dart';
-import 'package:lorofy/components/ui/carousel.dart';
+import 'package:lorofy/components/ui/logo.dart';
+import 'package:lorofy/components/ui/page_wrapper.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
-class OverviewPage extends StatefulWidget {
+class OverviewPage extends StatelessWidget {
   const OverviewPage({super.key});
 
   @override
-  State<OverviewPage> createState() => _OverviewPageState();
-}
-
-class _OverviewPageState extends State<OverviewPage> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
-
-  final List<Map<String, String>> _slidesData = [
-    {'image': 'assets/images/auth_bg_1.png'},
-    {'image': 'assets/images/auth_bg_2.png'},
-    {'image': 'assets/images/auth_bg_3.png'},
-  ];
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
-      child: Stack(
+    return PageWrapper(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1. Carousel động
-          Positioned.fill(
-            child: Carousel(
-              controller: _pageController,
-              physics: const ClampingScrollPhysics(),
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              children: _slidesData.map((slide) {
-                return Image.asset(
-                  slide['image']!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) =>
-                      Container(color: CupertinoColors.black),
-                );
-              }).toList(),
-            ),
-          ),
+              // 1. Logo "lorofy." top-left
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Logo(fontSize: 28),
+              ),
+              const Spacer(flex: 2),
 
-          // 2. Indicator nằm nổi trên ảnh nền
-          Positioned(
-            bottom: 280, // Nằm ngay trên mép Card
-            left: 0,
-            right: 0,
-            child: CarouselIndicator(
-              count: _slidesData.length,
-              currentIndex: _currentPage,
-            ),
-          ),
-
-          // 3. Bottom Sheet ôm sát đáy chuẩn di động
-          Positioned(
-            left: 4,
-            right: 4,
-            bottom: 4,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
-              decoration: const BoxDecoration(
-                color: AppColors.card,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(AppRadius.lg), // Chỉ bo hai góc trên
+              // 2. Illustration in the center
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.35,
+                  ),
+                  child: SvgPicture.asset(
+                    'assets/illustrations/overview.svg',
+                    fit: BoxFit.contain,
+                    placeholderBuilder: (BuildContext context) =>
+                        const CupertinoActivityIndicator(),
+                  ),
                 ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Button.primary(
-                    text: 'Log in',
-                    onPressed: () => context.push('/login'),
-                  ),
-                  const SizedBox(height: 12),
-                  Button.outline(
-                    text: 'Sign up',
-                    onPressed: () => context.push('/register'),
-                  ),
-                  const SizedBox(height: 28),
+              const Spacer(flex: 3),
 
-                  // Điều khoản dịch vụ & Chính sách
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text.rich(
-                      TextSpan(
-                        text: 'By continuing, you agree to Lorofy\'s ',
-                        style: AppTextStyles.body.copyWith(
-                          fontSize: 14,
-                          color: AppColors.secondary,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: 'Privacy Policy',
-                            style: AppTextStyles.body.copyWith(
-                              fontSize: 14,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                          const TextSpan(text: ' and '),
-                          TextSpan(
-                            text: 'Terms of Use',
-                            style: AppTextStyles.body.copyWith(
-                              fontSize: 14,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
+              // 3. Heading: Welcome to Lorofy
+              Text(
+                'Welcome to Lorofy',
+                style: TextStyle(
+                  fontFamily: AppTextStyles.titleFontFamily,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF232321),
+                  letterSpacing: -0.5,
+                ),
+                textAlign: TextAlign.center,
               ),
-            ),
+              const SizedBox(height: 12),
+
+              // 4. Subtitle description
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'Every second you focus with Lorofy is a step toward growth.',
+                  style: TextStyle(
+                    fontFamily: AppTextStyles.fontFamily,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF8E8E93),
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const Spacer(flex: 3),
+
+              // 5. Drawing style action buttons
+              Button.primary(
+                text: 'Login',
+                onPressed: () => context.push('/login'),
+              ),
+              const SizedBox(height: 16),
+              Button.secondary(
+                text: 'Sign up',
+                onPressed: () => context.push('/register'),
+              ),
+              const SizedBox(height: 12),
+            ],
           ),
-        ],
-      ),
     );
   }
 }
