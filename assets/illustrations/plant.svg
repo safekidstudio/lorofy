@@ -1,0 +1,36 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Potted plant shadow -->
+  <ellipse cx="100" cy="175" rx="45" ry="4" fill="#EAEAEA" />
+
+  <!-- Stem -->
+  <path d="M100 150 V90" stroke="#00160A" stroke-width="6" stroke-linecap="round" />
+  
+  <!-- Left Leaf 1 (lower) -->
+  <path d="M100 135 C80 135 75 110 98 115 Z" fill="#1EA756" stroke="#00160A" stroke-width="5" stroke-linejoin="round" />
+  <!-- Right Leaf 1 (lower) -->
+  <path d="M100 125 C120 125 125 100 102 105 Z" fill="#1EA756" stroke="#00160A" stroke-width="5" stroke-linejoin="round" />
+  
+  <!-- Left Leaf 2 (upper) -->
+  <path d="M100 110 C80 110 75 85 98 90 Z" fill="#1EA756" stroke="#00160A" stroke-width="5" stroke-linejoin="round" />
+  <!-- Right Leaf 2 (upper) -->
+  <path d="M100 100 C120 100 125 75 102 80 Z" fill="#1EA756" stroke="#00160A" stroke-width="5" stroke-linejoin="round" />
+  
+  <!-- Top Leaf -->
+  <path d="M100 90 C90 70 85 70 100 65 C115 70 110 70 100 90 Z" fill="#1EA756" stroke="#00160A" stroke-width="5" stroke-linejoin="round" />
+
+  <!-- Yellow/Red/Green striped round Pot -->
+  <g stroke="#00160A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <mask id="pot-mask">
+      <path d="M72 135 C70 115 130 115 128 135 C132 165 68 165 72 135 Z" fill="white" />
+    </mask>
+    
+    <path d="M72 135 C70 115 130 115 128 135 C132 165 68 165 72 135 Z" fill="#FFC93C" />
+    
+    <g mask="url(#pot-mask)">
+      <path d="M60 148 H140" stroke="#FF4A4A" stroke-width="12" />
+      <path d="M60 158 H140" stroke="#1EA756" stroke-width="12" />
+    </g>
+    
+    <path d="M72 135 C70 115 130 115 128 135 C132 165 68 165 72 135 Z" fill="none" />
+  </g>
+</svg>
