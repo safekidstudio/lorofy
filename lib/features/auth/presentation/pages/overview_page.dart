@@ -1,13 +1,28 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/logo.dart';
 import 'package:lorofy/components/ui/page_wrapper.dart';
+import 'package:lorofy/components/ui/shimmer.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
-class OverviewPage extends StatelessWidget {
+class OverviewPage extends StatefulWidget {
   const OverviewPage({super.key});
+
+  @override
+  State<OverviewPage> createState() => _OverviewPageState();
+}
+
+class _OverviewPageState extends State<OverviewPage> {
+  static const _illustrationPath = 'assets/illustrations/overview.svg';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Pre-cache the illustration to prevent frame drops/lag during initial parsing
+    SVG.precache(context, _illustrationPath);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +43,15 @@ class OverviewPage extends StatelessWidget {
                   constraints: BoxConstraints(
                     maxHeight: MediaQuery.sizeOf(context).height * 0.35,
                   ),
-                  child: SvgPicture.asset(
-                    'assets/illustrations/overview.svg',
+                  child: SVG(
+                    _illustrationPath,
                     fit: BoxFit.contain,
                     placeholderBuilder: (BuildContext context) =>
-                        const CupertinoActivityIndicator(),
+                        ShimmerPlaceholder.rectangular(
+                          height: MediaQuery.sizeOf(context).height * 0.35,
+                          width: double.infinity,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                   ),
                 ),
               ),

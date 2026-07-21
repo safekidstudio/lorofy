@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lorofy/components/ui/drawing_container.dart';
+import 'package:lorofy/components/ui/loader.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
 enum ButtonVariant { primary, secondary, ghost, link, destructive }
@@ -150,7 +150,7 @@ class Button extends StatelessWidget {
         variant == ButtonVariant.destructive;
 
     Widget buttonBody = isLoading
-        ? _SvgLoader(color: textColor)
+        ? Loader(color: textColor, size: 22)
         : Row(
             mainAxisSize: MainAxisSize.min, // Giúp button co giãn theo nội dung nếu cần
             mainAxisAlignment: MainAxisAlignment.center,
@@ -218,44 +218,4 @@ class Button extends StatelessWidget {
   }
 }
 
-/// Rotating SVG loader using assets/icons/loader.svg
-class _SvgLoader extends StatefulWidget {
-  final Color color;
-  const _SvgLoader({required this.color});
 
-  @override
-  State<_SvgLoader> createState() => _SvgLoaderState();
-}
-
-class _SvgLoaderState extends State<_SvgLoader>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return RotationTransition(
-      turns: _ctrl,
-      child: SvgPicture.asset(
-        'assets/icons/loader.svg',
-        width: 22,
-        height: 22,
-        colorFilter: ColorFilter.mode(widget.color, BlendMode.srcIn),
-      ),
-    );
-  }
-}

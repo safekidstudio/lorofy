@@ -59,22 +59,19 @@ class AuthRepository {
     return await _remoteDataSource.getMyProfile();
   }
 
-  Future<void> onboardProfile({
+  Future<UserProfile> onboardProfile({
     required String displayName,
     required String countryCode,
     required String timezone,
+    String? avatarAssetId,
   }) async {
     final profile = await _remoteDataSource.onboardProfile(
       displayName: displayName,
       countryCode: countryCode,
       timezone: timezone,
+      avatarAssetId: avatarAssetId,
     );
-    _ref
-        .read(authProvider.notifier)
-        .updateOnboardedState(
-          onboarded: profile.isOnboarded,
-          displayName: profile.displayName ?? displayName,
-        );
+    return profile;
   }
 
   Future<void> logout() async {

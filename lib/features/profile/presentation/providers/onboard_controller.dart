@@ -15,6 +15,7 @@ class OnboardController extends _$OnboardController {
     required String displayName,
     required String countryCode,
     required String timezone,
+    String? avatarAssetId,
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -24,6 +25,7 @@ class OnboardController extends _$OnboardController {
             displayName: displayName,
             countryCode: countryCode,
             timezone: timezone,
+            avatarAssetId: avatarAssetId,
           );
     });
   }

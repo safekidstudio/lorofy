@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Material, MaterialType;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lorofy/components/ui/drawing_container.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
 enum ToastType { success, error, info, warning }
@@ -13,7 +13,7 @@ class _ToastItem {
   final String message;
   final Color accentColor;
   final Color fillColor;
-  final SvgPicture icon;
+  final SVG icon;
   final Duration duration;
 
   _ToastItem({
@@ -43,46 +43,46 @@ class AppToast {
 
     Color accentColor;
     Color fillColor;
-    SvgPicture icon;
+    SVG icon;
     switch (type) {
       case ToastType.success:
         accentColor = const Color(0xFF1EA756); // Green
         fillColor = const Color(0xFFE3F8EB); // Light green
-        icon = SvgPicture.asset(
+        icon = const SVG(
           'assets/icons/square-check.svg',
           width: 24,
           height: 24,
-          colorFilter: const ColorFilter.mode(Color(0xFF1EA756), BlendMode.srcIn),
+          color: Color(0xFF1EA756),
         );
         break;
       case ToastType.error:
         accentColor = const Color(0xFFE02424); // Red
         fillColor = const Color(0xFFFDE8E8); // Light red
-        icon = SvgPicture.asset(
+        icon = const SVG(
           'assets/icons/square-cancel.svg',
           width: 24,
           height: 24,
-          colorFilter: const ColorFilter.mode(Color(0xFFE02424), BlendMode.srcIn),
+          color: Color(0xFFE02424),
         );
         break;
       case ToastType.warning:
         accentColor = const Color(0xFFD97706); // Orange
         fillColor = const Color(0xFFFEF3C7); // Light orange/yellow
-        icon = SvgPicture.asset(
+        icon = const SVG(
           'assets/icons/square-warning.svg',
           width: 24,
           height: 24,
-          colorFilter: const ColorFilter.mode(Color(0xFFD97706), BlendMode.srcIn),
+          color: Color(0xFFD97706),
         );
         break;
       case ToastType.info:
         accentColor = const Color(0xFF2563EB); // Blue
         fillColor = const Color(0xFFE1EFFE); // Light blue
-        icon = SvgPicture.asset(
+        icon = const SVG(
           'assets/icons/square-info.svg',
           width: 24,
           height: 24,
-          colorFilter: const ColorFilter.mode(Color(0xFF2563EB), BlendMode.srcIn),
+          color: Color(0xFF2563EB),
         );
         break;
     }

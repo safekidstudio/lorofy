@@ -28,6 +28,8 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_svg: ^2.0.10+1
   pinput: ^6.0.2
+  image_picker: ^1.1.2
+  rive: ^0.13.0
 
 dev_dependencies:
   build_runner: ^2.4.11
@@ -49,6 +51,7 @@ flutter:
     - assets/images/
     - assets/illustrations/
     - assets/icons/
+    - assets/river/
 
   fonts:
     - family: Fredoka

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:lorofy/core/storage/auth_storage.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -52,9 +53,29 @@ class Auth extends _$Auth {
     try {
       final token = await _authStorage.getAccessToken();
       if (token != null) {
-        state = AuthStatus(state: AuthState.authenticated, accessToken: token);
+        final cachedIsOnboarded = await _authStorage.getIsOnboarded();
+        final cachedDisplayName = await _authStorage.getDisplayName();
 
+        if (cachedIsOnboarded != null) {
+          // Optimistic: instantly login with cached data for instant feed/homepage
+          state = AuthStatus(
+            state: AuthState.authenticated,
+            accessToken: token,
+            isOnboarded: cachedIsOnboarded,
+            displayName: cachedDisplayName,
+          );
+        }
+
+        // Fetch fresh profile in the background
         final profile = await ref.read(authRepositoryProvider).getMe();
+        
+        // Cache the fresh profile
+        await _authStorage.saveProfileCache(
+          isOnboarded: profile.isOnboarded,
+          displayName: profile.displayName,
+        );
+
+        // Update RAM state with fresh details
         state = AuthStatus(
           state: AuthState.authenticated,
           accessToken: token,
@@ -65,8 +86,15 @@ class Auth extends _$Auth {
         state = AuthStatus(state: AuthState.unauthenticated);
       }
     } catch (e) {
-      // Nếu có lỗi (ví dụ không hỗ trợ secure storage trên web Chrome), fallback về unauthenticated
-      state = AuthStatus(state: AuthState.unauthenticated);
+      // If error is 401 Unauthorized, token is invalid -> logout
+      // Otherwise (offline/network errors), keep the cached session!
+      final isAuthError = e is DioException && e.response?.statusCode == 401;
+      if (isAuthError) {
+        await logout();
+      } else if (state.state == AuthState.initial) {
+        // If we are offline and have no cache (e.g. initial launch offline), fallback to unauthenticated
+        state = AuthStatus(state: AuthState.unauthenticated);
+      }
     }
   }
 
@@ -81,6 +109,11 @@ class Auth extends _$Auth {
     await _authStorage.saveTokens(
       accessToken: accessToken,
       refreshToken: refreshToken,
+    );
+    // Cache the profile details
+    await _authStorage.saveProfileCache(
+      isOnboarded: isOnboarded,
+      displayName: displayName,
     );
     // Update RAM and change state
     state = AuthStatus(
@@ -104,6 +137,10 @@ class Auth extends _$Auth {
     required bool onboarded,
     required String displayName,
   }) {
+    _authStorage.saveProfileCache(
+      isOnboarded: onboarded,
+      displayName: displayName,
+    );
     state = state.copyWith(isOnboarded: onboarded, displayName: displayName);
   }
 }

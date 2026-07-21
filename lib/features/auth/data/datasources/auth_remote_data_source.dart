@@ -67,6 +67,7 @@ class AuthRemoteDataSource {
     required String displayName,
     required String countryCode,
     required String timezone,
+    String? avatarAssetId,
   }) async {
     final response = await _dio.put(
       '/profiles/onboard',
@@ -74,6 +75,7 @@ class AuthRemoteDataSource {
         'displayName': displayName,
         'countryCode': countryCode,
         'timezone': timezone,
+        'avatarAssetId': ?avatarAssetId,
       },
       options: ApiOptions.protected,
     );

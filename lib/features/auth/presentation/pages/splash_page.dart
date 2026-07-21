@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/components/ui/loader.dart';
+import 'package:lorofy/components/ui/logo.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
@@ -7,49 +8,37 @@ class SplashPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      // 1. Set background sang màu Primary
-      backgroundColor: AppColors.primary,
+      backgroundColor: const Color(0xFFF9F9FB), // Matches the new onboarding light premium background
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Spacer(), // Đẩy phần trung tâm xuống giữa màn hình
-            // 2. Logo & Tên ở chính giữa
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'assets/logos/lorofy.png',
-                  width: 96,
-                  height: 96,
-                  errorBuilder: (_, __, ___) => const Icon(
-                    CupertinoIcons.circle_grid_hex,
-                    color: CupertinoColors.white,
-                    size: 96,
+            const Spacer(), // Pushes the center group to the middle
+            // Animated Logo & App Title
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOut,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.scale(
+                    scale: 0.9 + (value * 0.1), // Subtle scale-up from 0.9x to 1.0x
+                    child: child,
                   ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'lorofy',
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    color: CupertinoColors.white,
-                    letterSpacing: -1.5,
-                  ),
-                ),
-              ],
+                );
+              },
+              child: const Logo(fontSize: 54),
             ),
-
-            const Spacer(), // Đẩy phần loading xuống góc dưới một chút cho cân bằng
-            // 3. Loader màu trắng nổi bật
-            const CupertinoActivityIndicator(
-              color: CupertinoColors.white,
-              radius: 12, // Tăng kích thước spinner lên một chút cho dễ nhìn
+            const Spacer(), // Pushes the loader towards the bottom area
+            // Rotating brand SVG loader component
+            const Loader(
+              size: 24,
+              color: Color(0xFF232321),
             ),
             const SizedBox(
               height: 60,
-            ), // Khoảng cách an toàn với cạnh dưới màn hình
+            ), // Safe area distance from bottom edge
           ],
         ),
       ),

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 
 class TopBar extends StatelessWidget {
   final VoidCallback? onBackPressed;
@@ -20,7 +20,7 @@ class TopBar extends StatelessWidget {
             color: Color(0xFFE4E4E6),
             shape: BoxShape.circle,
           ),
-          child: SvgPicture.asset(
+          child: const SVG(
             'assets/icons/chevron-left.svg',
             width: 24,
             height: 24,

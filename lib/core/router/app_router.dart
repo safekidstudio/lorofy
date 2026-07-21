@@ -16,7 +16,7 @@ part 'app_router.g.dart';
 
 @riverpod
 GoRouter appRouter(Ref ref) {
-  final authStatus = ref.watch(authProvider);
+  ref.watch(authProvider);
 
   return GoRouter(
     initialLocation: '/splash', // Bắt đầu chạy từ màn hình Splash

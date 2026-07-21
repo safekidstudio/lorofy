@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 
 class SocialIconButton extends StatelessWidget {
   final String svgPath;
@@ -24,7 +24,7 @@ class SocialIconButton extends StatelessWidget {
           shape: BoxShape.circle,
         ),
         alignment: Alignment.center,
-        child: SvgPicture.asset(svgPath, width: 40, height: 40),
+        child: SVG(svgPath, width: 40, height: 40),
       ),
     );
   }
