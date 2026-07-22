@@ -4,8 +4,8 @@ class AppColors {
   // Background Color
   static const CupertinoDynamicColor background =
       CupertinoDynamicColor.withBrightness(
-        color: CupertinoColors.white,
-        darkColor: CupertinoColors.black,
+        color: Color(0xFFF6F6F6),
+        darkColor: Color(0xFFF6F6F6),
       );
 
   // Card Color
