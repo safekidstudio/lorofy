@@ -13,6 +13,7 @@ class ErrorInterceptor extends Interceptor {
       case DioExceptionType.connectionError:
         appException = NetworkException(
           "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.",
+          "NETWORK_ERROR",
         );
         break;
 
@@ -22,22 +23,27 @@ class ErrorInterceptor extends Interceptor {
 
         // Đọc thông báo lỗi tùy biến từ Spring Boot API trả về nếu có
         final serverMessage = (data is Map) ? data['message'] : null;
+        final codeString = statusCode?.toString();
 
         if (statusCode == 401) {
           appException = UnauthorizedException(
             serverMessage ?? "Phiên đăng nhập đã hết hạn.",
+            codeString,
           );
         } else if (statusCode == 400) {
           appException = BadRequestException(
             serverMessage ?? "Dữ liệu yêu cầu không hợp lệ.",
+            codeString,
           );
         } else if (statusCode != null && statusCode >= 500) {
           appException = ServerException(
             serverMessage ?? "Máy chủ đang gặp sự cố. Thử lại sau.",
+            codeString,
           );
         } else {
           appException = AppException(
             serverMessage ?? "Đã xảy ra lỗi không mong muốn.",
+            codeString,
           );
         }
         break;

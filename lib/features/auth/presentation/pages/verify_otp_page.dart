@@ -226,6 +226,6 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
     if (error.contains('invalid')) {
       return 'Incorrect code. Please try again.';
     }
-    return 'Verification failed. Please try again.';
+    return error;
   }
 }

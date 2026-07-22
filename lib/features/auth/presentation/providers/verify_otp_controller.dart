@@ -1,3 +1,4 @@
+import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -47,7 +48,7 @@ class VerifyOtpController extends _$VerifyOtpController {
           .verifyOtp(email, otpCode);
       state = state.copyWith(isLoading: false, signupToken: signupToken);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: e.errorMessage);
     }
   }
 
@@ -59,7 +60,7 @@ class VerifyOtpController extends _$VerifyOtpController {
       state = state.copyWith(isLoading: false);
       return null; // success
     } catch (e) {
-      final errorMsg = e.toString();
+      final errorMsg = e.errorMessage;
       state = state.copyWith(isLoading: false, error: errorMsg);
       return errorMsg;
     }

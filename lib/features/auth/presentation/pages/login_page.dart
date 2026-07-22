@@ -8,6 +8,7 @@ import 'package:lorofy/components/ui/top_bar.dart';
 import 'package:lorofy/components/ui/page_wrapper.dart';
 import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/core/errors/exceptions.dart';
 import '../providers/login_controller.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -46,7 +47,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         error: (error, _) {
           AppToast.show(
             context,
-            message: error.toString(),
+            message: error.errorMessage,
             type: ToastType.error,
           );
         },

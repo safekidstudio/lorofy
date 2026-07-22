@@ -5,6 +5,7 @@ import 'package:lorofy/components/ui/input.dart';
 import 'package:lorofy/components/ui/page_wrapper.dart';
 import 'package:lorofy/components/ui/top_bar.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/core/errors/exceptions.dart';
 import '../providers/create_password_controller.dart';
 
 class CreatePasswordPage extends ConsumerStatefulWidget {
@@ -237,14 +238,14 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
 
   String _parseError(Object? error) {
     if (error == null) return 'Something went wrong';
-    final msg = error.toString();
+    final msg = error.errorMessage;
     if (msg.contains('Signup token is invalid') || msg.contains('expired')) {
       return 'Session expired. Please restart the registration.';
     }
     if (msg.contains('already registered')) {
       return 'This email is already registered.';
     }
-    return 'Failed to create account. Please try again.';
+    return msg;
   }
 }
 

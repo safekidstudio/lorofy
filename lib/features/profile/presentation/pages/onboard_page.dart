@@ -11,6 +11,7 @@ import 'package:rive/rive.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/network/dio_client.dart';
+import 'package:lorofy/core/errors/exceptions.dart';
 import '../providers/onboard_controller.dart';
 
 class OnboardPage extends ConsumerStatefulWidget {
@@ -828,13 +829,13 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
   }
 
   String _parseError(Object error) {
-    final msg = error.toString();
+    final msg = error.errorMessage;
     if (msg.contains('Country code')) {
       return 'Invalid country selected.';
     }
     if (msg.contains('Display name')) {
       return 'Display name must be between 3 and 100 characters.';
     }
-    return 'Something went wrong. Please try again.';
+    return msg;
   }
 }

@@ -9,6 +9,7 @@ import 'package:lorofy/components/ui/top_bar.dart';
 import 'package:lorofy/components/ui/page_wrapper.dart';
 import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/core/errors/exceptions.dart';
 import '../providers/register_controller.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
@@ -129,7 +130,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   String _parseError(Object? error) {
     if (error == null) return 'Something went wrong';
-    final msg = error.toString();
+    final msg = error.errorMessage;
     if (msg.contains('already registered') || msg.contains('already exists')) {
       return 'This email is already registered';
     }
