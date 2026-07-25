@@ -1,0 +1,25 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Potted plant shadow -->
+  <ellipse cx="100" cy="175" rx="45" ry="4" fill="#EAEAEA" />
+
+  <!-- Stem -->
+  <path d="M100 150 V105" stroke="#232321" stroke-width="6" stroke-linecap="round" />
+  
+  <!-- Withered Leaf 1 (lower left) -->
+  <path d="M100 135 C80 135 75 145 90 148 Z" fill="#5F5F5F" stroke="#232321" stroke-width="5" stroke-linejoin="round" />
+  <!-- Withered Leaf 1 (lower right) -->
+  <path d="M100 125 C120 125 125 135 110 138 Z" fill="#5F5F5F" stroke="#232321" stroke-width="5" stroke-linejoin="round" />
+  
+  <!-- Withered Leaf 2 (upper left) -->
+  <path d="M100 120 C80 120 75 128 92 130 Z" fill="#5F5F5F" stroke="#232321" stroke-width="5" stroke-linejoin="round" />
+  <!-- Withered Leaf 2 (upper right) -->
+  <path d="M100 112 C120 112 125 120 108 122 Z" fill="#5F5F5F" stroke="#232321" stroke-width="5" stroke-linejoin="round" />
+  
+  <!-- Top Leaf (drooping) -->
+  <path d="M100 105 C90 90 80 95 92 110 Z" fill="#5F5F5F" stroke="#232321" stroke-width="5" stroke-linejoin="round" />
+
+  <!-- Black Pot -->
+  <g stroke="#232321" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M72 135 C70 115 130 115 128 135 C132 165 68 165 72 135 Z" fill="#232321" />
+  </g>
+</svg>

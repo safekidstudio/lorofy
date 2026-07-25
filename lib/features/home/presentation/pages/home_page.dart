@@ -168,7 +168,6 @@ class _HomePageState extends ConsumerState<HomePage>
                 QuickStartPage(
                   pageOffset: pageOffset,
                   pageValue: pageValue,
-                  onSettingsPressed: _showSettings,
                   onFocusStateChanged: (isLocked) {
                     setState(() {
                       _isFocusLocked = isLocked;
