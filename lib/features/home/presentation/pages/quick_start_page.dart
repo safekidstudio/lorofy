@@ -9,21 +9,20 @@ import 'package:lorofy/features/home/domain/pomodoro_state.dart';
 import 'package:lorofy/features/home/presentation/providers/pomodoro_notifier.dart';
 import 'package:lorofy/features/home/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/home/presentation/pages/pomodoro_settings_page.dart';
+import 'package:lorofy/features/home/presentation/pages/pomodoro_complete_page.dart';
+import 'package:lorofy/features/home/presentation/pages/pomodoro_giveup_page.dart';
 import 'package:lorofy/features/home/presentation/widgets/pomodoro_action_buttons.dart';
 import 'package:lorofy/features/home/presentation/widgets/pomodoro_giveup_confirmation_sheet.dart';
 import 'package:lorofy/features/home/presentation/widgets/pomodoro_plant_graphic.dart';
 import 'package:lorofy/features/home/presentation/widgets/pomodoro_timer_display.dart';
-import 'package:rive/rive.dart' hide LinearGradient, Image;
 
 class QuickStartPage extends ConsumerWidget {
-  final double pageOffset;
-  final double pageValue;
+  final PageController pageController;
   final ValueChanged<bool> onFocusStateChanged;
 
   const QuickStartPage({
     super.key,
-    required this.pageOffset,
-    required this.pageValue,
+    required this.pageController,
     required this.onFocusStateChanged,
   });
 
@@ -115,8 +114,6 @@ class QuickStartPage extends ConsumerWidget {
     final notifier = ref.read(pomodoroTimerProvider.notifier);
     final phase = timerState.phase;
 
-    final double opacity = (1.0 - pageValue * 2.5).clamp(0.0, 1.0);
-
     final int displaySeconds = (phase == PomodoroState.focus || phase == PomodoroState.breakTime)
         ? timerState.countdownSeconds
         : settings.focusMinutes * 60;
@@ -131,104 +128,171 @@ class QuickStartPage extends ConsumerWidget {
       onFocusStateChanged(next != PomodoroState.idle);
     });
 
-    return Opacity(
-      opacity: opacity,
-      child: Stack(
-        children: [
-          // ── Confetti background (completed state only) ──
-          Positioned.fill(
-            child: IgnorePointer(
-              child: AnimatedOpacity(
-                opacity: phase == PomodoroState.completed ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 400),
-                curve: Curves.easeInOut,
-                child: phase == PomodoroState.completed
-                    ? const RiveAnimation.asset('assets/river/confetti.riv', fit: BoxFit.cover)
-                    : const SizedBox.shrink(),
-              ),
-            ),
-          ),
+    Widget currentScreen;
+    if (phase == PomodoroState.completed) {
+      currentScreen = PomodoroCompletePage(
+        key: const ValueKey('completed_page'),
+        onBackToHome: onReset,
+        onHaveARest: onReset,
+      );
+    } else if (phase == PomodoroState.giveup) {
+      currentScreen = PomodoroGiveupPage(
+        key: const ValueKey('giveup_page'),
+        onBackToHome: onReset,
+        onRestart: () {
+          notifier.restartFocus();
+          onFocusStateChanged(true);
+        },
+      );
+    } else {
+      currentScreen = SafeArea(
+        key: const ValueKey('active_page'),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 16),
 
-          // ── Main layout ──
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 16),
+              // Header
+              _buildHeader(context, ref, phase, onReset),
 
-                  // Header
-                  _buildHeader(context, ref, phase, onReset),
-
-                  // Plant + timer + buttons — all centered as one block
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Plant graphic (self-manages Rive state)
-                          PomodoroPlantGraphic(
-                            pomodoroState: phase,
-                            growthRatio: timerState.progressRatio,
-                            parallaxOffset: pageOffset,
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // Timer / description text
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: PomodoroTimerDisplay(
-                              key: ValueKey(phase),
-                              pomodoroState: phase,
-                              displaySeconds: displaySeconds,
-                              currentRound: timerState.currentRound,
-                              targetRounds: settings.targetRounds,
-                              isLongBreak: timerState.isLongBreak,
-                            ),
-                          ),
-
-                          const SizedBox(height: 32),
-
-                          // Action buttons
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: PomodoroActionButtons(
-                              key: ValueKey(phase),
-                              pomodoroState: phase,
-                              onStart: () {
-                                notifier.startFocus(settings.focusMinutes);
-                                onFocusStateChanged(true);
-                              },
-                              onGiveUp: () => _handleGiveUp(context, ref),
-                              onSkip: () {
-                                notifier.skipBreak();
-                                AppToast.show(
-                                  context,
-                                  message: 'Break skipped! Starting next round... 🌿',
-                                  type: ToastType.info,
-                                );
-                              },
-                              onRest: onReset,
-                              onRestart: () {
-                                notifier.restartFocus();
-                                onFocusStateChanged(true);
-                              },
-                              onHome: onReset,
-                            ),
-                          ),
-                        ],
+              // Plant + timer + buttons — all centered as one block
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Plant graphic (self-manages Rive state)
+                      PomodoroPlantGraphic(
+                        pomodoroState: phase,
+                        growthRatio: timerState.progressRatio,
+                        pageController: pageController,
                       ),
-                    ),
-                  ),
 
-                  const SizedBox(height: 80), // space for "swipe to explore"
-                ],
+                      const SizedBox(height: 24),
+
+                      // Timer / description text
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 400),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0.0, 0.15),
+                                end: Offset.zero,
+                              ).animate(
+                                CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOutBack,
+                                ),
+                              ),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: PomodoroTimerDisplay(
+                          key: ValueKey(phase),
+                          pomodoroState: phase,
+                          displaySeconds: displaySeconds,
+                          currentRound: timerState.currentRound,
+                          targetRounds: settings.targetRounds,
+                          isLongBreak: timerState.isLongBreak,
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Action buttons
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 400),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: ScaleTransition(
+                              scale: Tween<double>(begin: 0.9, end: 1.0).animate(
+                                CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOutBack,
+                                ),
+                              ),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: PomodoroActionButtons(
+                          key: ValueKey(phase),
+                          pomodoroState: phase,
+                          onStart: () {
+                            notifier.startFocus(settings.focusMinutes);
+                            onFocusStateChanged(true);
+                          },
+                          onGiveUp: () => _handleGiveUp(context, ref),
+                          onSkip: () {
+                            notifier.skipBreak();
+                            AppToast.show(
+                              context,
+                              message: 'Break skipped! Starting next round... 🌿',
+                              type: ToastType.info,
+                            );
+                          },
+                          onRest: onReset,
+                          onRestart: () {
+                            notifier.restartFocus();
+                            onFocusStateChanged(true);
+                          },
+                          onHome: onReset,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 80), // space for "swipe to explore"
+            ],
+          ),
+        ),
+      );
+    }
+
+    return AnimatedBuilder(
+      animation: pageController,
+      builder: (context, child) {
+        final double pageValue = pageController.hasClients ? (pageController.page ?? 0.0) : 0.0;
+        final double opacity = (1.0 - pageValue * 2.5).clamp(0.0, 1.0);
+
+        return Opacity(
+          opacity: opacity,
+          child: child,
+        );
+      },
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final curveAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.98, end: 1.0).animate(curveAnimation),
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.0, 0.03),
+                  end: Offset.zero,
+                ).animate(curveAnimation),
+                child: child,
               ),
             ),
-          ),
-        ],
+          );
+        },
+        child: currentScreen,
       ),
     );
   }

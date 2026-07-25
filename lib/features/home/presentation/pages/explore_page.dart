@@ -6,16 +6,14 @@ import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
 class ExplorePage extends ConsumerStatefulWidget {
-  final double pageOffset;
-  final double pageValue;
+  final PageController pageController;
   final double screenHeight;
   final VoidCallback onBackTap;
   final VoidCallback onSettingsTap;
 
   const ExplorePage({
     super.key,
-    required this.pageOffset,
-    required this.pageValue,
+    required this.pageController,
     required this.screenHeight,
     required this.onBackTap,
     required this.onSettingsTap,
@@ -30,18 +28,28 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
 
   @override
   Widget build(BuildContext context) {
-    final double opacity = ((widget.pageValue - 0.2) * 1.25).clamp(0.0, 1.0);
-    final double contentOffset =
-        (1.0 - widget.pageValue) * widget.screenHeight * 0.25;
+    return AnimatedBuilder(
+      animation: widget.pageController,
+      builder: (context, child) {
+        final double pageValue = widget.pageController.hasClients
+            ? widget.pageController.page ?? 0.0
+            : 0.0;
+        final double opacity = ((pageValue - 0.2) * 1.25).clamp(0.0, 1.0);
+        final double contentOffset =
+            (1.0 - pageValue) * widget.screenHeight * 0.25;
 
-    return Opacity(
-      opacity: opacity,
-      child: Transform.translate(
-        offset: Offset(0, contentOffset),
-        child: Stack(
-          children: [
-            // Scrollable content area
-            Positioned.fill(
+        return Opacity(
+          opacity: opacity,
+          child: Transform.translate(
+            offset: Offset(0, contentOffset),
+            child: child,
+          ),
+        );
+      },
+      child: Stack(
+        children: [
+          // Scrollable content area
+          Positioned.fill(
               child: NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification notification) {
                   return true; // Stop scroll notifications from bubbling to PageView
@@ -606,8 +614,7 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildPodiumUser({

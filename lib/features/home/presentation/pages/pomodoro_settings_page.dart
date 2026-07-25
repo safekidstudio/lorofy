@@ -154,56 +154,62 @@ class _PomodoroSettingsPageState extends ConsumerState<PomodoroSettingsPage> {
                       ),
                       child: Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildSoundCircle(
-                                sound: AmbientSound.none,
-                                icon: CupertinoIcons.clear,
-                                isNone: true,
-                              ),
-                              _buildSoundCircle(
-                                sound: AmbientSound.wind,
-                                icon: CupertinoIcons.wind,
-                                isNone: false,
-                              ),
-                              _buildSoundCircle(
-                                sound: AmbientSound.beach,
-                                icon: CupertinoIcons.umbrella,
-                                isNone: false,
-                              ),
-                              _buildSoundCircle(
-                                sound: AmbientSound.nature,
-                                icon: CupertinoIcons.tree,
-                                isNone: false,
-                              ),
-                            ],
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildSoundCircle(
+                                  sound: AmbientSound.none,
+                                  icon: CupertinoIcons.clear,
+                                  isNone: true,
+                                ),
+                                _buildSoundCircle(
+                                  sound: AmbientSound.wind,
+                                  icon: CupertinoIcons.wind,
+                                  isNone: false,
+                                ),
+                                _buildSoundCircle(
+                                  sound: AmbientSound.beach,
+                                  icon: CupertinoIcons.umbrella,
+                                  isNone: false,
+                                ),
+                                _buildSoundCircle(
+                                  sound: AmbientSound.nature,
+                                  icon: CupertinoIcons.tree,
+                                  isNone: false,
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildSoundCircle(
-                                sound: AmbientSound.books,
-                                icon: CupertinoIcons.book,
-                                isNone: false,
-                              ),
-                              _buildSoundCircle(
-                                sound: AmbientSound.fire,
-                                icon: CupertinoIcons.flame,
-                                isNone: false,
-                              ),
-                              _buildSoundCircle(
-                                sound: AmbientSound.rain,
-                                icon: CupertinoIcons.cloud_rain,
-                                isNone: false,
-                              ),
-                              _buildSoundCircle(
-                                sound: AmbientSound.cafe,
-                                icon: CupertinoIcons.smoke,
-                                isNone: false,
-                              ),
-                            ],
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildSoundCircle(
+                                  sound: AmbientSound.books,
+                                  icon: CupertinoIcons.book,
+                                  isNone: false,
+                                ),
+                                _buildSoundCircle(
+                                  sound: AmbientSound.fire,
+                                  icon: CupertinoIcons.flame,
+                                  isNone: false,
+                                ),
+                                _buildSoundCircle(
+                                  sound: AmbientSound.rain,
+                                  icon: CupertinoIcons.cloud_rain,
+                                  isNone: false,
+                                ),
+                                _buildSoundCircle(
+                                  sound: AmbientSound.cafe,
+                                  icon: CupertinoIcons.smoke,
+                                  isNone: false,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),

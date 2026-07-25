@@ -25,9 +25,6 @@ class _HomePageState extends ConsumerState<HomePage>
   void initState() {
     super.initState();
     _pageController = PageController();
-    _pageController.addListener(() {
-      setState(() {});
-    });
 
     _bounceController = AnimationController(
       duration: const Duration(milliseconds: 1000),
@@ -145,12 +142,6 @@ class _HomePageState extends ConsumerState<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    final double pageOffset = _pageController.hasClients
-        ? _pageController.offset
-        : 0;
-    final double pageValue = _pageController.hasClients
-        ? _pageController.page ?? 0
-        : 0;
     final double screenHeight = MediaQuery.of(context).size.height;
 
     return CupertinoPageScaffold(
@@ -166,8 +157,7 @@ class _HomePageState extends ConsumerState<HomePage>
                   : const BouncingScrollPhysics(),
               children: [
                 QuickStartPage(
-                  pageOffset: pageOffset,
-                  pageValue: pageValue,
+                  pageController: _pageController,
                   onFocusStateChanged: (isLocked) {
                     setState(() {
                       _isFocusLocked = isLocked;
@@ -175,8 +165,7 @@ class _HomePageState extends ConsumerState<HomePage>
                   },
                 ),
                 ExplorePage(
-                  pageOffset: pageOffset,
-                  pageValue: pageValue,
+                  pageController: _pageController,
                   screenHeight: screenHeight,
                   onBackTap: () {
                     _pageController.animateToPage(
@@ -190,38 +179,54 @@ class _HomePageState extends ConsumerState<HomePage>
               ],
             ),
             // Bottom "swipe to explore" nudge (hidden when focused/locked)
-            if (pageValue < 0.05 && !_isFocusLocked)
+            if (!_isFocusLocked)
               Positioned(
                 bottom: 16,
                 left: 0,
                 right: 0,
-                child: Column(
-                  children: [
-                    AnimatedBuilder(
-                      animation: _bounceController,
-                      builder: (context, child) {
-                        return Transform.translate(
-                          offset: Offset(0, _bounceAnimation.value),
-                          child: child,
-                        );
-                      },
-                      child: const Icon(
-                        CupertinoIcons.chevron_compact_up,
-                        color: Color(0xFF8E8E93),
-                        size: 24,
+                child: AnimatedBuilder(
+                  animation: _pageController,
+                  builder: (context, child) {
+                    final double pageValue = _pageController.hasClients
+                        ? _pageController.page ?? 0.0
+                        : 0.0;
+                    final double nudgeOpacity = (1.0 - pageValue * 20.0).clamp(0.0, 1.0);
+                    if (nudgeOpacity <= 0) {
+                      return const SizedBox.shrink();
+                    }
+                    return Opacity(
+                      opacity: nudgeOpacity,
+                      child: child,
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      AnimatedBuilder(
+                        animation: _bounceController,
+                        builder: (context, child) {
+                          return Transform.translate(
+                            offset: Offset(0, _bounceAnimation.value),
+                            child: child,
+                          );
+                        },
+                        child: const Icon(
+                          CupertinoIcons.chevron_compact_up,
+                          color: Color(0xFF8E8E93),
+                          size: 24,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'swipe to explore',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF8E8E93),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'swipe to explore',
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF8E8E93),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
           ],

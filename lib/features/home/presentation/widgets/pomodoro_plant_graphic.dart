@@ -16,14 +16,14 @@ class PomodoroPlantGraphic extends StatefulWidget {
   /// [0.0, 1.0] — how much the plant has grown. Mapped to the Rive input.
   final double growthRatio;
 
-  /// Parallax offset applied as a vertical translation.
-  final double parallaxOffset;
+  /// PageController to handle smooth parallax scroll.
+  final PageController pageController;
 
   const PomodoroPlantGraphic({
     super.key,
     required this.pomodoroState,
     required this.growthRatio,
-    this.parallaxOffset = 0,
+    required this.pageController,
   });
 
   @override
@@ -46,18 +46,18 @@ class _PomodoroPlantGraphicState extends State<PomodoroPlantGraphic> {
           _growthInput = input;
         }
       }
-      _applyGrowth();
+      _applyGrowth(widget.growthRatio);
       setState(() => _isRiveInitialized = true);
     }
   }
 
-  void _applyGrowth() {
+  void _applyGrowth(double ratio) {
     if (_growthInput == null) return;
     final phase = widget.pomodoroState;
     if (phase == PomodoroState.breakTime || phase == PomodoroState.completed) {
       _growthInput!.value = 100.0;
     } else if (phase == PomodoroState.focus) {
-      _growthInput!.value = 20.0 + widget.growthRatio * 80.0;
+      _growthInput!.value = 20.0 + ratio * 80.0;
     } else {
       _growthInput!.value = 20.0;
     }
@@ -66,9 +66,8 @@ class _PomodoroPlantGraphicState extends State<PomodoroPlantGraphic> {
   @override
   void didUpdateWidget(PomodoroPlantGraphic oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.growthRatio != widget.growthRatio ||
-        oldWidget.pomodoroState != widget.pomodoroState) {
-      _applyGrowth();
+    if (oldWidget.pomodoroState != widget.pomodoroState) {
+      _applyGrowth(widget.growthRatio);
     }
   }
 
@@ -79,8 +78,17 @@ class _PomodoroPlantGraphicState extends State<PomodoroPlantGraphic> {
         phase != PomodoroState.completed &&
         phase != PomodoroState.giveup;
 
-    return Transform.translate(
-      offset: Offset(0, -widget.parallaxOffset * 0.35),
+    return AnimatedBuilder(
+      animation: widget.pageController,
+      builder: (context, child) {
+        final double offset = widget.pageController.hasClients
+            ? widget.pageController.offset
+            : 0.0;
+        return Transform.translate(
+          offset: Offset(0, -offset * 0.35),
+          child: child,
+        );
+      },
       child: SizedBox(
         width: 220,
         height: 220,
@@ -88,14 +96,23 @@ class _PomodoroPlantGraphicState extends State<PomodoroPlantGraphic> {
           alignment: Alignment.center,
           children: [
             // A. Rive grow-plant
-            AnimatedOpacity(
-              opacity: showRive ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-              child: RiveAnimation.asset(
-                'assets/river/grow-plant.riv',
-                stateMachines: const ['State Machine 1'],
-                onInit: _onRiveInit,
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: widget.growthRatio, end: widget.growthRatio),
+              duration: const Duration(seconds: 1),
+              curve: Curves.linear,
+              builder: (context, animatedRatio, child) {
+                _applyGrowth(animatedRatio);
+                return child!;
+              },
+              child: AnimatedOpacity(
+                opacity: showRive ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                child: RiveAnimation.asset(
+                  'assets/river/grow-plant.riv',
+                  stateMachines: const ['State Machine 1'],
+                  onInit: _onRiveInit,
+                ),
               ),
             ),
             // B. Success checkmark
