@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/otp_input.dart';
-import 'package:lorofy/components/ui/page_wrapper.dart';
-import 'package:lorofy/components/ui/top_bar.dart';
+import 'package:lorofy/components/layout/page_wrapper.dart';
+import 'package:lorofy/components/layout/top_bar.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import '../providers/verify_otp_controller.dart';
 

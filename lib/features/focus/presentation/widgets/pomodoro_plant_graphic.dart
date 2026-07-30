@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:lorofy/features/home/domain/pomodoro_state.dart';
+import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:rive/rive.dart' hide LinearGradient, Image;
 

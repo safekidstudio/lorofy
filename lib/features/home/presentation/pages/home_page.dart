@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lorofy/components/ui/app_avatar.dart';
-import 'package:lorofy/components/ui/toast.dart';
-import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/features/home/presentation/pages/quick_start_page.dart';
-import 'package:lorofy/features/home/presentation/pages/explore_page.dart';
+import 'package:lorofy/features/focus/presentation/pages/quick_start_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -15,168 +13,123 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage>
-    with SingleTickerProviderStateMixin {
-  late final PageController _pageController;
+    with TickerProviderStateMixin {
   late final AnimationController _bounceController;
-  late final Animation<double> _bounceAnimation;
+  late final Animation<Offset> _slideAnimation;
+  
+  // Animation controller for drag feedback
+  late final AnimationController _dragController;
+  
   bool _isFocusLocked = false;
+  double _dragStartY = 0.0;
+  bool _isDragging = false;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
 
     _bounceController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1600),
       vsync: this,
     )..repeat(reverse: true);
 
-    _bounceAnimation = Tween<double>(begin: 0.0, end: 8.0).animate(
-      CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
+    _slideAnimation =
+        Tween<Offset>(
+          begin: Offset.zero,
+          end: const Offset(0.0, -0.15),
+        ).animate(
+          CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
+        );
+
+    _dragController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
     );
   }
 
   @override
   void dispose() {
-    _pageController.dispose();
     _bounceController.dispose();
+    _dragController.dispose();
     super.dispose();
   }
 
-  void _showSettings() {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: const Text(
-          'Settings',
-          style: TextStyle(
-            fontFamily: AppTextStyles.titleFontFamily,
-            fontSize: 24,
-            color: Color(0xFF232321),
-          ),
-        ),
-        message: Column(
-          children: [
-            const SizedBox(height: 8),
-            Consumer(
-              builder: (context, ref, child) {
-                final authStatus = ref.watch(authProvider);
-                final name = authStatus.displayName ?? 'User';
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const AppAvatar(path: null, size: 64),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontFamily: AppTextStyles.fontFamily,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF232321),
-                          ),
-                        ),
-                        const Text(
-                          'Lorofy Focus Champion',
-                          style: TextStyle(
-                            fontFamily: AppTextStyles.fontFamily,
-                            fontSize: 13,
-                            color: Color(0xFF8E8E93),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.pop(context);
-              AppToast.show(
-                context,
-                message: 'Feature coming soon in the next release!',
-                type: ToastType.info,
-              );
-            },
-            child: const Text(
-              'Edit Profile',
-              style: TextStyle(
-                fontFamily: AppTextStyles.fontFamily,
-                color: Color(0xFF232321),
-              ),
-            ),
-          ),
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(authProvider.notifier).logout();
-            },
-            child: const Text(
-              'Logout',
-              style: TextStyle(fontFamily: AppTextStyles.fontFamily),
-            ),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            'Close',
-            style: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              color: Color(0xFF8E8E93),
-            ),
-          ),
-        ),
-      ),
-    );
+  void _onDragStart(DragStartDetails details) {
+    if (_isFocusLocked) return;
+    _dragStartY = details.globalPosition.dy;
+    _isDragging = true;
+    _bounceController.stop(); // Pause bounce animation during user interaction
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    if (!_isDragging) return;
+    final double currentY = details.globalPosition.dy;
+    final double deltaY = currentY - _dragStartY;
+
+    // Only allow dragging upwards (negative deltaY)
+    if (deltaY < 0) {
+      // Max drag height is 150.0 pixels
+      final double progress = (deltaY.abs() / 150.0).clamp(0.0, 1.0);
+      _dragController.value = progress;
+    } else {
+      _dragController.value = 0.0;
+    }
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    if (!_isDragging) return;
+    _isDragging = false;
+
+    final double velocity = details.primaryVelocity ?? 0.0;
+    final double progress = _dragController.value;
+
+    // Trigger transition if dragged more than 50% or swiped up fast
+    if (progress > 0.5 || velocity < -300) {
+      context.push('/explore');
+      _dragController.value = 0.0; // Reset offset for when they return
+      _bounceController.repeat(reverse: true);
+    } else {
+      // Spring back to original position
+      _dragController.animateTo(0.0, curve: Curves.easeOutBack).then((_) {
+        if (mounted && !_isDragging) {
+          _bounceController.repeat(reverse: true);
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
       child: SafeArea(
         child: Stack(
           children: [
-            PageView(
-              controller: _pageController,
-              scrollDirection: Axis.vertical,
-              physics: _isFocusLocked
-                  ? const NeverScrollableScrollPhysics()
-                  : const BouncingScrollPhysics(),
-              children: [
-                QuickStartPage(
-                  pageController: _pageController,
-                  onFocusStateChanged: (isLocked) {
-                    setState(() {
-                      _isFocusLocked = isLocked;
-                    });
-                  },
-                ),
-                ExplorePage(
-                  pageController: _pageController,
-                  screenHeight: screenHeight,
-                  onBackTap: () {
-                    _pageController.animateToPage(
-                      0,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeOutCubic,
-                    );
-                  },
-                  onSettingsTap: _showSettings,
-                ),
-              ],
+            AnimatedBuilder(
+              animation: _dragController,
+              builder: (context, child) {
+                final double scale = 1.0 - _dragController.value * 0.04;
+                final double opacity = (1.0 - _dragController.value * 0.5).clamp(0.0, 1.0);
+                final double translationY = _dragController.value * -30.0;
+
+                return Transform.translate(
+                  offset: Offset(0, translationY),
+                  child: Transform.scale(
+                    scale: scale,
+                    child: Opacity(
+                      opacity: opacity,
+                      child: child,
+                    ),
+                  ),
+                );
+              },
+              child: QuickStartPage(
+                onFocusStateChanged: (isLocked) {
+                  setState(() {
+                    _isFocusLocked = isLocked;
+                  });
+                },
+              ),
             ),
             // Bottom "swipe to explore" nudge (hidden when focused/locked)
             if (!_isFocusLocked)
@@ -185,47 +138,52 @@ class _HomePageState extends ConsumerState<HomePage>
                 left: 0,
                 right: 0,
                 child: AnimatedBuilder(
-                  animation: _pageController,
+                  animation: _dragController,
                   builder: (context, child) {
-                    final double pageValue = _pageController.hasClients
-                        ? _pageController.page ?? 0.0
-                        : 0.0;
-                    final double nudgeOpacity = (1.0 - pageValue * 20.0).clamp(0.0, 1.0);
-                    if (nudgeOpacity <= 0) {
-                      return const SizedBox.shrink();
-                    }
-                    return Opacity(
-                      opacity: nudgeOpacity,
-                      child: child,
+                    final double translationY = _dragController.value * -100.0;
+                    final double opacity = (1.0 - _dragController.value).clamp(0.0, 1.0);
+
+                    return Transform.translate(
+                      offset: Offset(0, translationY),
+                      child: Opacity(
+                        opacity: opacity,
+                        child: child,
+                      ),
                     );
                   },
-                  child: Column(
-                    children: [
-                      AnimatedBuilder(
-                        animation: _bounceController,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(0, _bounceAnimation.value),
-                            child: child,
-                          );
-                        },
-                        child: const Icon(
-                          CupertinoIcons.chevron_compact_up,
-                          color: Color(0xFF8E8E93),
-                          size: 24,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onVerticalDragStart: _onDragStart,
+                    onVerticalDragUpdate: _onDragUpdate,
+                    onVerticalDragEnd: _onDragEnd,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: const RepaintBoundary(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20), // Enlarged hit area
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SVG(
+                                'assets/icons/arrows-up.svg',
+                                width: 20,
+                                height: 20,
+                              ),
+                              SizedBox(width: 6),
+                              Text(
+                                'swipe to explore',
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.titleFontFamily,
+                                  fontSize: 16,
+                                  color: AppColors.secondary,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'swipe to explore',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF8E8E93),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),

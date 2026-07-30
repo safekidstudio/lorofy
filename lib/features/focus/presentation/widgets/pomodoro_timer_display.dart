@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/features/home/domain/pomodoro_state.dart';
+import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 
 /// Displays the description text and countdown timer appropriate for the
 /// current [pomodoroState].

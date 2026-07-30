@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lorofy/components/ui/button.dart';
-import 'package:lorofy/features/home/domain/pomodoro_state.dart';
+import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 
 /// Renders the correct action button group for the current [pomodoroState].
 class PomodoroActionButtons extends StatelessWidget {
@@ -29,41 +29,29 @@ class PomodoroActionButtons extends StatelessWidget {
       case PomodoroState.idle:
         return SizedBox(
           key: const ValueKey('idle_btn'),
-          width: 180,
-          child: Button.primary(
-            text: 'Start',
-            onPressed: onStart,
-          ),
+          width: 146,
+          child: Button.primary(text: 'Start', onPressed: onStart),
         );
 
       case PomodoroState.focus:
         return SizedBox(
           key: const ValueKey('focus_btn'),
-          width: 180,
-          child: Button.secondary(
-            text: 'Give up',
-            onPressed: onGiveUp,
-          ),
+          width: 146,
+          child: Button.secondary(text: 'Give up', onPressed: onGiveUp),
         );
 
       case PomodoroState.breakTime:
         return SizedBox(
           key: const ValueKey('break_btn'),
-          width: 180,
-          child: Button.secondary(
-            text: 'Skip',
-            onPressed: onSkip,
-          ),
+          width: 146,
+          child: Button.secondary(text: 'Skip', onPressed: onSkip),
         );
 
       case PomodoroState.completed:
         return SizedBox(
           key: const ValueKey('completed_btn'),
-          width: 180,
-          child: Button.secondary(
-            text: 'Have a rest',
-            onPressed: onRest,
-          ),
+          width: 146,
+          child: Button.secondary(text: 'Have a rest', onPressed: onRest),
         );
 
       case PomodoroState.giveup:
@@ -72,7 +60,7 @@ class PomodoroActionButtons extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: 180,
+              width: 146,
               child: Button.secondary(
                 text: 'Restart',
                 prefix: const Icon(
@@ -84,10 +72,7 @@ class PomodoroActionButtons extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Button.link(
-              text: 'Back to home',
-              onPressed: onHome,
-            ),
+            Button.link(text: 'Back to home', onPressed: onHome),
           ],
         );
     }

@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:lorofy/components/ui/drawing_container.dart';
+import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/loader.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
@@ -13,6 +13,7 @@ class Button extends StatelessWidget {
   final Widget? suffix;
   final bool isLoading;
   final bool disabled;
+  final TextStyle? textStyle;
 
   const Button({
     super.key,
@@ -23,6 +24,7 @@ class Button extends StatelessWidget {
     this.suffix,
     this.isLoading = false,
     this.disabled = false,
+    this.textStyle,
   });
 
   // --- Factory Constructors cho việc gọi nhanh chuẩn Shadcn ---
@@ -33,6 +35,7 @@ class Button extends StatelessWidget {
     Widget? suffix,
     bool isLoading = false,
     bool disabled = false,
+    TextStyle? textStyle,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -41,6 +44,7 @@ class Button extends StatelessWidget {
     suffix: suffix,
     isLoading: isLoading,
     disabled: disabled,
+    textStyle: textStyle,
   );
 
   factory Button.secondary({
@@ -50,6 +54,7 @@ class Button extends StatelessWidget {
     Widget? suffix,
     bool isLoading = false,
     bool disabled = false,
+    TextStyle? textStyle,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -58,8 +63,8 @@ class Button extends StatelessWidget {
     suffix: suffix,
     isLoading: isLoading,
     disabled: disabled,
+    textStyle: textStyle,
   );
-
 
   factory Button.destructive({
     required String text,
@@ -68,6 +73,7 @@ class Button extends StatelessWidget {
     Widget? suffix,
     bool isLoading = false,
     bool disabled = false,
+    TextStyle? textStyle,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -76,6 +82,7 @@ class Button extends StatelessWidget {
     suffix: suffix,
     isLoading: isLoading,
     disabled: disabled,
+    textStyle: textStyle,
   );
 
   factory Button.ghost({
@@ -85,6 +92,7 @@ class Button extends StatelessWidget {
     Widget? suffix,
     bool isLoading = false,
     bool disabled = false,
+    TextStyle? textStyle,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -93,6 +101,7 @@ class Button extends StatelessWidget {
     suffix: suffix,
     isLoading: isLoading,
     disabled: disabled,
+    textStyle: textStyle,
   );
 
   factory Button.link({
@@ -102,6 +111,7 @@ class Button extends StatelessWidget {
     Widget? suffix,
     bool isLoading = false,
     bool disabled = false,
+    TextStyle? textStyle,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -110,6 +120,7 @@ class Button extends StatelessWidget {
     suffix: suffix,
     isLoading: isLoading,
     disabled: disabled,
+    textStyle: textStyle,
   );
 
   @override
@@ -145,14 +156,16 @@ class Button extends StatelessWidget {
         break;
     }
 
-    final bool useDrawingStyle = variant == ButtonVariant.primary ||
+    final bool useDrawingStyle =
+        variant == ButtonVariant.primary ||
         variant == ButtonVariant.secondary ||
         variant == ButtonVariant.destructive;
 
     Widget buttonBody = isLoading
         ? Loader(color: textColor, size: 22)
         : Row(
-            mainAxisSize: MainAxisSize.min, // Giúp button co giãn theo nội dung nếu cần
+            mainAxisSize:
+                MainAxisSize.min, // Giúp button co giãn theo nội dung nếu cần
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Prefix Icon
@@ -160,15 +173,17 @@ class Button extends StatelessWidget {
               // Text chính
               Text(
                 text,
-                style: AppTextStyles.buttonText.copyWith(
-                  fontFamily: AppTextStyles.titleFontFamily,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
-                  color: textColor,
-                  decoration: variant == ButtonVariant.link
-                      ? TextDecoration.underline
-                      : TextDecoration.none,
-                ),
+                style: AppTextStyles.buttonText
+                    .copyWith(
+                      fontFamily: AppTextStyles.titleFontFamily,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w400,
+                      color: textColor,
+                      decoration: variant == ButtonVariant.link
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
+                    )
+                    .merge(textStyle),
               ),
               // Suffix Icon
               if (suffix != null) ...[const SizedBox(width: 8), suffix!],
@@ -178,7 +193,7 @@ class Button extends StatelessWidget {
     Widget innerContainer;
     if (useDrawingStyle) {
       innerContainer = DrawingContainer(
-        height: 56,
+        height: 51,
         fillColor: backgroundColor,
         borderColor: CupertinoColors.transparent,
         borderWidth: 0.0,
@@ -188,7 +203,7 @@ class Button extends StatelessWidget {
       );
     } else {
       innerContainer = Container(
-        height: variant == ButtonVariant.link ? null : 56,
+        height: variant == ButtonVariant.link ? null : 51,
         padding: variant == ButtonVariant.link
             ? EdgeInsets.zero
             : const EdgeInsets.symmetric(horizontal: 16),
@@ -210,12 +225,13 @@ class Button extends StatelessWidget {
       child: CupertinoButton(
         padding: EdgeInsets.zero, // Triệt tiêu padding mặc định của Cupertino
         onPressed: isButtonDisabled ? null : onPressed,
-        minimumSize: const Size(0, 0), // Cho phép container quyết định độ cao tối thiểu
+        minimumSize: const Size(
+          0,
+          0,
+        ), // Cho phép container quyết định độ cao tối thiểu
         focusNode: FocusNode(skipTraversal: true),
         child: innerContainer,
       ),
     );
   }
 }
-
-

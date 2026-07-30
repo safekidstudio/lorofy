@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lorofy/features/home/presentation/pages/home_page.dart';
+import 'package:lorofy/features/explore/presentation/pages/explore_page.dart';
 import 'package:lorofy/features/profile/presentation/pages/onboard_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -55,6 +56,44 @@ GoRouter appRouter(Ref ref) {
       ),
       // 7. Màn hình chính (Home)
       GoRoute(path: '/', builder: (context, state) => const HomePage()),
+      // 7a. Màn hình Explore (Trượt từ dưới lên)
+      GoRoute(
+        path: '/explore',
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const ExplorePage(),
+            transitionDuration: const Duration(milliseconds: 350),
+            reverseTransitionDuration: const Duration(milliseconds: 350),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.0, 1.0),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                    reverseCurve: Curves.easeInCubic,
+                  ),
+                ),
+                child: FadeTransition(
+                  opacity: Tween<double>(
+                    begin: 0.0,
+                    end: 1.0,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeIn,
+                    ),
+                  ),
+                  child: child,
+                ),
+              );
+            },
+          );
+        },
+      ),
 
       // 8. Màn hình Onboard
       GoRoute(

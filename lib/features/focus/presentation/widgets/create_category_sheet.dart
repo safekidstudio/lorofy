@@ -1,0 +1,196 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/button.dart';
+import 'package:lorofy/components/ui/input.dart';
+import 'package:lorofy/components/ui/toast.dart';
+import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/focus/data/models/focus_category.dart';
+import 'package:lorofy/features/focus/presentation/providers/categories_provider.dart';
+
+class CreateCategorySheet extends ConsumerStatefulWidget {
+  const CreateCategorySheet({super.key});
+
+  @override
+  ConsumerState<CreateCategorySheet> createState() => _CreateCategorySheetState();
+}
+
+class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
+  final TextEditingController _categoryNameController = TextEditingController();
+  String _selectedColorHex = '#4CD964'; // Default Green
+  String? _categoryNameError;
+
+  final List<String> _presetColors = [
+    '#4CD964', // Green
+    '#007AFF', // Blue
+    '#5856D6', // Purple
+    '#FF2D55', // Pink
+    '#FF9500', // Orange
+    '#5AC8FA', // Teal
+  ];
+
+  @override
+  void dispose() {
+    _categoryNameController.dispose();
+    super.dispose();
+  }
+
+  Color _getColorFromHex(String? hexString, Color defaultColor) {
+    if (hexString == null || hexString.isEmpty) return defaultColor;
+    try {
+      final hex = hexString.replaceAll('#', '');
+      return Color(int.parse('FF$hex', radix: 16));
+    } catch (_) {
+      return defaultColor;
+    }
+  }
+
+  void _onCreateCategory() {
+    final name = _categoryNameController.text.trim();
+    if (name.isEmpty) {
+      setState(() {
+        _categoryNameError = 'Category name cannot be empty';
+      });
+      return;
+    }
+
+    setState(() {
+      _categoryNameError = null;
+    });
+
+    final newCategory = FocusCategory(
+      id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
+      name: name,
+      iconName: 'tag', // Simple default icon
+      colorHex: _selectedColorHex,
+      isSystem: false,
+    );
+
+    ref.read(focusCategoriesProvider.notifier).addCategory(newCategory);
+    
+    AppToast.show(
+      context,
+      message: 'Category "$name" created!',
+      type: ToastType.success,
+    );
+
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl, vertical: AppPadding.lg),
+      decoration: const BoxDecoration(
+        color: Color(0xFFF6F6F6),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header with Close
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'New Category',
+                  style: TextStyle(
+                    fontFamily: AppTextStyles.fontFamily,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF232321),
+                  ),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => Navigator.pop(context),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFE5E5EA),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.xmark,
+                      color: Color(0xFF232321),
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Input Name
+            Input(
+              placeholder: 'Enter category name...',
+              controller: _categoryNameController,
+              errorMessage: _categoryNameError,
+            ),
+            const SizedBox(height: 20),
+
+            // Color Selector
+            const Text(
+              'Choose Color',
+              style: TextStyle(
+                fontFamily: AppTextStyles.fontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF232321),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: _presetColors.map((colorHex) {
+                final color = _getColorFromHex(colorHex, Colors.transparent);
+                final isSelected = _selectedColorHex == colorHex;
+
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedColorHex = colorHex),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: isSelected
+                          ? Border.all(color: const Color(0xFF232321), width: 3)
+                          : Border.all(color: Colors.white, width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: isSelected
+                        ? const Icon(CupertinoIcons.checkmark, size: 16, color: Colors.white)
+                        : null,
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 24),
+
+            // Create Button
+            SizedBox(
+              height: 52,
+              child: Button.primary(
+                text: 'Create Category',
+                onPressed: _onCreateCategory,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+}

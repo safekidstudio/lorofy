@@ -7,7 +7,7 @@ class Logo extends StatelessWidget {
 
   const Logo({
     super.key,
-    this.fontSize = 28.0,
+    this.fontSize = 24.0,
     this.color = const Color(0xFF232321),
   });
 

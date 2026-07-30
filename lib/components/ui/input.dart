@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:lorofy/components/ui/drawing_container.dart';
+import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
 class Input extends StatefulWidget {

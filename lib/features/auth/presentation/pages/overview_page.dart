@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/logo.dart';
-import 'package:lorofy/components/ui/page_wrapper.dart';
+import 'package:lorofy/components/layout/page_wrapper.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
