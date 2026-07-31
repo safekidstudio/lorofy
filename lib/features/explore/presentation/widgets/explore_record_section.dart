@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
+import 'package:lorofy/components/ui/sliding_segmented_control.dart';
 
 class ExploreRecordSection extends StatefulWidget {
   const ExploreRecordSection({super.key});
@@ -11,155 +13,164 @@ class ExploreRecordSection extends StatefulWidget {
 class _ExploreRecordSectionState extends State<ExploreRecordSection> {
   bool _isDayToggle = true;
 
+  final List<Map<String, dynamic>> dayRecords = const [
+    {'time': '06:30', 'period': 'PM', 'flowers': 6, 'duration': '60 mins'},
+    {'time': '05:00', 'period': 'PM', 'flowers': 3, 'duration': '30 mins'},
+    {'time': '04:30', 'period': 'PM', 'flowers': 3, 'duration': '25 mins'},
+    {'time': '02:30', 'period': 'PM', 'flowers': 2, 'duration': '15 mins'},
+  ];
+
+  final List<Map<String, dynamic>> monthRecords = const [
+    {'day': '29', 'month': 'Today', 'flowers': 4},
+    {'day': '28', 'month': 'Mar', 'flowers': 17},
+    {'day': '27', 'month': 'Mar', 'flowers': 3},
+    {'day': '26', 'month': 'Mar', 'flowers': 2},
+    {'day': '25', 'month': 'Mar', 'flowers': 1},
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Focus Record Section Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Focus Record',
-              style: TextStyle(
-                fontFamily: AppTextStyles.titleFontFamily,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF232321),
-              ),
-            ),
-            _buildRecordToggle(),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _buildFocusRecordList(),
-      ],
-    );
-  }
-
-  Widget _buildRecordToggle() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F7),
-        borderRadius: BorderRadius.circular(10),
+        color: CupertinoColors.white,
+        borderRadius: BorderRadius.circular(AppRadius.md),
       ),
-      padding: const EdgeInsets.all(2),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          GestureDetector(
-            onTap: () => setState(() => _isDayToggle = true),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: _isDayToggle
-                    ? const Color(0xFF232321)
-                    : CupertinoColors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Day',
+          // Focus Record Section Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Focus Record',
                 style: TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: _isDayToggle
-                      ? CupertinoColors.white
-                      : const Color(0xFF8E8E93),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
                 ),
               ),
-            ),
+              _buildRecordToggle(),
+            ],
           ),
-          GestureDetector(
-            onTap: () => setState(() => _isDayToggle = false),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: !_isDayToggle
-                    ? const Color(0xFF232321)
-                    : CupertinoColors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Month',
-                style: TextStyle(
-                  fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: !_isDayToggle
-                      ? CupertinoColors.white
-                      : const Color(0xFF8E8E93),
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(height: 16),
+          _buildFocusRecordList(),
         ],
       ),
     );
   }
 
+  Widget _buildRecordToggle() {
+    return SlidingSegmentedControl(
+      height: 30,
+      tabs: const ['Day', 'Month'],
+      selectedIndex: _isDayToggle ? 0 : 1,
+      onTabChanged: (index) {
+        setState(() {
+          _isDayToggle = index == 0;
+        });
+      },
+    );
+  }
+
   Widget _buildFocusRecordList() {
-    final List<Map<String, dynamic>> records = [
-      {'time': '06:30 PM', 'flowers': 6, 'duration': '60 mins'},
-      {'time': '05:00 PM', 'flowers': 3, 'duration': '30 mins'},
-      {'time': '04:30 PM', 'flowers': 3, 'duration': '25 mins'},
-      {'time': '02:30 PM', 'flowers': 2, 'duration': '15 mins'},
-    ];
+    final records = _isDayToggle ? dayRecords : monthRecords;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: CupertinoColors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE5E5EA), width: 1.5),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: records.asMap().entries.map((entry) {
-          final index = entry.key;
-          final record = entry.value;
-          final int flowerCount = record['flowers'] as int;
+    return Column(
+      spacing: 10,
+      children: records.asMap().entries.map((entry) {
+        final index = entry.key;
+        final record = entry.value;
+        final int flowerCount = record['flowers'] as int;
 
-          return Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        final bool isHighlight = _isDayToggle
+            ? (index == 0)
+            : (record['month'] == 'Today' || index == 0);
+
+        final Color numberColor = isHighlight
+            ? AppColors.primary
+            : AppColors.secondary;
+
+        final Color labelColor = AppColors.secondary.withValues(alpha: 0.6);
+
+        final Color durationColor = AppColors.secondary.withValues(alpha: 0.6);
+
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
                 children: [
-                  Text(
-                    record['time'].toString(),
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      color: Color(0xFF232321),
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+                  // Left: Date or Time Column
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        _isDayToggle
+                            ? record['time'].toString()
+                            : record['day'].toString(),
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.titleFontFamily,
+                          fontSize: _isDayToggle ? 24 : 32,
+                          color: numberColor,
+                          height: 0.9,
+                        ),
+                      ),
+                      Text(
+                        _isDayToggle
+                            ? record['period'].toString()
+                            : record['month'].toString(),
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          fontSize: 14,
+                          color: labelColor,
+                          fontWeight: FontWeight.w500,
+                          height: 1.0,
+                          leadingDistribution: TextLeadingDistribution.even,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 24),
+                  // Middle: Flower streak row
+                  Expanded(
+                    child: Wrap(
+                      spacing: _isDayToggle ? 6 : 16,
+                      runSpacing: 4,
+                      children: List.generate(
+                        flowerCount,
+                        (i) => SVG(
+                          'illustrations/flower.svg',
+                          width: _isDayToggle ? 30 : 44,
+                          height: _isDayToggle ? 30 : 44,
+                        ),
+                      ),
                     ),
                   ),
-                  Row(
-                    children: List.generate(
-                      flowerCount,
-                      (i) => const Text('🌷 ', style: TextStyle(fontSize: 14)),
+                  // Right: Duration (only in Day view)
+                  if (_isDayToggle) ...[
+                    const SizedBox(width: 12),
+                    Text(
+                      record['duration'].toString(),
+                      style: TextStyle(
+                        fontFamily: AppTextStyles.fontFamily,
+                        fontSize: 14,
+                        color: durationColor,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  Text(
-                    record['duration'].toString(),
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      color: Color(0xFF8E8E93),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  ],
                 ],
               ),
-              if (index < records.length - 1)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Container(height: 1, color: const Color(0xFFE5E5EA)),
-                ),
-            ],
-          );
-        }).toList(),
-      ),
+            ),
+            // Show divider between items only in Day view
+            // if (_isDayToggle && index < records.length - 1)
+            //   Container(height: 1, color: const Color(0xFFE2E2E2)),
+          ],
+        );
+      }).toList(),
     );
   }
 }
