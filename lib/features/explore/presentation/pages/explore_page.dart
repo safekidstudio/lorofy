@@ -1,18 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lorofy/components/ui/app_avatar.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
-import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 
 // Modular explore page sections
 import 'package:lorofy/features/explore/presentation/widgets/explore_stats_section.dart';
 import 'package:lorofy/features/explore/presentation/widgets/explore_leaderboard_section.dart';
 import 'package:lorofy/features/explore/presentation/widgets/explore_chart_section.dart';
 import 'package:lorofy/features/explore/presentation/widgets/explore_record_section.dart';
+import 'package:lorofy/features/profile/presentation/pages/profile_page.dart';
 
 class ExplorePage extends ConsumerStatefulWidget {
   const ExplorePage({super.key});
@@ -22,102 +20,6 @@ class ExplorePage extends ConsumerStatefulWidget {
 }
 
 class _ExplorePageState extends ConsumerState<ExplorePage> {
-  void _showSettings() {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: const Text(
-          'Settings',
-          style: TextStyle(
-            fontFamily: AppTextStyles.titleFontFamily,
-            fontSize: 24,
-            color: Color(0xFF232321),
-          ),
-        ),
-        message: Column(
-          children: [
-            const SizedBox(height: 8),
-            Consumer(
-              builder: (context, ref, child) {
-                final authStatus = ref.watch(authProvider);
-                final name = authStatus.displayName ?? 'User';
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const AppAvatar(path: null, size: 64),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontFamily: AppTextStyles.fontFamily,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF232321),
-                          ),
-                        ),
-                        const Text(
-                          'Lorofy Focus Champion',
-                          style: TextStyle(
-                            fontFamily: AppTextStyles.fontFamily,
-                            fontSize: 13,
-                            color: Color(0xFF8E8E93),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-        actions: [
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.pop(context);
-              AppToast.show(
-                context,
-                message: 'Feature coming soon in the next release!',
-                type: ToastType.info,
-              );
-            },
-            child: const Text(
-              'Edit Profile',
-              style: TextStyle(
-                fontFamily: AppTextStyles.fontFamily,
-                color: Color(0xFF232321),
-              ),
-            ),
-          ),
-          CupertinoActionSheetAction(
-            isDestructiveAction: true,
-            onPressed: () {
-              Navigator.pop(context);
-              ref.read(authProvider.notifier).logout();
-            },
-            child: const Text(
-              'Logout',
-              style: TextStyle(fontFamily: AppTextStyles.fontFamily),
-            ),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            'Close',
-            style: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              color: Color(0xFF8E8E93),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +43,14 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
               title: 'Explore',
               rightActions: CupertinoButton(
                 padding: EdgeInsets.zero,
-                onPressed: _showSettings,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => const ProfilePage(),
+                    ),
+                  );
+                },
                 child: const SVG(
                   'assets/icons/user-square.svg',
                   height: 24,

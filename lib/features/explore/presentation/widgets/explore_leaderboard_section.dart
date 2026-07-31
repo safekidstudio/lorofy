@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/components/ui/toast.dart';
+import 'package:lorofy/features/explore/presentation/pages/leaderboard_page.dart';
 
 class ExploreLeaderboardSection extends StatelessWidget {
   const ExploreLeaderboardSection({super.key});
@@ -35,9 +35,11 @@ class ExploreLeaderboardSection extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
                 onPressed: () {
-                  AppToast.show(
+                  Navigator.push(
                     context,
-                    message: "Leaderboard details coming soon!",
+                    CupertinoPageRoute(
+                      builder: (context) => const LeaderboardPage(),
+                    ),
                   );
                 },
 
