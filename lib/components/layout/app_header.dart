@@ -5,9 +5,16 @@ import 'package:lorofy/core/theme/app_theme.dart';
 class AppHeader extends StatelessWidget {
   final Widget? leftActions;
   final String? title;
+  final Widget? titleWidget;
   final Widget? rightActions;
 
-  const AppHeader({super.key, this.leftActions, this.title, this.rightActions});
+  const AppHeader({
+    super.key,
+    this.leftActions,
+    this.title,
+    this.titleWidget,
+    this.rightActions,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +27,19 @@ class AppHeader extends StatelessWidget {
 
           // Center title expands to fill remaining space
           Expanded(
-            child: title != null
-                ? Text(
-                    title!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.titleFontFamily,
-                      fontSize: 20,
-                      color: Color(0xFF232321),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+            child: titleWidget != null
+                ? Center(child: titleWidget)
+                : (title != null
+                    ? Text(
+                        title!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: AppTextStyles.titleFontFamily,
+                          fontSize: 20,
+                          color: Color(0xFF232321),
+                        ),
+                      )
+                    : const SizedBox.shrink()),
           ),
 
           // Right: placeholder to balance left side when no rightActions

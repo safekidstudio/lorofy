@@ -180,14 +180,14 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     startFocus(settings.focusMinutes);
   }
 
-  // ── Private helpers ─────────────────────────────────────────────────────
-
   Future<void> _apiStartSession(int focusMinutes) async {
     try {
       final repository = ref.read(focusRepositoryProvider);
+      final settings = ref.read(pomodoroSettingsProvider);
+      final activeBlockMode = settings.isDeepFocusMode ? settings.blockMode : BlockMode.MEDIUM;
       final session = await repository.startSession(
         categoryId: state.selectedCategory?.id,
-        blockMode: BlockMode.LIGHT,
+        blockMode: activeBlockMode,
         plannedMinutes: focusMinutes,
       );
       if (state.phase == PomodoroState.focus) {

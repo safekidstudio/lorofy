@@ -9,6 +9,8 @@ class SlidingSegmentedControl extends StatelessWidget {
   final double height;
   final Color backgroundColor;
   final Color activeColor;
+  final Color activeTextColor;
+  final Color inactiveTextColor;
 
   const SlidingSegmentedControl({
     super.key,
@@ -17,10 +19,10 @@ class SlidingSegmentedControl extends StatelessWidget {
     required this.onTabChanged,
     this.width = 110.0,
     this.height = 28.0,
-    this.backgroundColor = const Color(
-      0xFFEDEEEF,
-    ), // Color(0xFFE5E5EA) with alpha 0.6
+    this.backgroundColor = const Color(0xFFEDEEEF),
     this.activeColor = const Color(0xFF072013),
+    this.activeTextColor = CupertinoColors.white,
+    this.inactiveTextColor = AppColors.secondary,
   });
 
   @override
@@ -32,7 +34,7 @@ class SlidingSegmentedControl extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
-      padding: EdgeInsets.all(2),
+      padding: const EdgeInsets.all(2),
       child: Stack(
         children: [
           // Smooth Animated sliding active background block
@@ -71,8 +73,8 @@ class SlidingSegmentedControl extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: selectedIndex == index
-                            ? CupertinoColors.white
-                            : AppColors.secondary,
+                            ? activeTextColor
+                            : inactiveTextColor,
                       ),
                     ),
                   ),

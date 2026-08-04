@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/layout/app_header.dart';
@@ -10,17 +11,14 @@ import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
-import 'package:lorofy/features/focus/presentation/widgets/pomodoro_settings_sheet.dart';
 import 'package:lorofy/features/focus/presentation/providers/categories_provider.dart';
 import 'package:lorofy/features/focus/presentation/pages/pomodoro_complete_page.dart';
 import 'package:lorofy/features/focus/presentation/pages/pomodoro_giveup_page.dart';
-import 'package:lorofy/features/focus/presentation/widgets/pomodoro_action_buttons.dart';
-import 'package:lorofy/features/focus/presentation/widgets/pomodoro_giveup_confirmation_sheet.dart';
-import 'package:lorofy/features/focus/presentation/widgets/pomodoro_plant_graphic.dart';
-import 'package:lorofy/features/focus/presentation/widgets/pomodoro_timer_display.dart';
+import 'package:lorofy/features/focus/presentation/widgets/focus_timer/pomodoro_action_buttons.dart';
+import 'package:lorofy/features/focus/presentation/widgets/focus_timer/pomodoro_giveup_confirmation_sheet.dart';
+import 'package:lorofy/features/focus/presentation/widgets/focus_timer/pomodoro_timer_display.dart';
 import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.dart';
 import 'package:lorofy/features/mascot/presentation/widgets/mascot_graphic.dart';
-import 'package:lorofy/features/mascot/presentation/widgets/mascot_selector_sheet.dart';
 
 class QuickStartPage extends ConsumerStatefulWidget {
   final ValueChanged<bool> onFocusStateChanged;
@@ -100,22 +98,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
           PomodoroState.idle => CupertinoButton(
             key: const ValueKey('settings_btn'),
             padding: EdgeInsets.zero,
-            onPressed: () => Navigator.push(
-              context,
-              ModalSheetRoute(
-                builder: (context) => const Sheet(
-                  decoration: MaterialSheetDecoration(
-                    size: SheetSize.fit,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(28),
-                      topRight: Radius.circular(28),
-                    ),
-                    color: Color(0xFFF6F6F6),
-                  ),
-                  child: PomodoroSettingsSheet(),
-                ),
-              ),
-            ),
+            onPressed: () => context.push('/session-settings'),
             child: const SVG(
               'assets/icons/settings_drawing.svg',
               width: 24,
@@ -473,22 +456,7 @@ class _SoundButtonState extends State<_SoundButton>
           onPressed: () {
             _hideTooltip();
             _hideTimer?.cancel();
-            Navigator.push(
-              context,
-              ModalSheetRoute(
-                builder: (context) => const Sheet(
-                  decoration: MaterialSheetDecoration(
-                    size: SheetSize.fit,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(28),
-                      topRight: Radius.circular(28),
-                    ),
-                    color: Color(0xFFF6F6F6),
-                  ),
-                  child: PomodoroSettingsSheet(initialTab: 1),
-                ),
-              ),
-            );
+            context.push('/session-settings?tab=1');
           },
           child: const SVG(
             'assets/icons/sounds_drawing.svg',

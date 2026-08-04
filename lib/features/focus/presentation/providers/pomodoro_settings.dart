@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:lorofy/features/focus/data/models/focus_category.dart';
+import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 
 part 'pomodoro_settings.g.dart';
 
@@ -14,6 +15,8 @@ class PomodoroSettings {
   final FocusCategory? selectedCategory;
   final bool timedReminder;
   final bool isDeepFocusMode;
+  final BlockMode blockMode;
+  final Set<String> blockedCategories;
 
   const PomodoroSettings({
     required this.focusMinutes,
@@ -24,6 +27,8 @@ class PomodoroSettings {
     this.selectedCategory,
     this.timedReminder = true,
     this.isDeepFocusMode = false,
+    this.blockMode = BlockMode.MEDIUM,
+    this.blockedCategories = const {'Social Media'},
   });
 
   PomodoroSettings copyWith({
@@ -35,6 +40,8 @@ class PomodoroSettings {
     FocusCategory? selectedCategory,
     bool? timedReminder,
     bool? isDeepFocusMode,
+    BlockMode? blockMode,
+    Set<String>? blockedCategories,
   }) {
     final newIsDeep = isDeepFocusMode ?? this.isDeepFocusMode;
     int newTargetRounds = targetRounds ?? this.targetRounds;
@@ -63,6 +70,8 @@ class PomodoroSettings {
       selectedCategory: selectedCategory ?? this.selectedCategory,
       timedReminder: timedReminder ?? this.timedReminder,
       isDeepFocusMode: newIsDeep,
+      blockMode: blockMode ?? this.blockMode,
+      blockedCategories: blockedCategories ?? this.blockedCategories,
     );
   }
 }
@@ -72,13 +81,16 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
   @override
   PomodoroSettings build() {
     return const PomodoroSettings(
-      focusMinutes: 25, // Changing default to 25 to match typical Pomodoro and the reference design
+      focusMinutes: 25,
       breakMinutes: 5,
-      longBreakMinutes: 15,
+      longBreakMinutes: 10,
       targetRounds: 4,
       ambientSound: AmbientSound.none,
       selectedCategory: null,
       timedReminder: true,
+      isDeepFocusMode: true,
+      blockMode: BlockMode.MEDIUM,
+      blockedCategories: {'Social Media'},
     );
   }
 
@@ -86,3 +98,4 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
     state = newSettings;
   }
 }
+

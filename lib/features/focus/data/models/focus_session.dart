@@ -37,10 +37,10 @@ class FocusSessionModel {
 
   factory FocusSessionModel.fromJson(Map<String, dynamic> json) {
     // Parse BlockMode
-    final blockModeStr = json['blockMode'] as String? ?? 'LIGHT';
+    final blockModeStr = json['blockMode'] as String? ?? 'MEDIUM';
     final blockMode = BlockMode.values.firstWhere(
       (e) => e.name == blockModeStr,
-      orElse: () => BlockMode.LIGHT,
+      orElse: () => BlockMode.MEDIUM,
     );
 
     return FocusSessionModel(

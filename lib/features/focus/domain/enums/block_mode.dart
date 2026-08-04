@@ -1,5 +1,4 @@
 enum BlockMode {
-  LIGHT,
   MEDIUM,
   STRICT,
 }
@@ -7,8 +6,6 @@ enum BlockMode {
 extension BlockModeExtension on BlockMode {
   String get value {
     switch (this) {
-      case BlockMode.LIGHT:
-        return 'LIGHT';
       case BlockMode.MEDIUM:
         return 'MEDIUM';
       case BlockMode.STRICT:
