@@ -1,21 +1,77 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
+import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
+import 'package:lorofy/features/focus/data/repositories/sound_repository.dart';
+import 'package:lorofy/components/ui/pro_upgrade_sheet.dart';
+import 'package:lorofy/components/ui/bottom_player_bar.dart';
+import 'package:lorofy/components/ui/button.dart';
+import 'package:lorofy/features/focus/presentation/widgets/session_settings/playlist_detail_page.dart';
 
-class SettingsSoundTab extends ConsumerWidget {
+final List<SpotifySong> _recentlyPlayed = [
+  const SpotifySong(
+    title: 'Shawty house',
+    artist: 'Mewmow',
+    imageUrl:
+        'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=150',
+    duration: '12.30',
+  ),
+  const SpotifySong(
+    title: 'Dopamine gold',
+    artist: 'Gwogwo',
+    imageUrl:
+        'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=150',
+    duration: '08.32',
+  ),
+];
+
+class SettingsSoundTab extends ConsumerStatefulWidget {
   const SettingsSoundTab({super.key});
 
-  IconData _getIconForSound(AmbientSound sound) {
+  @override
+  ConsumerState<SettingsSoundTab> createState() => _SettingsSoundTabState();
+}
+
+class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
+  bool _isPro = false;
+  bool _isSpotifyConnected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Synchronize initial ambient sound with player on load if active
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final settings = ref.read(pomodoroSettingsProvider);
+      final player = ref.read(musicPlayerProvider);
+      if (settings.ambientSound != AmbientSound.none &&
+          player.currentlyPlaying == null) {
+        ref
+            .read(musicPlayerProvider.notifier)
+            .play(
+              SpotifySong(
+                title: _getLabelForSound(settings.ambientSound),
+                artist: 'Ambient Sound',
+                imageUrl: _getIconPathForSound(settings.ambientSound),
+                duration: '--.--',
+                isAmbient: true,
+              ),
+            );
+      }
+    });
+  }
+
+  String _getIconPathForSound(AmbientSound sound) {
     return switch (sound) {
-      AmbientSound.none => CupertinoIcons.volume_off,
-      AmbientSound.wind => CupertinoIcons.wind,
-      AmbientSound.beach => CupertinoIcons.waveform,
-      AmbientSound.nature => CupertinoIcons.leaf_arrow_circlepath,
-      AmbientSound.books => CupertinoIcons.book,
-      AmbientSound.fire => CupertinoIcons.flame,
-      AmbientSound.rain => CupertinoIcons.cloud_rain,
-      AmbientSound.cafe => CupertinoIcons.bell,
+      AmbientSound.none => 'icons/sounds/none.svg',
+      AmbientSound.wind => 'icons/sounds/wind.svg',
+      AmbientSound.beach => 'icons/sounds/beach.svg',
+      AmbientSound.nature => 'icons/sounds/nature.svg',
+      AmbientSound.books => 'icons/sounds/library.svg',
+      AmbientSound.fire => 'icons/sounds/fire.svg',
+      AmbientSound.rain => 'icons/sounds/rain.svg',
+      AmbientSound.cafe => 'icons/sounds/coffee.svg',
     };
   }
 
@@ -25,103 +81,418 @@ class SettingsSoundTab extends ConsumerWidget {
       AmbientSound.wind => 'Wind',
       AmbientSound.beach => 'Beach',
       AmbientSound.nature => 'Nature',
-      AmbientSound.books => 'Books',
+      AmbientSound.books => 'Library',
       AmbientSound.fire => 'Fire',
       AmbientSound.rain => 'Rain',
-      AmbientSound.cafe => 'Cafe',
+      AmbientSound.cafe => 'Coffee',
     };
   }
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(pomodoroSettingsProvider);
+  void _onAmbientSoundTap(AmbientSound sound, PomodoroSettings settings) {
+    ref
+        .read(pomodoroSettingsProvider.notifier)
+        .updateSettings(settings.copyWith(ambientSound: sound));
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: AppPadding.allMd,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Ambient Sound',
-            style: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: AppColors.primary.withValues(alpha: 0.6),
+    if (sound == AmbientSound.none) {
+      ref.read(musicPlayerProvider.notifier).stop();
+    } else {
+      ref
+          .read(musicPlayerProvider.notifier)
+          .play(
+            SpotifySong(
+              title: _getLabelForSound(sound),
+              artist: 'Ambient Sound',
+              imageUrl: _getIconPathForSound(sound),
+              duration: '--.--',
+              isAmbient: true,
             ),
+          );
+    }
+  }
+
+  void _handleConnectSpotify() {
+    if (!_isPro) {
+      ProUpgradeSheet.show(
+        context,
+        onUpgradeSuccess: () {
+          setState(() {
+            _isPro = true;
+          });
+        },
+      );
+    } else {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Spotify Integration'),
+          content: const Text(
+            'Tính năng kết nối Spotify đang được phát triển. Bạn sẽ có nghe nhạc trực tiếp từ tài khoản Spotify của mình trong bản cập nhật tới!',
           ),
-          const SizedBox(height: 12),
-
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 2.8,
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('Trải nghiệm thử'),
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {
+                  _isSpotifyConnected = true;
+                  // Auto-play the first song as demo
+                  ref
+                      .read(musicPlayerProvider.notifier)
+                      .play(_recentlyPlayed[0]);
+                });
+              },
             ),
-            itemCount: AmbientSound.values.length,
-            itemBuilder: (context, index) {
-              final sound = AmbientSound.values[index];
-              final isSelected = settings.ambientSound == sound;
-              final label = _getLabelForSound(sound);
-              final icon = _getIconForSound(sound);
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              child: const Text('Đóng'),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
-              return GestureDetector(
-                onTap: () {
-                  ref.read(pomodoroSettingsProvider.notifier).updateSettings(
-                        settings.copyWith(ambientSound: sound),
+  @override
+  Widget build(BuildContext context) {
+    final settings = ref.watch(pomodoroSettingsProvider);
+    final playerState = ref.watch(musicPlayerProvider);
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.only(
+              left: AppPadding.md,
+              right: AppPadding.md,
+              top: AppPadding.md,
+              bottom: playerState.currentlyPlaying != null
+                  ? 100.0
+                  : AppPadding.md,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 2. Centered Sound Grid (using Wrap for compact centering)
+                Center(
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: List.generate(AmbientSound.values.length, (index) {
+                      final sound = AmbientSound.values[index];
+                      final isSelected = settings.ambientSound == sound;
+                      final iconPath = _getIconPathForSound(sound);
+
+                      return GestureDetector(
+                        onTap: () => _onAmbientSoundTap(sound, settings),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isSelected
+                                ? AppColors.primary
+                                : const Color(0xFFE4E4E6),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : const Color(0xFFE5E5EA),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Center(
+                            child: SVG(
+                              iconPath,
+                              width: 24,
+                              height: 24,
+                              color: isSelected
+                                  ? CupertinoColors.white
+                                  : AppColors.primary,
+                            ),
+                          ),
+                        ),
                       );
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF232321) : CupertinoColors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected ? const Color(0xFF232321) : const Color(0xFFE5E5EA),
-                      width: 1.5,
-                    ),
+                    }),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        icon,
-                        size: 18,
-                        color: isSelected ? CupertinoColors.white : const Color(0xFF232321),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          label,
+                ),
+                const SizedBox(height: 32),
+
+                // 3. Spotify Section
+                if (!_isSpotifyConnected) ...[
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Connect your Spotify',
                           style: TextStyle(
                             fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: 160,
+                          child: Button.primary(
+                            text: 'Connect',
+                            prefix: const Icon(
+                              CupertinoIcons.music_note,
+                              color: CupertinoColors.white,
+                              size: 18,
+                            ),
+                            onPressed: _handleConnectSpotify,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else ...[
+                  _buildPlaylistSection(),
+                  const SizedBox(height: 24),
+                  _buildRecentlySection(playerState),
+                ],
+              ],
+            ),
+          ),
+        ),
+
+        // 4. Sound Player at the bottom
+        if (playerState.currentlyPlaying != null)
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: BottomPlayerBar(),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildPlaylistSection() {
+    final playlistsAsync = ref.watch(soundPlaylistsProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Playlist',
+          style: TextStyle(
+            fontFamily: AppTextStyles.fontFamily,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppColors.primary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        playlistsAsync.when(
+          loading: () => const SizedBox(
+            height: 180,
+            child: Center(
+              child: CupertinoActivityIndicator(),
+            ),
+          ),
+          error: (err, stack) => const SizedBox(
+            height: 180,
+            child: Center(
+              child: Text(
+                'Lỗi khi tải danh sách nhạc',
+                style: TextStyle(
+                  fontFamily: AppTextStyles.fontFamily,
+                  color: CupertinoColors.destructiveRed,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+          data: (playlistsList) => SizedBox(
+            height: 180,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: playlistsList.length,
+              itemBuilder: (context, index) {
+                final playlist = playlistsList[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => PlaylistDetailPage(
+                          playlistTitle: playlist.title,
+                          songs: playlist.songs,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 140,
+                    margin: const EdgeInsets.only(right: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.network(
+                            playlist.imageUrl,
+                            width: 140,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              width: 140,
+                              height: 120,
+                              color: const Color(0xFFE4E4E6),
+                              child: const Icon(CupertinoIcons.music_note, color: AppColors.secondary),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          playlist.title,
+                          style: const TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
                             fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: isSelected ? CupertinoColors.white : const Color(0xFF232321),
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      if (isSelected)
-                        const Icon(
-                          CupertinoIcons.checkmark,
-                          size: 16,
-                          color: CupertinoColors.white,
+                        const SizedBox(height: 2),
+                        Text(
+                          playlist.songCount,
+                          style: const TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 12,
+                            color: AppColors.secondary,
+                          ),
                         ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-          const SizedBox(height: 12),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecentlySection(PlayerState playerState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Recently',
+          style: TextStyle(
+            fontFamily: AppTextStyles.fontFamily,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppColors.primary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _recentlyPlayed.length,
+          itemBuilder: (context, index) {
+            final song = _recentlyPlayed[index];
+            final isPlayingThis =
+                playerState.currentlyPlaying?.title == song.title;
+
+            return GestureDetector(
+              onTap: () {
+                ref.read(musicPlayerProvider.notifier).play(song);
+              },
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: isPlayingThis
+                      ? const Color(0xFFF2F4F7)
+                      : const Color(0xFFF2F4F7).withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        song.imageUrl,
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 44,
+                          height: 44,
+                          color: const Color(0xFFE4E4E6),
+                          child: const Icon(
+                            CupertinoIcons.music_note_2,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            song.title,
+                            style: const TextStyle(
+                              fontFamily: AppTextStyles.fontFamily,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            song.artist,
+                            style: const TextStyle(
+                              fontFamily: AppTextStyles.fontFamily,
+                              fontSize: 12,
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          CupertinoIcons.heart,
+                          size: 16,
+                          color: AppColors.secondary.withValues(alpha: 0.8),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          song.duration,
+                          style: const TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 12,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

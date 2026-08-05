@@ -17,18 +17,15 @@ class TimeDurationSection extends ConsumerWidget {
           text: TextSpan(
             style: const TextStyle(
               fontFamily: AppTextStyles.fontFamily,
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF8E8E93),
+              color: AppColors.secondary,
             ),
             children: [
               const TextSpan(text: 'Time durations: '),
               TextSpan(
                 text: '${settings.focusMinutes} mins',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF232321),
-                ),
+                style: const TextStyle(color: AppColors.primary),
               ),
             ],
           ),
@@ -39,19 +36,22 @@ class TimeDurationSection extends ConsumerWidget {
           child: SliderTheme(
             data: SliderThemeData(
               trackHeight: 2,
-              activeTrackColor: const Color(0xFF232321),
+              activeTrackColor: AppColors.primary,
               inactiveTrackColor: const Color(0xFFE5E5EA),
-              thumbColor: const Color(0xFF232321),
-              overlayColor: const Color(0xFF232321).withValues(alpha: 0.1),
+              thumbColor: AppColors.primary,
+              overlayColor: AppColors.primary.withValues(alpha: 0.1),
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+              trackShape: const FullWidthSliderTrackShape(),
             ),
             child: Slider(
               value: settings.focusMinutes.toDouble().clamp(5.0, 180.0),
               min: 5.0,
               max: 180.0,
               onChanged: (val) {
-                ref.read(pomodoroSettingsProvider.notifier).updateSettings(
+                ref
+                    .read(pomodoroSettingsProvider.notifier)
+                    .updateSettings(
                       settings.copyWith(focusMinutes: val.round()),
                     );
               },
@@ -60,5 +60,24 @@ class TimeDurationSection extends ConsumerWidget {
         ),
       ],
     );
+  }
+}
+
+class FullWidthSliderTrackShape extends RoundedRectSliderTrackShape {
+  const FullWidthSliderTrackShape();
+
+  @override
+  Rect getPreferredRect({
+    required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    required SliderThemeData sliderTheme,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+  }) {
+    final double trackHeight = sliderTheme.trackHeight ?? 2.0;
+    final double trackLeft = offset.dx;
+    final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final double trackWidth = parentBox.size.width;
+    return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
 }

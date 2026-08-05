@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/categories_provider.dart';
 import 'deep_focus_section.dart';
 import 'time_duration_section.dart';
@@ -17,7 +18,7 @@ class SettingsSessionTab extends ConsumerWidget {
     return SingleChildScrollView(
       key: const ValueKey('session_tab'),
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: AppPadding.allMd,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
@@ -9,15 +10,14 @@ class AdvancedModeSection extends ConsumerStatefulWidget {
   const AdvancedModeSection({super.key});
 
   @override
-  ConsumerState<AdvancedModeSection> createState() => _AdvancedModeSectionState();
+  ConsumerState<AdvancedModeSection> createState() =>
+      _AdvancedModeSectionState();
 }
 
 class _AdvancedModeSectionState extends ConsumerState<AdvancedModeSection> {
-  bool _isBlockedCategoriesExpanded = true;
-
   Widget _buildAdvancedModeCard({
     required String title,
-    required String badgeText,
+    String? badgeText,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
@@ -32,8 +32,8 @@ class _AdvancedModeSectionState extends ConsumerState<AdvancedModeSection> {
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF071B12) : CupertinoColors.white,
-                borderRadius: BorderRadius.circular(16),
+                color: isSelected ? AppColors.primary : CupertinoColors.white,
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
               child: Row(
                 children: [
@@ -42,53 +42,64 @@ class _AdvancedModeSectionState extends ConsumerState<AdvancedModeSection> {
                       title,
                       style: TextStyle(
                         fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected ? CupertinoColors.white : const Color(0xFF232321),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isSelected
+                            ? CupertinoColors.white
+                            : AppColors.primary,
                       ),
                     ),
                   ),
                   if (isSelected)
-                    const Icon(
-                      CupertinoIcons.checkmark,
-                      size: 16,
+                    const SVG(
+                      'assets/icons/check.svg',
+                      width: 16,
+                      height: 16,
                       color: CupertinoColors.white,
                     ),
                 ],
               ),
             ),
-            Positioned(
-              top: -8,
-              right: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1C2C24),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFFF6F6F6), width: 1.5),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      badgeText,
-                      style: const TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: CupertinoColors.white,
+            if (badgeText != null)
+              Positioned(
+                top: -1,
+                right: -1,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? CupertinoColors.white
+                        : AppColors.primary,
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(AppRadius.md),
+                      bottomLeft: Radius.circular(AppRadius.md),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        badgeText,
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected
+                              ? AppColors.primary
+                              : CupertinoColors.white,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(
-                      CupertinoIcons.shield_fill,
-                      color: Color(0xFFE25C5C),
-                      size: 10,
-                    ),
-                  ],
+                      const SizedBox(width: 2),
+                      SVG('assets/icons/point.svg', width: 10, height: 10),
+                    ],
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -107,8 +118,8 @@ class _AdvancedModeSectionState extends ConsumerState<AdvancedModeSection> {
           style: TextStyle(
             fontFamily: AppTextStyles.fontFamily,
             fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF232321),
+            fontWeight: FontWeight.w500,
+            color: AppColors.primary,
           ),
         ),
         const SizedBox(height: 16),
@@ -116,10 +127,11 @@ class _AdvancedModeSectionState extends ConsumerState<AdvancedModeSection> {
           children: [
             _buildAdvancedModeCard(
               title: 'Medium',
-              badgeText: 'x1.2',
               isSelected: settings.blockMode == BlockMode.MEDIUM,
               onTap: () {
-                ref.read(pomodoroSettingsProvider.notifier).updateSettings(
+                ref
+                    .read(pomodoroSettingsProvider.notifier)
+                    .updateSettings(
                       settings.copyWith(blockMode: BlockMode.MEDIUM),
                     );
               },
@@ -130,7 +142,9 @@ class _AdvancedModeSectionState extends ConsumerState<AdvancedModeSection> {
               badgeText: 'x1.5',
               isSelected: settings.blockMode == BlockMode.STRICT,
               onTap: () {
-                ref.read(pomodoroSettingsProvider.notifier).updateSettings(
+                ref
+                    .read(pomodoroSettingsProvider.notifier)
+                    .updateSettings(
                       settings.copyWith(blockMode: BlockMode.STRICT),
                     );
               },
@@ -141,50 +155,61 @@ class _AdvancedModeSectionState extends ConsumerState<AdvancedModeSection> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(
-              CupertinoIcons.info_circle,
-              size: 14,
-              color: Color(0xFF8E8E93),
+            SVG(
+              'assets/icons/square-info.svg',
+              width: 16,
+              height: 16,
+              color: AppColors.secondary,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 4),
             Expanded(
               child: Text(
-                'Block distraction apps, allow work/study apps.',
+                settings.blockMode == BlockMode.STRICT
+                    ? 'Leaving Lorofy will instantly fail your session!'
+                    : 'Block distraction apps, allow work/study apps.',
                 style: TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 13,
-                  color: const Color(0xFF8E8E93),
+                  fontSize: 12,
+                  color: AppColors.secondary,
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
-
-        // Chevron collapse / expand arrow
-        GestureDetector(
-          onTap: () => setState(() =>
-              _isBlockedCategoriesExpanded = !_isBlockedCategoriesExpanded),
-          child: Align(
-            alignment: Alignment.center,
-            child: Icon(
-              _isBlockedCategoriesExpanded
-                  ? CupertinoIcons.chevron_up
-                  : CupertinoIcons.chevron_down,
-              color: const Color(0xFF8E8E93),
-              size: 20,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-
-        // Expandable Blocked Categories Checklist
         AnimatedSize(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
-          child: !_isBlockedCategoriesExpanded
-              ? const SizedBox.shrink()
-              : const BlockedCategoriesSection(),
+          alignment: Alignment.topCenter,
+          child: settings.blockMode == BlockMode.MEDIUM
+              ? Column(
+                  key: const ValueKey('blocked_categories_section_container'),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(height: 1, color: AppColors.border),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          child: SVG(
+                            'assets/icons/chevron-down.svg',
+                            color: AppColors.secondary,
+                            width: 16,
+                            height: 16,
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(height: 1, color: AppColors.border),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    const BlockedCategoriesSection(),
+                  ],
+                )
+              : const SizedBox.shrink(),
         ),
       ],
     );

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/data/models/focus_category.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
@@ -26,8 +27,8 @@ class TagSection extends ConsumerWidget {
               style: TextStyle(
                 fontFamily: AppTextStyles.fontFamily,
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF232321),
+                fontWeight: FontWeight.w500,
+                color: AppColors.primary,
               ),
             ),
             CupertinoButton(
@@ -60,7 +61,7 @@ class TagSection extends ConsumerWidget {
                 child: const Icon(
                   CupertinoIcons.add,
                   size: 16,
-                  color: Color(0xFF232321),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -87,7 +88,9 @@ class TagSection extends ConsumerWidget {
 
                 return GestureDetector(
                   onTap: () {
-                    ref.read(pomodoroSettingsProvider.notifier).updateSettings(
+                    ref
+                        .read(pomodoroSettingsProvider.notifier)
+                        .updateSettings(
                           settings.copyWith(selectedCategory: category),
                         );
                   },
@@ -95,8 +98,10 @@ class TagSection extends ConsumerWidget {
                     duration: const Duration(milliseconds: 180),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF071B12) : CupertinoColors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      color: isSelected
+                          ? AppColors.primary
+                          : CupertinoColors.white,
+                      borderRadius: BorderRadius.circular(AppRadius.md),
                     ),
                     child: Row(
                       children: [
@@ -106,17 +111,20 @@ class TagSection extends ConsumerWidget {
                             style: TextStyle(
                               fontFamily: AppTextStyles.fontFamily,
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: isSelected ? CupertinoColors.white : const Color(0xFF232321),
+                              fontWeight: FontWeight.w500,
+                              color: isSelected
+                                  ? CupertinoColors.white
+                                  : AppColors.primary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (isSelected)
-                          const Icon(
-                            CupertinoIcons.checkmark,
-                            size: 16,
+                          const SVG(
+                            'assets/icons/check.svg',
+                            width: 16,
+                            height: 16,
                             color: CupertinoColors.white,
                           ),
                       ],

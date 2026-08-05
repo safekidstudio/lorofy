@@ -37,12 +37,14 @@ class Input extends StatefulWidget {
 class _InputState extends State<Input> {
   late FocusNode _focusNode;
   bool _isFocused = false;
+  late bool _obscureText;
 
   @override
   void initState() {
     super.initState();
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_onFocusChange);
+    _obscureText = widget.obscureText;
   }
 
   void _onFocusChange() {
@@ -115,7 +117,7 @@ class _InputState extends State<Input> {
               focusNode: _focusNode,
               controller: widget.controller,
               placeholder: widget.placeholder,
-              obscureText: widget.obscureText,
+              obscureText: _obscureText,
               keyboardType: widget.keyboardType,
               enabled: !widget.disabled,
               onChanged: widget.onChanged,
@@ -140,7 +142,25 @@ class _InputState extends State<Input> {
                       padding: const EdgeInsets.only(right: 12),
                       child: widget.suffix,
                     )
-                  : null,
+                  : (widget.obscureText
+                      ? GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: Icon(
+                              _obscureText
+                                  ? CupertinoIcons.eye_slash_fill
+                                  : CupertinoIcons.eye_fill,
+                              color: const Color(0xFF8E8E93),
+                              size: 20,
+                            ),
+                          ),
+                        )
+                      : null),
             ),
           ),
         ),

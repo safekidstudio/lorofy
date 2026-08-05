@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 
@@ -11,44 +12,114 @@ class BreaksAndRoundsSection extends ConsumerStatefulWidget {
 }
 
 class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection> {
-  Future<void> _showCustomDialog({
+  Future<void> _showSpinnerPicker({
     required BuildContext context,
     required String title,
     required int currentValue,
+    required List<int> options,
     required ValueChanged<int> onSubmitted,
   }) async {
-    final controller = TextEditingController(text: currentValue.toString());
-    await showCupertinoDialog(
+    int selectedVal = currentValue;
+    final initialIndex = options.indexOf(currentValue);
+    final scrollController = FixedExtentScrollController(
+      initialItem: initialIndex != -1 ? initialIndex : 0,
+    );
+
+    await showCupertinoModalPopup<void>(
       context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: Text(title),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 12.0),
-          child: CupertinoTextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            placeholder: 'Value',
-            autofocus: true,
-            style: const TextStyle(fontFamily: AppTextStyles.fontFamily),
+      builder: (BuildContext context) {
+        return Container(
+          height: 280,
+          decoration: BoxDecoration(
+            color: AppColors.card.resolveFrom(context),
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
           ),
-        ),
-        actions: [
-          CupertinoDialogAction(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.pop(context),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.border.resolveFrom(context),
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 16,
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          onSubmitted(selectedVal);
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          'Done',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF071B12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: CupertinoPicker(
+                    itemExtent: 40.0,
+                    scrollController: scrollController,
+                    onSelectedItemChanged: (int index) {
+                      selectedVal = options[index];
+                    },
+                    children: List<Widget>.generate(options.length, (int index) {
+                      return Center(
+                        child: Text(
+                          '${options[index]}',
+                          style: const TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 20,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
           ),
-          CupertinoDialogAction(
-            child: const Text('Save'),
-            onPressed: () {
-              final val = int.tryParse(controller.text);
-              if (val != null && val > 0) {
-                onSubmitted(val);
-              }
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -65,18 +136,15 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
           text: TextSpan(
             style: const TextStyle(
               fontFamily: AppTextStyles.fontFamily,
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF8E8E93),
+              color: AppColors.secondary,
             ),
             children: [
               TextSpan(text: '$title: '),
               TextSpan(
                 text: '$currentValue mins',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF232321),
-                ),
+                style: const TextStyle(color: AppColors.primary),
               ),
             ],
           ),
@@ -86,37 +154,36 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
           children: [
             ...presetOptions.map((opt) {
               final isSelected = currentValue == opt;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => onChanged(opt),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    margin: const EdgeInsets.only(right: 8),
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF071B12) : CupertinoColors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${opt}m',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? CupertinoColors.white : const Color(0xFF232321),
-                        ),
-                      ),
+              return GestureDetector(
+                onTap: () => onChanged(opt),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  margin: const EdgeInsets.only(right: 8),
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF071B12) : CupertinoColors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${opt}m',
+                    style: TextStyle(
+                      fontFamily: AppTextStyles.fontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected ? CupertinoColors.white : AppColors.primary,
                     ),
                   ),
                 ),
               );
             }),
             GestureDetector(
-              onTap: () => _showCustomDialog(
+              onTap: () => _showSpinnerPicker(
                 context: context,
-                title: 'Custom Break Duration',
+                title: 'Break Duration',
                 currentValue: currentValue,
+                options: List<int>.generate(120, (i) => i + 1),
                 onSubmitted: onChanged,
               ),
               child: Container(
@@ -126,10 +193,14 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
                   color: const Color(0xFFE5E5EA),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  CupertinoIcons.pencil,
-                  size: 18,
-                  color: Color(0xFF232321),
+                child: const Align(
+                  alignment: Alignment.center,
+                  child: SVG(
+                    'assets/icons/edit-drawing.svg',
+                    width: 16,
+                    height: 16,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
             ),
@@ -151,18 +222,15 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
           text: TextSpan(
             style: const TextStyle(
               fontFamily: AppTextStyles.fontFamily,
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF8E8E93),
+              color: AppColors.secondary,
             ),
             children: [
               const TextSpan(text: 'Target rounds: '),
               TextSpan(
                 text: '$currentValue rounds',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF232321),
-                ),
+                style: const TextStyle(color: AppColors.primary),
               ),
             ],
           ),
@@ -172,37 +240,36 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
           children: [
             ...presetOptions.map((opt) {
               final isSelected = currentValue == opt;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => onChanged(opt),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    margin: const EdgeInsets.only(right: 8),
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF071B12) : CupertinoColors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${opt}r',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? CupertinoColors.white : const Color(0xFF232321),
-                        ),
-                      ),
+              return GestureDetector(
+                onTap: () => onChanged(opt),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  margin: const EdgeInsets.only(right: 8),
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF071B12) : CupertinoColors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${opt}r',
+                    style: TextStyle(
+                      fontFamily: AppTextStyles.fontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected ? CupertinoColors.white : AppColors.primary,
                     ),
                   ),
                 ),
               );
             }),
             GestureDetector(
-              onTap: () => _showCustomDialog(
+              onTap: () => _showSpinnerPicker(
                 context: context,
-                title: 'Custom Target Rounds',
+                title: 'Target Rounds',
                 currentValue: currentValue,
+                options: List<int>.generate(20, (i) => i + 1),
                 onSubmitted: onChanged,
               ),
               child: Container(
@@ -212,10 +279,14 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
                   color: const Color(0xFFE5E5EA),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  CupertinoIcons.pencil,
-                  size: 18,
-                  color: Color(0xFF232321),
+                child: const Align(
+                  alignment: Alignment.center,
+                  child: SVG(
+                    'assets/icons/edit-drawing.svg',
+                    width: 16,
+                    height: 16,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
             ),

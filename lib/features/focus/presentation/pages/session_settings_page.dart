@@ -70,6 +70,12 @@ class _SessionSettingsPageState extends ConsumerState<SessionSettingsPage> {
               Expanded(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
+                  layoutBuilder: (currentChild, previousChildren) {
+                    return Stack(
+                      alignment: Alignment.topCenter,
+                      children: <Widget>[...previousChildren, currentChild!],
+                    );
+                  },
                   child: _selectedTab == 0
                       ? const SettingsSessionTab()
                       : const SettingsSoundTab(key: ValueKey('sound_tab')),

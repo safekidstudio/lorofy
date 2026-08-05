@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/input.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/data/models/focus_category.dart';
@@ -171,7 +172,15 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
                       ],
                     ),
                     child: isSelected
-                        ? const Icon(CupertinoIcons.checkmark, size: 16, color: Colors.white)
+                        ? const Align(
+                            alignment: Alignment.center,
+                            child: SVG(
+                              'assets/icons/check.svg',
+                              width: 16,
+                              height: 16,
+                              color: Colors.white,
+                            ),
+                          )
                         : null,
                   ),
                 );

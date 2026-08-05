@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/app_checkbox.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 
@@ -10,34 +11,21 @@ class BlockedCategoriesSection extends ConsumerWidget {
   Widget _buildCheckboxRow({
     required String title,
     required bool isChecked,
-    required VoidCallback onTap,
+    required ValueChanged<bool> onChanged,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => onChanged(!isChecked),
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Row(
           children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                color: isChecked ? const Color(0xFF071B12) : Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: isChecked ? const Color(0xFF071B12) : const Color(0xFFD1D1D6),
-                  width: 2,
-                ),
+            IgnorePointer(
+              child: AppCheckbox(
+                value: isChecked,
+                onChanged: onChanged,
+                size: 18,
               ),
-              child: isChecked
-                  ? const Icon(
-                      CupertinoIcons.checkmark,
-                      size: 14,
-                      color: CupertinoColors.white,
-                    )
-                  : null,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -45,11 +33,8 @@ class BlockedCategoriesSection extends ConsumerWidget {
                 title,
                 style: TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: isChecked
-                      ? const Color(0xFF232321)
-                      : const Color(0xFF8E8E93),
+                  fontSize: 14,
+                  color: isChecked ? AppColors.primary : AppColors.secondary,
                 ),
               ),
             ),
@@ -71,8 +56,8 @@ class BlockedCategoriesSection extends ConsumerWidget {
           style: TextStyle(
             fontFamily: AppTextStyles.fontFamily,
             fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF232321),
+            fontWeight: FontWeight.w500,
+            color: AppColors.primary,
           ),
         ),
         const SizedBox(height: 12),
@@ -86,14 +71,16 @@ class BlockedCategoriesSection extends ConsumerWidget {
           return _buildCheckboxRow(
             title: categoryLabel,
             isChecked: isChecked,
-            onTap: () {
+            onChanged: (val) {
               final currentSet = Set<String>.from(settings.blockedCategories);
               if (isChecked) {
                 currentSet.remove(categoryLabel);
               } else {
                 currentSet.add(categoryLabel);
               }
-              ref.read(pomodoroSettingsProvider.notifier).updateSettings(
+              ref
+                  .read(pomodoroSettingsProvider.notifier)
+                  .updateSettings(
                     settings.copyWith(blockedCategories: currentSet),
                   );
             },

@@ -12,6 +12,7 @@ import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/network/dio_client.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
+import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import '../providers/onboard_controller.dart';
 
 class OnboardPage extends ConsumerStatefulWidget {
@@ -132,6 +133,20 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
       initialPage: initialPage,
       viewportFraction: 0.22,
     );
+    _prefillUsername();
+  }
+
+  Future<void> _prefillUsername() async {
+    try {
+      final profile = await ref.read(authRepositoryProvider).getMe();
+      if (mounted) {
+        setState(() {
+          _nameController.text = profile.username;
+        });
+      }
+    } catch (e) {
+      // Ignore errors silently
+    }
   }
 
   @override
