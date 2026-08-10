@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Material, Colors;
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
-import 'package:lorofy/features/focus/presentation/widgets/session_settings/settings_session_tab.dart';
+import 'package:lorofy/features/focus/presentation/widgets/session_settings/settings_sound_tab.dart';
 
-class SessionSettingsPage extends StatelessWidget {
-  const SessionSettingsPage({super.key});
+class SoundSettingsPage extends StatelessWidget {
+  const SoundSettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +34,11 @@ class SessionSettingsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                title: 'Focus Settings',
+                title: 'Sounds',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
               const Expanded(
-                child: SettingsSessionTab(),
+                child: SettingsSoundTab(key: ValueKey('sound_settings_tab')),
               ),
             ],
           ),

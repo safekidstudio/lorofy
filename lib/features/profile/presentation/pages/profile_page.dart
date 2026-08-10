@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/app_confirm_dialog.dart';
@@ -50,13 +51,7 @@ class ProfilePage extends ConsumerWidget {
               title: 'Profile',
               rightActions: CupertinoButton(
                 padding: EdgeInsets.zero,
-                onPressed: () {
-                  AppToast.show(
-                    context,
-                    message: "Settings coming soon!",
-                    type: ToastType.info,
-                  );
-                },
+                onPressed: () => context.push('/settings'),
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   child: const SVG(

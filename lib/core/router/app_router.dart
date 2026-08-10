@@ -4,6 +4,8 @@ import 'package:lorofy/features/home/presentation/pages/home_page.dart';
 import 'package:lorofy/features/explore/presentation/pages/explore_page.dart';
 import 'package:lorofy/features/profile/presentation/pages/onboard_page.dart';
 import 'package:lorofy/features/focus/presentation/pages/session_settings_page.dart';
+import 'package:lorofy/features/settings/presentation/pages/settings_page.dart';
+import 'package:lorofy/features/focus/presentation/pages/sound_settings_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
@@ -101,14 +103,20 @@ GoRouter appRouter(Ref ref) {
         path: '/onboard',
         builder: (context, state) => const OnboardPage(),
       ),
-      // 9. Màn hình Cài đặt Session & Sounds
+      // 9. Màn hình Cài đặt
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsPage(),
+      ),
+      // 9a. Màn hình Focus Settings
       GoRoute(
         path: '/session-settings',
-        builder: (context, state) {
-          final tabStr = state.uri.queryParameters['tab'] ?? '0';
-          final initialTab = int.tryParse(tabStr) ?? 0;
-          return SessionSettingsPage(initialTab: initialTab);
-        },
+        builder: (context, state) => const SessionSettingsPage(),
+      ),
+      // 9b. Màn hình Cài đặt Sound
+      GoRoute(
+        path: '/sound-settings',
+        builder: (context, state) => const SoundSettingsPage(),
       ),
     ],
 

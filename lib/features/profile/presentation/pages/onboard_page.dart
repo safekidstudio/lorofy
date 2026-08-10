@@ -7,12 +7,13 @@ import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/input.dart';
 import 'package:lorofy/components/ui/toast.dart';
-import 'package:rive/rive.dart';
+import 'package:rive/rive.dart' hide LinearGradient, Image;
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/network/dio_client.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
+import '../providers/country_provider.dart';
 import '../providers/onboard_controller.dart';
 
 class OnboardPage extends ConsumerStatefulWidget {
@@ -35,14 +36,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
 
   String _selectedCountryCode = 'VN';
   final _nameController = TextEditingController();
-
-  final List<Map<String, String>> _countries = [
-    {'code': 'VN', 'name': 'Vietnam', 'flag': '🇻🇳'},
-    {'code': 'US', 'name': 'United States', 'flag': '🇺🇸'},
-    {'code': 'JP', 'name': 'Japan', 'flag': '🇯🇵'},
-    {'code': 'SG', 'name': 'Singapore', 'flag': '🇸🇬'},
-    {'code': 'KR', 'name': 'South Korea', 'flag': '🇰🇷'},
-  ];
 
   final List<Map<String, String>> _defaultAvatars = [
     {
@@ -245,8 +238,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
         return 'America/New_York';
       case 'JP':
         return 'Asia/Tokyo';
-      case 'SG':
-        return 'Asia/Singapore';
+      case 'TH':
+        return 'Asia/Bangkok';
+      case 'ES':
+        return 'Europe/Madrid';
       case 'KR':
         return 'Asia/Seoul';
       default:
@@ -291,10 +286,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
           // Auto-redirect to home page after a 3-second delay
           Future.delayed(const Duration(seconds: 3), () {
             if (mounted && _isSuccess) {
-              ref.read(authProvider.notifier).updateOnboardedState(
-                onboarded: true,
-                displayName: _nameController.text.trim(),
-              );
+              ref
+                  .read(authProvider.notifier)
+                  .updateOnboardedState(
+                    onboarded: true,
+                    displayName: _nameController.text.trim(),
+                  );
             }
           });
         },
@@ -314,7 +311,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
 
     if (_isSuccess) {
       content = CupertinoPageScaffold(
-        backgroundColor: CupertinoColors.white,
+        backgroundColor: AppColors.background,
         child: SafeArea(
           child: Stack(
             children: [
@@ -327,7 +324,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
               ),
               // Main content
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -339,10 +339,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                         duration: const Duration(milliseconds: 800),
                         curve: Curves.elasticOut,
                         builder: (context, value, child) {
-                          return Transform.scale(
-                            scale: value,
-                            child: child,
-                          );
+                          return Transform.scale(scale: value, child: child);
                         },
                         child: const SVG(
                           'assets/illustrations/success_checkmark.svg',
@@ -382,10 +379,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                     Button.primary(
                       text: 'Get Started',
                       onPressed: () {
-                        ref.read(authProvider.notifier).updateOnboardedState(
-                          onboarded: true,
-                          displayName: _nameController.text.trim(),
-                        );
+                        ref
+                            .read(authProvider.notifier)
+                            .updateOnboardedState(
+                              onboarded: true,
+                              displayName: _nameController.text.trim(),
+                            );
                       },
                     ),
                   ],
@@ -397,7 +396,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
       );
     } else {
       content = CupertinoPageScaffold(
-        backgroundColor: CupertinoColors.white,
+        backgroundColor: AppColors.background,
         resizeToAvoidBottomInset: true,
         child: SafeArea(
           child: Column(
@@ -417,7 +416,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -660,10 +662,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                             padding: isSelected
                                 ? const EdgeInsets.all(2)
                                 : EdgeInsets.zero,
-                            child: AppAvatar(
-                              path: avatar['url'],
-                              size: 52,
-                            ),
+                            child: AppAvatar(path: avatar['url'], size: 52),
                           ),
                         ),
                       ),
@@ -678,8 +677,9 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
     );
   }
 
-  // --- STEP 2: COUNTRY SELECT ---
   Widget _buildCountryStep(bool isDisabled) {
+    final countriesAsync = ref.watch(countriesProvider);
+
     return Column(
       key: const ValueKey(1),
       children: [
@@ -695,60 +695,133 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 32),
-        ..._countries.map((country) {
-          final isSelected = country['code'] == _selectedCountryCode;
+        countriesAsync.when(
+          loading: () => const CupertinoActivityIndicator(),
+          error: (e, _) => Text(
+            'Could not load countries',
+            style: AppTextStyles.body.copyWith(color: AppColors.secondary),
+          ),
+          data: (countries) {
+            // Auto-select first country if current selection not in list
+            if (countries.isNotEmpty &&
+                !countries.any((c) => c.code == _selectedCountryCode)) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted)
+                  setState(() => _selectedCountryCode = countries.first.code);
+              });
+            }
+            return GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 3,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 0.85,
+              children: countries.map((country) {
+                final isSelected = country.code == _selectedCountryCode;
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: GestureDetector(
-              onTap: isDisabled
-                  ? null
-                  : () =>
-                        setState(() => _selectedCountryCode = country['code']!),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? const Color(0xFF232321)
-                      : const Color(0xFFE4E4E6),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      country['flag']!,
-                      style: const TextStyle(fontSize: 24),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        country['name']!,
-                        style: AppTextStyles.body.copyWith(
-                          color: isSelected
-                              ? CupertinoColors.white
-                              : const Color(0xFF232321),
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                          fontSize: 16,
+                return GestureDetector(
+                  onTap: isDisabled
+                      ? null
+                      : () =>
+                            setState(() => _selectedCountryCode = country.code),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    decoration: BoxDecoration(
+                      color: CupertinoColors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF232321)
+                            : CupertinoColors.transparent,
+                        width: 2.0,
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x05000000),
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
                         ),
-                      ),
+                      ],
                     ),
-                    if (isSelected)
-                      const Icon(
-                        CupertinoIcons.checkmark_alt,
-                        color: CupertinoColors.white,
-                        size: 20,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }),
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (country.flagUrl != null)
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.network(
+                                    country.flagUrl!,
+                                    width: 48,
+                                    height: 48,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stack) =>
+                                        Container(
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFE4E4E6),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                        ),
+                                  ),
+                                )
+                              else
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE4E4E6),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              const SizedBox(height: 10),
+                              Text(
+                                country.name,
+                                style: const TextStyle(
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF232321),
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (isSelected)
+                          Positioned(
+                            top: 6,
+                            right: 6,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF071B12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: SVG(
+                                'assets/icons/check.svg',
+                                width: 10,
+                                height: 10,
+                                color: CupertinoColors.white,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
       ],
     );
   }

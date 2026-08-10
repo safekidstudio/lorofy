@@ -243,7 +243,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                         pomodoroState: phase,
                         displaySeconds: displaySeconds,
                         currentRound: timerState.currentRound,
-                        targetRounds: settings.targetRounds,
+                        targetRounds: settings.isDeepFocusMode ? 1 : settings.targetRounds,
                         isLongBreak: timerState.isLongBreak,
                       ),
                     ),
@@ -456,7 +456,7 @@ class _SoundButtonState extends State<_SoundButton>
           onPressed: () {
             _hideTooltip();
             _hideTimer?.cancel();
-            context.push('/session-settings?tab=1');
+            context.push('/sound-settings');
           },
           child: const SVG(
             'assets/icons/sounds_drawing.svg',

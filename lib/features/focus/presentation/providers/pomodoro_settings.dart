@@ -17,6 +17,10 @@ class PomodoroSettings {
   final bool isDeepFocusMode;
   final BlockMode blockMode;
   final Set<String> blockedCategories;
+  final bool autoStartBreak;
+  final bool autoStartFocus;
+  final bool pushNotifications;
+  final bool backgroundProcess;
 
   const PomodoroSettings({
     required this.focusMinutes,
@@ -29,6 +33,10 @@ class PomodoroSettings {
     this.isDeepFocusMode = false,
     this.blockMode = BlockMode.MEDIUM,
     this.blockedCategories = const {'Social Media'},
+    this.autoStartBreak = true,
+    this.autoStartFocus = true,
+    this.pushNotifications = true,
+    this.backgroundProcess = true,
   });
 
   PomodoroSettings copyWith({
@@ -42,36 +50,31 @@ class PomodoroSettings {
     bool? isDeepFocusMode,
     BlockMode? blockMode,
     Set<String>? blockedCategories,
+    bool? autoStartBreak,
+    bool? autoStartFocus,
+    bool? pushNotifications,
+    bool? backgroundProcess,
   }) {
-    final newIsDeep = isDeepFocusMode ?? this.isDeepFocusMode;
-    int newTargetRounds = targetRounds ?? this.targetRounds;
-    int newBreakMinutes = breakMinutes ?? this.breakMinutes;
     int newFocusMinutes = focusMinutes ?? this.focusMinutes;
-
-    if (newIsDeep) {
-      newTargetRounds = 1;
-      newBreakMinutes = 0;
-    } else {
-      if (this.isDeepFocusMode && !newIsDeep) {
-        if (newTargetRounds == 1) newTargetRounds = 4;
-        if (newBreakMinutes == 0) newBreakMinutes = 5;
-      }
-      if (newFocusMinutes > 90) {
-        newFocusMinutes = 90;
-      }
+    if (newFocusMinutes > 180) {
+      newFocusMinutes = 180;
     }
 
     return PomodoroSettings(
       focusMinutes: newFocusMinutes,
-      breakMinutes: newBreakMinutes,
+      breakMinutes: breakMinutes ?? this.breakMinutes,
       longBreakMinutes: longBreakMinutes ?? this.longBreakMinutes,
-      targetRounds: newTargetRounds,
+      targetRounds: targetRounds ?? this.targetRounds,
       ambientSound: ambientSound ?? this.ambientSound,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       timedReminder: timedReminder ?? this.timedReminder,
-      isDeepFocusMode: newIsDeep,
+      isDeepFocusMode: isDeepFocusMode ?? this.isDeepFocusMode,
       blockMode: blockMode ?? this.blockMode,
       blockedCategories: blockedCategories ?? this.blockedCategories,
+      autoStartBreak: autoStartBreak ?? this.autoStartBreak,
+      autoStartFocus: autoStartFocus ?? this.autoStartFocus,
+      pushNotifications: pushNotifications ?? this.pushNotifications,
+      backgroundProcess: backgroundProcess ?? this.backgroundProcess,
     );
   }
 }
@@ -91,6 +94,10 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
       isDeepFocusMode: true,
       blockMode: BlockMode.MEDIUM,
       blockedCategories: {'Social Media'},
+      autoStartBreak: true,
+      autoStartFocus: true,
+      pushNotifications: true,
+      backgroundProcess: true,
     );
   }
 

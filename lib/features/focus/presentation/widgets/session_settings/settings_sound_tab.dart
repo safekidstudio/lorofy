@@ -5,6 +5,9 @@ import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
 import 'package:lorofy/features/focus/data/repositories/sound_repository.dart';
+import 'package:lorofy/features/focus/domain/models/ambient_sound_meta.dart';
+import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.dart';
+import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 import 'package:lorofy/components/ui/pro_upgrade_sheet.dart';
 import 'package:lorofy/components/ui/bottom_player_bar.dart';
 import 'package:lorofy/components/ui/button.dart';
@@ -38,54 +41,23 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
   bool _isPro = false;
   bool _isSpotifyConnected = false;
 
+
   @override
   void initState() {
     super.initState();
-    // Synchronize initial ambient sound with player on load if active
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final settings = ref.read(pomodoroSettingsProvider);
-      final player = ref.read(musicPlayerProvider);
-      if (settings.ambientSound != AmbientSound.none &&
-          player.currentlyPlaying == null) {
-        ref
-            .read(musicPlayerProvider.notifier)
-            .play(
-              SpotifySong(
-                title: _getLabelForSound(settings.ambientSound),
-                artist: 'Ambient Sound',
-                imageUrl: _getIconPathForSound(settings.ambientSound),
-                duration: '--.--',
-                isAmbient: true,
-              ),
-            );
-      }
-    });
+    // Settings screen is preview-only; do NOT auto-play on enter.
+    // Sound will start when user explicitly taps a sound icon.
   }
 
-  String _getIconPathForSound(AmbientSound sound) {
-    return switch (sound) {
-      AmbientSound.none => 'icons/sounds/none.svg',
-      AmbientSound.wind => 'icons/sounds/wind.svg',
-      AmbientSound.beach => 'icons/sounds/beach.svg',
-      AmbientSound.nature => 'icons/sounds/nature.svg',
-      AmbientSound.books => 'icons/sounds/library.svg',
-      AmbientSound.fire => 'icons/sounds/fire.svg',
-      AmbientSound.rain => 'icons/sounds/rain.svg',
-      AmbientSound.cafe => 'icons/sounds/coffee.svg',
-    };
-  }
-
-  String _getLabelForSound(AmbientSound sound) {
-    return switch (sound) {
-      AmbientSound.none => 'None',
-      AmbientSound.wind => 'Wind',
-      AmbientSound.beach => 'Beach',
-      AmbientSound.nature => 'Nature',
-      AmbientSound.books => 'Library',
-      AmbientSound.fire => 'Fire',
-      AmbientSound.rain => 'Rain',
-      AmbientSound.cafe => 'Coffee',
-    };
+  @override
+  void deactivate() {
+    // Only pause preview when there is no active focus session.
+    // If session is running, let the sound keep playing after user backs out.
+    final phase = ref.read(pomodoroTimerProvider).phase;
+    if (phase != PomodoroState.focus) {
+      ref.read(musicPlayerProvider.notifier).pause();
+    }
+    super.deactivate();
   }
 
   void _onAmbientSoundTap(AmbientSound sound, PomodoroSettings settings) {
@@ -96,17 +68,7 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
     if (sound == AmbientSound.none) {
       ref.read(musicPlayerProvider.notifier).stop();
     } else {
-      ref
-          .read(musicPlayerProvider.notifier)
-          .play(
-            SpotifySong(
-              title: _getLabelForSound(sound),
-              artist: 'Ambient Sound',
-              imageUrl: _getIconPathForSound(sound),
-              duration: '--.--',
-              isAmbient: true,
-            ),
-          );
+      ref.read(musicPlayerProvider.notifier).play(sound.toSong());
     }
   }
 
@@ -183,7 +145,7 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
                     children: List.generate(AmbientSound.values.length, (index) {
                       final sound = AmbientSound.values[index];
                       final isSelected = settings.ambientSound == sound;
-                      final iconPath = _getIconPathForSound(sound);
+                      final iconPath = sound.iconPath;
 
                       return GestureDetector(
                         onTap: () => _onAmbientSoundTap(sound, settings),

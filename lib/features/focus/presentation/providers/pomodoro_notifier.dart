@@ -7,6 +7,8 @@ import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:lorofy/features/focus/data/models/focus_category.dart';
 import 'package:lorofy/features/focus/data/repositories/focus_repository.dart';
 import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.dart';
+import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
+import 'package:lorofy/features/focus/domain/models/ambient_sound_meta.dart';
 
 // ---------------------------------------------------------------------------
 // Immutable state
@@ -99,8 +101,16 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
     _runTicker(PomodoroState.focus, onComplete: _onFocusCompleted);
 
+    // Start ambient sound if configured
+    _playAmbientSound(settings);
+
     // Call API startSession in the background
     _apiStartSession(focusMinutes);
+  }
+
+  void _playAmbientSound(PomodoroSettings settings) {
+    if (settings.ambientSound == AmbientSound.none) return;
+    ref.read(musicPlayerProvider.notifier).play(settings.ambientSound.toSong());
   }
 
   void startBreak(int breakMinutes, {required bool isLong}) {
@@ -116,6 +126,9 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     );
 
     _runTicker(PomodoroState.breakTime, onComplete: _onBreakCompleted);
+
+    // Stop ambient sound during break
+    ref.read(musicPlayerProvider.notifier).stop();
   }
 
   /// Pauses the ticker (used while the give-up sheet is open).
@@ -144,6 +157,9 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     _cancelTicker();
     state = state.copyWith(phase: PomodoroState.giveup);
 
+    // Stop ambient sound on give up
+    ref.read(musicPlayerProvider.notifier).stop();
+
     // Call API failSession
     final sessionId = state.backendSessionId;
     if (sessionId != null) {
@@ -168,6 +184,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
   void resetToIdle() {
     _cancelTicker();
+    ref.read(musicPlayerProvider.notifier).stop();
     final settings = ref.read(pomodoroSettingsProvider);
     state = PomodoroTimerState(
       selectedCategory: settings.selectedCategory,
@@ -240,10 +257,12 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
       });
     }
 
-    if (state.currentRound >= settings.targetRounds) {
+    final targetRounds = settings.isDeepFocusMode ? 1 : settings.targetRounds;
+    if (state.currentRound >= targetRounds) {
       state = state.copyWith(phase: PomodoroState.completed);
     } else {
-      startBreak(settings.breakMinutes, isLong: false);
+      final breakMinutes = settings.isDeepFocusMode ? 0 : settings.breakMinutes;
+      startBreak(breakMinutes, isLong: false);
     }
   }
 

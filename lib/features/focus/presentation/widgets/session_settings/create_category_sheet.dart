@@ -5,6 +5,7 @@ import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/input.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/toast.dart';
+import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/data/models/focus_category.dart';
 import 'package:lorofy/features/focus/presentation/providers/categories_provider.dart';
@@ -13,7 +14,8 @@ class CreateCategorySheet extends ConsumerStatefulWidget {
   const CreateCategorySheet({super.key});
 
   @override
-  ConsumerState<CreateCategorySheet> createState() => _CreateCategorySheetState();
+  ConsumerState<CreateCategorySheet> createState() =>
+      _CreateCategorySheetState();
 }
 
 class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
@@ -68,7 +70,7 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
     );
 
     ref.read(focusCategoriesProvider.notifier).addCategory(newCategory);
-    
+
     AppToast.show(
       context,
       message: 'Category "$name" created!',
@@ -81,123 +83,120 @@ class _CreateCategorySheetState extends ConsumerState<CreateCategorySheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl, vertical: AppPadding.lg),
       decoration: const BoxDecoration(
         color: Color(0xFFF6F6F6),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
         top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header with Close
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'New Category',
-                  style: TextStyle(
-                    fontFamily: AppTextStyles.fontFamily,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF232321),
-                  ),
-                ),
-                CupertinoButton(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppHeader(
+                leftActions: CupertinoButton(
                   padding: EdgeInsets.zero,
                   onPressed: () => Navigator.pop(context),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE5E5EA),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      CupertinoIcons.xmark,
-                      color: Color(0xFF232321),
-                      size: 16,
-                    ),
+                  child: const SVG(
+                    'assets/icons/cancel.svg',
+                    width: 20,
+                    height: 20,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Input Name
-            Input(
-              placeholder: 'Enter category name...',
-              controller: _categoryNameController,
-              errorMessage: _categoryNameError,
-            ),
-            const SizedBox(height: 20),
-
-            // Color Selector
-            const Text(
-              'Choose Color',
-              style: TextStyle(
-                fontFamily: AppTextStyles.fontFamily,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF232321),
+                title: 'New Category',
               ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: _presetColors.map((colorHex) {
-                final color = _getColorFromHex(colorHex, Colors.transparent);
-                final isSelected = _selectedColorHex == colorHex;
-
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedColorHex = colorHex),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                      border: isSelected
-                          ? Border.all(color: const Color(0xFF232321), width: 3)
-                          : Border.all(color: Colors.white, width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppPadding.xl),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Input Name
+                    Input(
+                      placeholder: 'Enter category name...',
+                      controller: _categoryNameController,
+                      errorMessage: _categoryNameError,
                     ),
-                    child: isSelected
-                        ? const Align(
-                            alignment: Alignment.center,
-                            child: SVG(
-                              'assets/icons/check.svg',
-                              width: 16,
-                              height: 16,
-                              color: Colors.white,
-                            ),
-                          )
-                        : null,
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
-            // Create Button
-            SizedBox(
-              height: 52,
-              child: Button.primary(
-                text: 'Create Category',
-                onPressed: _onCreateCategory,
+                    // Color Selector
+                    const Text(
+                      'Choose Color',
+                      style: TextStyle(
+                        fontFamily: AppTextStyles.fontFamily,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF232321),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: _presetColors.map((colorHex) {
+                        final color = _getColorFromHex(
+                          colorHex,
+                          Colors.transparent,
+                        );
+                        final isSelected = _selectedColorHex == colorHex;
+
+                        return GestureDetector(
+                          onTap: () =>
+                              setState(() => _selectedColorHex = colorHex),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                              border: isSelected
+                                  ? Border.all(
+                                      color: const Color(0xFF232321),
+                                      width: 3,
+                                    )
+                                  : Border.all(color: Colors.white, width: 1.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: isSelected
+                                ? const Align(
+                                    alignment: Alignment.center,
+                                    child: SVG(
+                                      'assets/icons/check.svg',
+                                      width: 16,
+                                      height: 16,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Create Button
+                    SizedBox(
+                      height: 52,
+                      child: Button.primary(
+                        text: 'Create Category',
+                        onPressed: _onCreateCategory,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-          ],
+            ],
+          ),
         ),
       ),
     );
