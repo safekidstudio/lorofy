@@ -1,18 +1,19 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/features/focus/data/datasources/focus_remote_data_source.dart';
-import 'package:lorofy/features/focus/data/models/focus_category.dart';
-import 'package:lorofy/features/focus/data/models/focus_session.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
+import 'package:lorofy/features/focus/domain/models/focus_category.dart';
+import 'package:lorofy/features/focus/domain/models/focus_session.dart';
+import 'package:lorofy/features/focus/domain/repositories/focus_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'focus_repository.g.dart';
+part 'focus_repository_impl.g.dart';
 
-class FocusRepository {
+class FocusRepositoryImpl implements FocusRepository {
   final FocusRemoteDataSource _remoteDataSource;
 
-  FocusRepository(this._remoteDataSource);
+  FocusRepositoryImpl(this._remoteDataSource);
 
-  Future<FocusSessionModel> startSession({
+  @override
+  Future<FocusSession> startSession({
     String? categoryId,
     required BlockMode blockMode,
     required int plannedMinutes,
@@ -24,18 +25,21 @@ class FocusRepository {
     );
   }
 
-  Future<FocusSessionModel> pauseSession(String sessionId) async {
+  @override
+  Future<FocusSession> pauseSession(String sessionId) async {
     return await _remoteDataSource.pauseSession(sessionId);
   }
 
-  Future<FocusSessionModel> completeSession(
+  @override
+  Future<FocusSession> completeSession(
     String sessionId,
     int actualMinutes,
   ) async {
     return await _remoteDataSource.completeSession(sessionId, actualMinutes);
   }
 
-  Future<FocusSessionModel> failSession({
+  @override
+  Future<FocusSession> failSession({
     required String sessionId,
     required int actualMinutes,
     String? failureReason,
@@ -47,6 +51,7 @@ class FocusRepository {
     );
   }
 
+  @override
   Future<List<FocusCategory>> getCategories() async {
     return await _remoteDataSource.getCategories();
   }
@@ -55,5 +60,5 @@ class FocusRepository {
 @Riverpod(keepAlive: true)
 FocusRepository focusRepository(Ref ref) {
   final remoteDataSource = ref.read(focusRemoteDataSourceProvider);
-  return FocusRepository(remoteDataSource);
+  return FocusRepositoryImpl(remoteDataSource);
 }

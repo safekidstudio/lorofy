@@ -1,38 +1,23 @@
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
+import 'package:lorofy/features/focus/domain/models/focus_session.dart';
 
-class FocusSessionModel {
-  final String id;
-  final String profileId;
-  final String? categoryId;
-  final String categoryName;
-  final BlockMode blockMode;
-  final int plannedMinutes;
-  final int actualMinutes;
-  final String status;
-  final int pauseCount;
-  final String? failureReason;
-  final String startedAt;
-  final String? endedAt;
-  final String? friendSessionId;
-  final int earnedPoints;
-  final int earnedCoins;
-
+class FocusSessionModel extends FocusSession {
   FocusSessionModel({
-    required this.id,
-    required this.profileId,
-    this.categoryId,
-    required this.categoryName,
-    required this.blockMode,
-    required this.plannedMinutes,
-    required this.actualMinutes,
-    required this.status,
-    required this.pauseCount,
-    this.failureReason,
-    required this.startedAt,
-    this.endedAt,
-    this.friendSessionId,
-    required this.earnedPoints,
-    required this.earnedCoins,
+    required super.id,
+    required super.profileId,
+    super.categoryId,
+    required super.categoryName,
+    required super.blockMode,
+    required super.plannedMinutes,
+    required super.actualMinutes,
+    required super.status,
+    required super.pauseCount,
+    super.failureReason,
+    required super.startedAt,
+    super.endedAt,
+    super.friendSessionId,
+    required super.earnedPoints,
+    required super.earnedCoins,
   });
 
   factory FocusSessionModel.fromJson(Map<String, dynamic> json) {
@@ -60,5 +45,25 @@ class FocusSessionModel {
       earnedPoints: json['earnedPoints'] as int? ?? 0,
       earnedCoins: json['earnedCoins'] as int? ?? 0,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'profileId': profileId,
+      'categoryId': categoryId,
+      'categoryName': categoryName,
+      'blockMode': blockMode.name,
+      'plannedMinutes': plannedMinutes,
+      'actualMinutes': actualMinutes,
+      'status': status,
+      'pauseCount': pauseCount,
+      'failureReason': failureReason,
+      'startedAt': startedAt,
+      'endedAt': endedAt,
+      'friendSessionId': friendSessionId,
+      'earnedPoints': earnedPoints,
+      'earnedCoins': earnedCoins,
+    };
   }
 }

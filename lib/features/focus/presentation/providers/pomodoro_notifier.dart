@@ -2,13 +2,17 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
+import 'package:lorofy/features/focus/domain/models/ambient_sound.dart';
+import 'package:lorofy/features/focus/domain/models/ambient_sound_meta.dart';
+import 'package:lorofy/features/focus/domain/models/focus_category.dart';
+import 'package:lorofy/features/focus/domain/models/pomodoro_settings.dart';
+import 'package:lorofy/features/focus/domain/repositories/focus_repository.dart';
+import 'package:lorofy/features/focus/data/repositories/focus_repository_impl.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
-import 'package:lorofy/features/focus/data/models/focus_category.dart';
-import 'package:lorofy/features/focus/data/repositories/focus_repository.dart';
 import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.dart';
 import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
-import 'package:lorofy/features/focus/domain/models/ambient_sound_meta.dart';
+
 
 // ---------------------------------------------------------------------------
 // Immutable state
@@ -199,7 +203,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
   Future<void> _apiStartSession(int focusMinutes) async {
     try {
-      final repository = ref.read(focusRepositoryProvider);
+      final FocusRepository repository = ref.read(focusRepositoryProvider);
       final settings = ref.read(pomodoroSettingsProvider);
       final activeBlockMode = settings.isDeepFocusMode ? settings.blockMode : BlockMode.MEDIUM;
       final session = await repository.startSession(

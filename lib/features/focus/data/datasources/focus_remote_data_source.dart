@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:lorofy/core/network/response/api_response.dart';
 import 'package:lorofy/core/network/dio_client.dart';
-import 'package:lorofy/features/focus/data/models/focus_category.dart';
-import 'package:lorofy/features/focus/data/models/focus_session.dart';
+import 'package:lorofy/features/focus/data/models/focus_category_model.dart';
+import 'package:lorofy/features/focus/data/models/focus_session_model.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -81,14 +81,14 @@ class FocusRemoteDataSource {
   }
 
   // GET CATEGORIES
-  Future<List<FocusCategory>> getCategories() async {
+  Future<List<FocusCategoryModel>> getCategories() async {
     final response = await _dio.get(
       '/categories',
       options: ApiOptions.protected,
     );
     return response.unwrap(
       (json) => (json as List<dynamic>)
-          .map((item) => FocusCategory.fromJson(item as Map<String, dynamic>))
+          .map((item) => FocusCategoryModel.fromJson(item as Map<String, dynamic>))
           .toList(),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
 class Input extends StatefulWidget {
@@ -129,7 +130,6 @@ class _InputState extends State<Input> {
               ),
               style: AppTextStyles.body.copyWith(fontSize: 16),
               decoration: null, // Clear standard border/decorations
-
               // 3. Tích hợp Prefix & Suffix lọt lòng vào trong ô Input
               prefix: widget.prefix != null
                   ? Padding(
@@ -143,24 +143,25 @@ class _InputState extends State<Input> {
                       child: widget.suffix,
                     )
                   : (widget.obscureText
-                      ? GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: Icon(
-                              _obscureText
-                                  ? CupertinoIcons.eye_slash_fill
-                                  : CupertinoIcons.eye_fill,
-                              color: const Color(0xFF8E8E93),
-                              size: 20,
+                        ? GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: SVG(
+                                _obscureText
+                                    ? 'assets/icons/eye-close.svg'
+                                    : 'assets/icons/eye.svg',
+                                width: 20,
+                                height: 20,
+                                color: AppColors.secondary,
+                              ),
                             ),
-                          ),
-                        )
-                      : null),
+                          )
+                        : null),
             ),
           ),
         ),

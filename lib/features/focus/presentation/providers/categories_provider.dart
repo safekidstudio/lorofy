@@ -1,5 +1,6 @@
-import 'package:lorofy/features/focus/data/models/focus_category.dart';
-import 'package:lorofy/features/focus/data/repositories/focus_repository.dart';
+import 'package:lorofy/features/focus/domain/models/focus_category.dart';
+import 'package:lorofy/features/focus/domain/repositories/focus_repository.dart';
+import 'package:lorofy/features/focus/data/repositories/focus_repository_impl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'categories_provider.g.dart';
@@ -8,7 +9,7 @@ part 'categories_provider.g.dart';
 class FocusCategories extends _$FocusCategories {
   @override
   Future<List<FocusCategory>> build() async {
-    final repository = ref.watch(focusRepositoryProvider);
+    final FocusRepository repository = ref.watch(focusRepositoryProvider);
     return await repository.getCategories();
   }
 

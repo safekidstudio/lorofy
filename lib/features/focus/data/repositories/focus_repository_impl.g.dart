@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'focus_repository.dart';
+part of 'focus_repository_impl.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -49,4 +49,4 @@ final class FocusRepositoryProvider
   }
 }
 
-String _$focusRepositoryHash() => r'd754be4c934459d68c730dafe49b1ea0f739bf9c';
+String _$focusRepositoryHash() => r'2820b189fe1d81c628474ec3c3b6ecc9b59c0175';

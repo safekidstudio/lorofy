@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
+import 'package:lorofy/features/focus/domain/models/spotify_playlist.dart';
+import 'package:lorofy/features/focus/domain/repositories/sound_repository.dart';
 
-class SoundRepository {
+class SoundRepositoryImpl implements SoundRepository {
+  @override
   Future<List<SpotifyPlaylist>> getPlaylists() async {
     // Simulate network latency representing dynamic fetch from the server
     await Future.delayed(const Duration(milliseconds: 600));
@@ -74,7 +76,7 @@ class SoundRepository {
 }
 
 final soundRepositoryProvider = Provider<SoundRepository>((ref) {
-  return SoundRepository();
+  return SoundRepositoryImpl();
 });
 
 final soundPlaylistsProvider = FutureProvider<List<SpotifyPlaylist>>((ref) async {

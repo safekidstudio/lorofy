@@ -2,12 +2,12 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/logo.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/toast.dart';
+import 'package:lorofy/features/focus/presentation/widgets/focus_timer/sound_button.dart';
 import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
@@ -120,7 +120,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
           ),
           _ => const KeyedSubtree(
             key: ValueKey('sound_button'),
-            child: _SoundButton(),
+            child: SoundButton(),
           ),
         },
       ),
@@ -333,138 +333,4 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
   }
 }
 
-// ---------------------------------------------------------------------------
-// Local widget — Sound button with animated tooltip
-// ---------------------------------------------------------------------------
 
-class _SoundButton extends StatefulWidget {
-  const _SoundButton();
-
-  @override
-  State<_SoundButton> createState() => _SoundButtonState();
-}
-
-class _SoundButtonState extends State<_SoundButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _fadeAnimation;
-  late final Animation<Offset> _slideAnimation;
-  Timer? _periodicTimer;
-  Timer? _hideTimer;
-  bool _isVisible = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.1, 0.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-
-    // Show tooltip after 2 seconds
-    _showTooltipAfterDelay(2);
-
-    // Setup periodic check every 45 seconds to show tooltip
-    _periodicTimer = Timer.periodic(const Duration(seconds: 45), (timer) {
-      _showTooltip();
-    });
-  }
-
-  void _showTooltipAfterDelay(int seconds) {
-    Future.delayed(Duration(seconds: seconds), () {
-      _showTooltip();
-    });
-  }
-
-  void _showTooltip() {
-    if (!mounted) return;
-    setState(() {
-      _isVisible = true;
-    });
-    _controller.forward();
-    _hideTimer?.cancel();
-    _hideTimer = Timer(const Duration(seconds: 4), () {
-      _hideTooltip();
-    });
-  }
-
-  void _hideTooltip() {
-    if (!mounted) return;
-    _controller.reverse().then((_) {
-      if (mounted) {
-        setState(() {
-          _isVisible = false;
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _periodicTimer?.cancel();
-    _hideTimer?.cancel();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (_isVisible)
-          FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF232321),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Tap to change sound',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        color: CupertinoColors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Text('🎧', style: TextStyle(fontSize: 12)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        const SizedBox(width: 8),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () {
-            _hideTooltip();
-            _hideTimer?.cancel();
-            context.push('/sound-settings');
-          },
-          child: const SVG(
-            'assets/icons/sounds_drawing.svg',
-            width: 24,
-            height: 24,
-          ),
-        ),
-      ],
-    );
-  }
-}

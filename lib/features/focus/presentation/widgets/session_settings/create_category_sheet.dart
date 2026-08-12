@@ -7,7 +7,7 @@ import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/features/focus/data/models/focus_category.dart';
+import 'package:lorofy/features/focus/domain/models/focus_category.dart';
 import 'package:lorofy/features/focus/presentation/providers/categories_provider.dart';
 
 class CreateCategorySheet extends ConsumerStatefulWidget {

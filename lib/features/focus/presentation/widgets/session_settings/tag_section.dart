@@ -4,7 +4,7 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/features/focus/data/models/focus_category.dart';
+import 'package:lorofy/features/focus/domain/models/focus_category.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'create_category_sheet.dart';
 

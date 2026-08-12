@@ -1,5 +1,5 @@
-import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
-import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
+import 'package:lorofy/features/focus/domain/models/ambient_sound.dart';
+import 'package:lorofy/features/focus/domain/models/spotify_playlist.dart';
 
 /// Central source-of-truth for all AmbientSound metadata.
 /// Use this instead of duplicating switch/map expressions across files.

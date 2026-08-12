@@ -1,38 +1,10 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:lorofy/features/focus/domain/models/ambient_sound.dart';
 import 'package:lorofy/features/focus/domain/models/ambient_sound_meta.dart';
-import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
+import 'package:lorofy/features/focus/domain/models/spotify_playlist.dart';
 
-class SpotifySong {
-  final String title;
-  final String artist;
-  final String imageUrl;
-  final String duration;
-  final bool isAmbient;
-
-  const SpotifySong({
-    required this.title,
-    required this.artist,
-    required this.imageUrl,
-    required this.duration,
-    this.isAmbient = false,
-  });
-}
-
-class SpotifyPlaylist {
-  final String title;
-  final String songCount;
-  final String imageUrl;
-  final List<SpotifySong> songs;
-
-  const SpotifyPlaylist({
-    required this.title,
-    required this.songCount,
-    required this.imageUrl,
-    required this.songs,
-  });
-}
 
 class PlayerState {
   final SpotifySong? currentlyPlaying;

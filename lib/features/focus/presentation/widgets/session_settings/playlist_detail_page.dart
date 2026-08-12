@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/focus/domain/models/spotify_playlist.dart';
 import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
 import 'package:lorofy/components/ui/bottom_player_bar.dart';
 
