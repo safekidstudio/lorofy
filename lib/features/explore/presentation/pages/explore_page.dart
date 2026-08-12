@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/components/ui/fomo_toast.dart';
+import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
 
 // Modular explore page sections
 import 'package:lorofy/features/explore/presentation/widgets/explore_stats_section.dart';
@@ -23,6 +25,17 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(leaderboardRealtimeStreamProvider, (previous, next) {
+      next.whenData((fomoEvent) {
+        FomoToast.show(
+          context,
+          displayName: fomoEvent.displayName,
+          avatarUrl: fomoEvent.avatarUrl,
+          earnedPoints: fomoEvent.earnedPoints,
+        );
+      });
+    });
+
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
       child: SafeArea(

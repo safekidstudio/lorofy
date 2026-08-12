@@ -1,272 +1,46 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/sliding_segmented_control.dart';
+import 'package:lorofy/components/ui/shimmer.dart';
+import 'package:lorofy/components/ui/fomo_toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
+import 'package:lorofy/features/explore/domain/models/leaderboard.dart';
 
-class LeaderboardPage extends StatefulWidget {
+class LeaderboardPage extends ConsumerStatefulWidget {
   const LeaderboardPage({super.key});
 
   @override
-  State<LeaderboardPage> createState() => _LeaderboardPageState();
+  ConsumerState<LeaderboardPage> createState() => _LeaderboardPageState();
 }
 
-class _LeaderboardPageState extends State<LeaderboardPage> {
+class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
   int _selectedTab = 0; // 0: Day, 1: Week, 2: National
-
-  // Podium configurations per tab (Graves/Asta/Nozel, James/James/Yuno, David/Yuno/Charlotte)
-  final List<List<PodiumUser>> podiumData = const [
-    // Day Tab
-    [
-      PodiumUser(
-        name: 'Graves',
-        points: 90,
-        rank: 2,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
-        borderColor: Color(0xFFD5DEEA),
-      ),
-      PodiumUser(
-        name: 'James',
-        points: 120,
-        rank: 1,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png',
-        borderColor: Color(0xFFFFB61D),
-      ),
-      PodiumUser(
-        name: 'David',
-        points: 75,
-        rank: 3,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/02_aus2zc_tfpypg.png',
-        borderColor: Color(0xFFD96806),
-      ),
-    ],
-    // Week Tab
-    [
-      PodiumUser(
-        name: 'Asta',
-        points: 450,
-        rank: 2,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/04_hwtksg_j0r2vn.png',
-        borderColor: Color(0xFFD5DEEA),
-      ),
-      PodiumUser(
-        name: 'James',
-        points: 620,
-        rank: 1,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png',
-        borderColor: Color(0xFFFFB61D),
-      ),
-      PodiumUser(
-        name: 'Yuno',
-        points: 410,
-        rank: 3,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/05_ld5pxz_gghyvn.png',
-        borderColor: Color(0xFFD96806),
-      ),
-    ],
-    // National Tab
-    [
-      PodiumUser(
-        name: 'Nozel Silva',
-        points: 2430,
-        rank: 2,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/03_gq9hsn_s1k2vn.png',
-        borderColor: Color(0xFFD5DEEA),
-      ),
-      PodiumUser(
-        name: 'Yuno',
-        points: 2900,
-        rank: 1,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/05_ld5pxz_gghyvn.png',
-        borderColor: Color(0xFFFFB61D),
-      ),
-      PodiumUser(
-        name: 'Charlotte',
-        points: 2100,
-        rank: 3,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/01_o2xysg_r3k2vn.png',
-        borderColor: Color(0xFFD96806),
-      ),
-    ],
-  ];
-
-  // Ranks lists per tab (ranks 4 to 10)
-  final List<List<LeaderboardEntry>> listData = const [
-    // Day Tab
-    [
-      LeaderboardEntry(
-        rank: 4,
-        name: 'Yuno Grinberyal',
-        points: 60,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/05_ld5pxz_gghyvn.png',
-      ),
-      LeaderboardEntry(
-        rank: 5,
-        name: 'Asta',
-        points: 55,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/04_hwtksg_j0r2vn.png',
-      ),
-      LeaderboardEntry(
-        rank: 6,
-        name: 'You',
-        points: 50,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/06_d6z9zq_v5hkvn.png',
-        isYou: true,
-      ),
-      LeaderboardEntry(
-        rank: 7,
-        name: 'Nozel Silva',
-        points: 43,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/03_gq9hsn_s1k2vn.png',
-      ),
-      LeaderboardEntry(
-        rank: 8,
-        name: 'Charlotte',
-        points: 36,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/01_o2xysg_r3k2vn.png',
-      ),
-      LeaderboardEntry(
-        rank: 9,
-        name: 'Langris',
-        points: 20,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/07_q9u5e8_cplg8n.png',
-      ),
-      LeaderboardEntry(
-        rank: 10,
-        name: 'Marsha',
-        points: 12,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/10_x2zysg_m5k2vn.png',
-      ),
-    ],
-    // Week Tab
-    [
-      LeaderboardEntry(
-        rank: 4,
-        name: 'Graves',
-        points: 380,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
-      ),
-      LeaderboardEntry(
-        rank: 5,
-        name: 'You',
-        points: 350,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/06_d6z9zq_v5hkvn.png',
-        isYou: true,
-      ),
-      LeaderboardEntry(
-        rank: 6,
-        name: 'David',
-        points: 320,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/02_aus2zc_tfpypg.png',
-      ),
-      LeaderboardEntry(
-        rank: 7,
-        name: 'Nozel Silva',
-        points: 290,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/03_gq9hsn_s1k2vn.png',
-      ),
-      LeaderboardEntry(
-        rank: 8,
-        name: 'Charlotte',
-        points: 240,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/01_o2xysg_r3k2vn.png',
-      ),
-      LeaderboardEntry(
-        rank: 9,
-        name: 'Langris',
-        points: 180,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/07_q9u5e8_cplg8n.png',
-      ),
-      LeaderboardEntry(
-        rank: 10,
-        name: 'Marsha',
-        points: 90,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/10_x2zysg_m5k2vn.png',
-      ),
-    ],
-    // National Tab
-    [
-      LeaderboardEntry(
-        rank: 4,
-        name: 'Graves',
-        points: 1950,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
-      ),
-      LeaderboardEntry(
-        rank: 5,
-        name: 'James',
-        points: 1820,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png',
-      ),
-      LeaderboardEntry(
-        rank: 6,
-        name: 'David',
-        points: 1750,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/02_aus2zc_tfpypg.png',
-      ),
-      LeaderboardEntry(
-        rank: 7,
-        name: 'Asta',
-        points: 1500,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/04_hwtksg_j0r2vn.png',
-      ),
-      LeaderboardEntry(
-        rank: 8,
-        name: 'You',
-        points: 1420,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/06_d6z9zq_v5hkvn.png',
-        isYou: true,
-      ),
-      LeaderboardEntry(
-        rank: 9,
-        name: 'Langris',
-        points: 1200,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/07_q9u5e8_cplg8n.png',
-      ),
-      LeaderboardEntry(
-        rank: 10,
-        name: 'Marsha',
-        points: 600,
-        avatarUrl:
-            'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/10_x2zysg_m5k2vn.png',
-      ),
-    ],
-  ];
 
   @override
   Widget build(BuildContext context) {
-    final currentPodium = podiumData[_selectedTab];
-    final currentList = listData[_selectedTab];
+    // Listen to realtime SSE updates to refresh and show toasts
+    ref.listen(leaderboardRealtimeStreamProvider, (previous, next) {
+      next.whenData((fomoEvent) {
+        FomoToast.show(
+          context,
+          displayName: fomoEvent.displayName,
+          avatarUrl: fomoEvent.avatarUrl,
+          earnedPoints: fomoEvent.earnedPoints,
+        );
+      });
+    });
+
+    final String timeframe = switch (_selectedTab) {
+      0 => 'TODAY',
+      1 => 'WEEK',
+      _ => 'ALL',
+    };
+
+    final leaderboardAsync = ref.watch(leaderboardProvider(timeframe: timeframe));
 
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
@@ -319,112 +93,171 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                       ),
                     ),
                     const SizedBox(height: 60),
-                    // Podium
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        // Rank 2 (Left)
-                        _buildPodiumCol(currentPodium[0]),
-                        // Rank 1 (Center) - taller
-                        _buildPodiumCol(currentPodium[1], isCenter: true),
-                        // Rank 3 (Right)
-                        _buildPodiumCol(currentPodium[2]),
-                      ],
-                    ),
 
-                    const SizedBox(height: 32),
+                    leaderboardAsync.when(
+                      loading: () => const _LeaderboardPageSkeleton(),
+                      error: (err, stack) => SizedBox(
+                        height: 300,
+                        child: Center(
+                          child: Text(
+                            'Error loading leaderboard: $err',
+                            style: TextStyle(
+                              fontFamily: AppTextStyles.fontFamily,
+                              color: CupertinoColors.systemRed,
+                            ),
+                          ),
+                        ),
+                      ),
+                      data: (data) {
+                        final list = data.leaderboard.content;
 
-                    // Ranks List 4-10
-                    Column(
-                      children: currentList.map((entry) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: entry.isYou
-                                  ? const Color(0xFF072013)
-                                  : CupertinoColors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            child: Row(
+                        final first = list.isNotEmpty ? list[0] : null;
+                        final second = list.length > 1 ? list[1] : null;
+                        final third = list.length > 2 ? list[2] : null;
+
+                        final listItems = list.skip(3).toList();
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Podium
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                // Rank number
-                                SizedBox(
-                                  width: 24,
+                                // Rank 2 (Left)
+                                if (second != null)
+                                  _buildPodiumCol(second, borderColor: const Color(0xFFD5DEEA))
+                                else
+                                  const SizedBox(width: 80, height: 130),
+
+                                // Rank 1 (Center) - taller
+                                if (first != null)
+                                  _buildPodiumCol(first, isCenter: true, borderColor: const Color(0xFFFFB61D))
+                                else
+                                  const SizedBox(width: 100, height: 150),
+
+                                // Rank 3 (Right)
+                                if (third != null)
+                                  _buildPodiumCol(third, borderColor: const Color(0xFFD96806))
+                                else
+                                  const SizedBox(width: 80, height: 130),
+                              ],
+                            ),
+
+                            const SizedBox(height: 32),
+
+                            // Ranks List 4-10
+                            if (listItems.isEmpty)
+                              SizedBox(
+                                height: 100,
+                                child: Center(
                                   child: Text(
-                                    entry.rank.toString(),
-                                    style: TextStyle(
-                                      fontFamily: AppTextStyles.titleFontFamily,
-                                      fontSize: 16,
-                                      color: entry.isYou
-                                          ? CupertinoColors.white
-                                          : const Color(0xFF232321),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                // Avatar
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: Image.network(
-                                    entry.avatarUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Container(
-                                              color: const Color(0xFFE5E5EA),
-                                              child: const Icon(
-                                                CupertinoIcons.person_fill,
-                                                size: 16,
-                                                color: Color(0xFF8E8E93),
-                                              ),
-                                            ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                // Name
-                                Expanded(
-                                  child: Text(
-                                    entry.isYou ? 'You' : entry.name,
+                                    'No further rankings available',
                                     style: TextStyle(
                                       fontFamily: AppTextStyles.fontFamily,
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: entry.isYou
-                                          ? CupertinoColors.white
-                                          : AppColors.primary,
+                                      color: AppColors.secondary,
                                     ),
                                   ),
                                 ),
-                                // Points
-                                Text(
-                                  '${entry.points} pts',
-                                  style: TextStyle(
-                                    fontFamily: AppTextStyles.fontFamily,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: entry.isYou
-                                        ? CupertinoColors.white.withValues(
-                                            alpha: 0.8,
-                                          )
-                                        : const Color(0xFF8E8E93),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                              )
+                            else
+                              Column(
+                                children: listItems.map((entry) {
+                                  final isYou = data.currentUserRank != null &&
+                                      entry.profileId == data.currentUserRank!.profileId;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: isYou
+                                            ? const Color(0xFF072013)
+                                            : CupertinoColors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 10,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          // Rank number
+                                          SizedBox(
+                                            width: 24,
+                                            child: Text(
+                                              entry.rank.toString(),
+                                              style: TextStyle(
+                                                fontFamily: AppTextStyles.titleFontFamily,
+                                                fontSize: 16,
+                                                color: isYou
+                                                    ? CupertinoColors.white
+                                                    : const Color(0xFF232321),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          // Avatar
+                                          Container(
+                                            width: 32,
+                                            height: 32,
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                            ),
+                                            clipBehavior: Clip.antiAlias,
+                                            child: Image.network(
+                                              entry.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) =>
+                                                  Container(
+                                                    color: const Color(0xFFE5E5EA),
+                                                    child: const Icon(
+                                                      CupertinoIcons.person_fill,
+                                                      size: 16,
+                                                      color: Color(0xFF8E8E93),
+                                                    ),
+                                                  ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          // Name
+                                          Expanded(
+                                            child: Text(
+                                              isYou ? 'You' : entry.displayName,
+                                              style: TextStyle(
+                                                fontFamily: AppTextStyles.fontFamily,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: isYou
+                                                    ? CupertinoColors.white
+                                                    : AppColors.primary,
+                                              ),
+                                            ),
+                                          ),
+                                          // Points
+                                          Text(
+                                            '${entry.points} pts',
+                                            style: TextStyle(
+                                              fontFamily: AppTextStyles.fontFamily,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: isYou
+                                                  ? CupertinoColors.white.withValues(
+                                                      alpha: 0.8,
+                                                    )
+                                                  : const Color(0xFF8E8E93),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                          ],
                         );
-                      }).toList(),
+                      },
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -437,7 +270,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     );
   }
 
-  Widget _buildPodiumCol(PodiumUser user, {bool isCenter = false}) {
+  Widget _buildPodiumCol(LeaderboardItem user, {bool isCenter = false, required Color borderColor}) {
     final double avatarSize = isCenter ? 100.0 : 80.0;
     Color badgeColor;
     switch (user.rank) {
@@ -448,7 +281,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
       case 3:
         badgeColor = const Color(0xFFF6A661);
       default:
-        badgeColor = user.borderColor;
+        badgeColor = borderColor;
     }
 
     return Column(
@@ -463,11 +296,11 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
               shape: DrawingShape.blob,
               width: avatarSize,
               height: avatarSize,
-              borderColor: user.borderColor,
+              borderColor: borderColor,
               borderWidth: 4.0,
               fillColor: CupertinoColors.transparent,
               child: Image.network(
-                user.avatarUrl,
+                user.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: const Color(0xFFE5E5EA),
@@ -500,7 +333,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                 decoration: BoxDecoration(
                   color: badgeColor,
                   shape: BoxShape.circle,
-                  border: Border.all(color: user.borderColor, width: 3),
+                  border: Border.all(color: borderColor, width: 3),
                 ),
                 alignment: Alignment.center,
                 child: Stack(
@@ -515,7 +348,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
                         foreground: Paint()
                           ..style = PaintingStyle.stroke
                           ..strokeWidth = 1
-                          ..color = user.borderColor,
+                          ..color = borderColor,
                       ),
                     ),
                     // Solid text fill
@@ -536,7 +369,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
         const SizedBox(height: 20),
         // User Name
         Text(
-          user.name,
+          user.displayName,
           style: const TextStyle(
             fontFamily: AppTextStyles.fontFamily,
             fontSize: 15,
@@ -567,34 +400,90 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
   }
 }
 
-class PodiumUser {
-  final String name;
-  final int points;
-  final int rank;
-  final String avatarUrl;
-  final Color borderColor;
+class _LeaderboardPageSkeleton extends StatelessWidget {
+  const _LeaderboardPageSkeleton();
 
-  const PodiumUser({
-    required this.name,
-    required this.points,
-    required this.rank,
-    required this.avatarUrl,
-    required this.borderColor,
-  });
-}
-
-class LeaderboardEntry {
-  final int rank;
-  final String name;
-  final int points;
-  final String avatarUrl;
-  final bool isYou;
-
-  const LeaderboardEntry({
-    required this.rank,
-    required this.name,
-    required this.points,
-    required this.avatarUrl,
-    this.isYou = false,
-  });
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Podium Skeleton
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const ShimmerPlaceholder.circular(size: 80),
+                const SizedBox(height: 12),
+                ShimmerPlaceholder.rectangular(
+                  width: 60,
+                  height: 14,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                const SizedBox(height: 4),
+                ShimmerPlaceholder.rectangular(
+                  width: 40,
+                  height: 12,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const ShimmerPlaceholder.circular(size: 100),
+                const SizedBox(height: 12),
+                ShimmerPlaceholder.rectangular(
+                  width: 80,
+                  height: 16,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                const SizedBox(height: 4),
+                ShimmerPlaceholder.rectangular(
+                  width: 50,
+                  height: 12,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const ShimmerPlaceholder.circular(size: 80),
+                const SizedBox(height: 12),
+                ShimmerPlaceholder.rectangular(
+                  width: 60,
+                  height: 14,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                const SizedBox(height: 4),
+                ShimmerPlaceholder.rectangular(
+                  width: 40,
+                  height: 12,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 40),
+        // List Item Skeletons
+        Column(
+          children: List.generate(
+            5,
+            (index) => Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: ShimmerPlaceholder.rectangular(
+                height: 52,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

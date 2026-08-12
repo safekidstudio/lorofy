@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
 
 /// Converts total minutes from API into a display string:
 ///   48      → "48 min"
@@ -34,288 +37,408 @@ List<InlineSpan> _buildDurationSpans(String duration, Color color) {
   }).toList();
 }
 
-class ExploreStatsSection extends StatelessWidget {
+class ExploreStatsSection extends ConsumerWidget {
   const ExploreStatsSection({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final statsAsync = ref.watch(exploreStatsProvider);
+    final todayActivitiesAsync = ref.watch(todayActivitiesProvider);
+
+    return statsAsync.when(
+      loading: () => const _ExploreStatsSkeleton(),
+      error: (err, stack) => SizedBox(
+        height: 200,
+        child: Center(
+          child: Text(
+            'Error loading statistics: $err',
+            style: TextStyle(
+              fontFamily: AppTextStyles.fontFamily,
+              color: CupertinoColors.systemRed,
+            ),
+          ),
+        ),
+      ),
+      data: (stats) {
+        return todayActivitiesAsync.when(
+          loading: () => const _ExploreStatsSkeleton(),
+          error: (err, stack) => SizedBox(
+            height: 200,
+            child: Center(
+              child: Text(
+                'Error loading activities: $err',
+                style: TextStyle(
+                  fontFamily: AppTextStyles.fontFamily,
+                  color: CupertinoColors.systemRed,
+                ),
+              ),
+            ),
+          ),
+          data: (todayActivities) {
+            // Compute values dynamically
+            final todayCompleted = todayActivities
+                .where((s) => s.status == 'COMPLETED')
+                .toList();
+            final todayFocusCount = todayCompleted.length;
+
+            final todayFocusMinutes = todayCompleted.fold<int>(
+              0,
+              (sum, s) => sum + s.actualMinutes,
+            );
+
+            final todayKillCount = todayActivities
+                .where((s) => s.status == 'FAILED')
+                .length;
+
+            final allFocusCount = stats.totalCompletedSessions;
+            final allFocusMinutes = stats.totalFocusMinutes;
+            final allKillCount = stats.totalFailedSessions;
+
+            final avgFocusMinutes = allFocusCount > 0
+                ? (allFocusMinutes / allFocusCount).round()
+                : 0;
+
+            final failedToday = todayActivities.where((s) => s.status == 'FAILED').toList();
+            final avgKillMinutes = failedToday.isNotEmpty
+                ? (failedToday.fold<int>(0, (sum, s) => sum + s.actualMinutes) / failedToday.length).round()
+                : 0;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Stats Cards Row (Today Focus / All Focus)
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 130,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF072013), // Dark green
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Today Focus',
+                              style: TextStyle(
+                                fontFamily: AppTextStyles.fontFamily,
+                                color: const Color(0xFF8E9B93),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Center(
+                              child: Text(
+                                todayFocusCount.toString(),
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.titleFontFamily,
+                                  color: CupertinoColors.white,
+                                  fontSize: 40,
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: RichText(
+                                text: TextSpan(
+                                  children: _buildDurationSpans(
+                                    _formatDuration(todayFocusMinutes),
+                                    CupertinoColors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        height: 130,
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.white,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          boxShadow: [
+                            BoxShadow(
+                              color: CupertinoColors.systemGrey.withValues(alpha: 0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'All Focus',
+                              style: TextStyle(
+                                fontFamily: AppTextStyles.fontFamily,
+                                color: const Color(0xFF8E8E93),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Center(
+                              child: Text(
+                                allFocusCount.toString(),
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.titleFontFamily,
+                                  color: const Color(0xFF232321),
+                                  fontSize: 40,
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: RichText(
+                                text: TextSpan(
+                                  children: _buildDurationSpans(
+                                    _formatDuration(allFocusMinutes),
+                                    const Color(0xFF8E8E93),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Kill Stats Container
+                Container(
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Today Kill',
+                            style: TextStyle(
+                              fontFamily: AppTextStyles.fontFamily,
+                              color: AppColors.primary.withValues(alpha: 0.6),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            todayKillCount.toString(),
+                            style: TextStyle(
+                              fontFamily: AppTextStyles.titleFontFamily,
+                              color: AppColors.success,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Container(
+                          height: 1,
+                          color: AppColors.secondary.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'All Kill',
+                            style: TextStyle(
+                              fontFamily: AppTextStyles.fontFamily,
+                              color: AppColors.primary.withValues(alpha: 0.6),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            allKillCount.toString(),
+                            style: TextStyle(
+                              fontFamily: AppTextStyles.titleFontFamily,
+                              color: AppColors.success,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Average Stats Row
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.white,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Average\nFocus time',
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  color: AppColors.primary.withValues(alpha: 0.6),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'min',
+                                  style: TextStyle(
+                                    fontFamily: AppTextStyles.fontFamily,
+                                    color: AppColors.secondary.withValues(alpha: 0.6),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  avgFocusMinutes.toString(),
+                                  style: TextStyle(
+                                    fontFamily: AppTextStyles.titleFontFamily,
+                                    color: AppColors.primary,
+                                    fontSize: 32,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.white,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Average\nKill time',
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary.withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'min',
+                                  style: TextStyle(
+                                    fontFamily: AppTextStyles.fontFamily,
+                                    color: AppColors.secondary.withValues(alpha: 0.6),
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                Text(
+                                  avgKillMinutes.toString(),
+                                  style: TextStyle(
+                                    fontFamily: AppTextStyles.titleFontFamily,
+                                    color: AppColors.primary,
+                                    fontSize: 32,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _ExploreStatsSkeleton extends StatelessWidget {
+  const _ExploreStatsSkeleton();
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Stats Cards Row (Today Focus / All Focus)
+        // Top Cards Row
         Row(
           children: [
             Expanded(
-              child: Container(
+              child: ShimmerPlaceholder.rectangular(
                 height: 130,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF072013), // Dark green
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Today Focus',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        color: Color(0xFF8E9B93),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '8',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.titleFontFamily,
-                          color: CupertinoColors.white,
-                          fontSize: 40,
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: RichText(
-                        text: TextSpan(
-                          children: _buildDurationSpans(
-                            '120 min',
-                            CupertinoColors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Container(
+              child: ShimmerPlaceholder.rectangular(
                 height: 130,
-                decoration: BoxDecoration(
-                  color: CupertinoColors.white,
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  boxShadow: [
-                    BoxShadow(
-                      color: CupertinoColors.systemGrey.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'All Focus',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        color: Color(0xFF8E8E93),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '189',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.titleFontFamily,
-                          color: Color(0xFF232321),
-                          fontSize: 40,
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: RichText(
-                        text: TextSpan(
-                          children: _buildDurationSpans(
-                            '800 hr 58 min',
-                            const Color(0xFF8E8E93),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-
-        // Kill Stats Container
-        Container(
-          decoration: BoxDecoration(
-            color: CupertinoColors.white,
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Today Kill',
-                    style: TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      color: AppColors.primary.withValues(alpha: 0.6),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    '8',
-                    style: TextStyle(
-                      fontFamily: AppTextStyles.titleFontFamily,
-                      color: AppColors.success,
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Container(
-                  height: 1,
-                  color: AppColors.secondary.withValues(alpha: 0.1),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                children: [
-                  Text(
-                    'All Kill',
-                    style: TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      color: AppColors.primary.withValues(alpha: 0.6),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    '12030',
-                    style: TextStyle(
-                      fontFamily: AppTextStyles.titleFontFamily,
-                      color: AppColors.success,
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        // Middle Container (Kill stats)
+        ShimmerPlaceholder.rectangular(
+          height: 94,
+          borderRadius: BorderRadius.circular(14),
         ),
         const SizedBox(height: 16),
-
-        // Average Stats Row
+        // Bottom Row (Average stats)
         Row(
           children: [
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: CupertinoColors.white,
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Average\nFocus time',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          color: AppColors.primary.withValues(alpha: 0.6),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'min',
-                          style: TextStyle(
-                            fontFamily: AppTextStyles.fontFamily,
-                            color: AppColors.secondary.withValues(alpha: 0.6),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          '25',
-                          style: TextStyle(
-                            fontFamily: AppTextStyles.titleFontFamily,
-                            color: AppColors.primary,
-                            fontSize: 32,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              child: ShimmerPlaceholder.rectangular(
+                height: 80,
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: CupertinoColors.white,
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Average\nKill time',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'min',
-                          style: TextStyle(
-                            fontFamily: AppTextStyles.fontFamily,
-                            color: AppColors.secondary.withValues(alpha: 0.6),
-                            fontSize: 10,
-                          ),
-                        ),
-                        Text(
-                          '2',
-                          style: TextStyle(
-                            fontFamily: AppTextStyles.titleFontFamily,
-                            color: AppColors.primary,
-                            fontSize: 32,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              child: ShimmerPlaceholder.rectangular(
+                height: 80,
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
           ],

@@ -29,7 +29,7 @@ class PageResponse<T> {
       pageSize: json['pageSize'] as int,
       totalElements: json['totalElements'] as int,
       totalPages: json['totalPages'] as int,
-      isLast: json['isLast'] as bool,
+      isLast: (json['isLast'] ?? json['last'] ?? false) as bool,
     );
   }
 }

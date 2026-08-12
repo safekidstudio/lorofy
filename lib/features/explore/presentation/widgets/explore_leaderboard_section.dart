@@ -1,14 +1,19 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
+import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/explore/presentation/pages/leaderboard_page.dart';
+import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
 
-class ExploreLeaderboardSection extends StatelessWidget {
+class ExploreLeaderboardSection extends ConsumerWidget {
   const ExploreLeaderboardSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final leaderboardAsync = ref.watch(leaderboardProvider(timeframe: 'ALL'));
+
     return Container(
       decoration: BoxDecoration(
         color: CupertinoColors.white,
@@ -42,7 +47,6 @@ class ExploreLeaderboardSection extends StatelessWidget {
                     ),
                   );
                 },
-
                 child: Row(
                   children: [
                     Text(
@@ -68,36 +72,71 @@ class ExploreLeaderboardSection extends StatelessWidget {
           const SizedBox(height: 16),
 
           // Leaderboard Podium
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              _buildPodiumUser(
-                name: 'Graves',
-                points: 90,
-                rank: 2,
-                avatarUrl:
-                    'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
-                highlightColor: const Color(0xFFD5DEEA), // green
+          leaderboardAsync.when(
+            loading: () => const _ExploreLeaderboardSkeleton(),
+            error: (err, stack) => SizedBox(
+              height: 150,
+              child: Center(
+                child: Text(
+                  'Error: $err',
+                  style: TextStyle(
+                    fontFamily: AppTextStyles.fontFamily,
+                    color: CupertinoColors.systemRed,
+                  ),
+                ),
               ),
-              _buildPodiumUser(
-                name: 'James',
-                points: 120,
-                rank: 1,
-                avatarUrl:
-                    'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png',
-                highlightColor: const Color(0xFFFFB61D), // gold
-                isCenter: true,
-              ),
-              _buildPodiumUser(
-                name: 'David',
-                points: 75,
-                rank: 3,
-                avatarUrl:
-                    'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/02_aus2zc_tfpypg.png',
-                highlightColor: const Color(0xFFD96806), // orange
-              ),
-            ],
+            ),
+            data: (data) {
+              final list = data.leaderboard.content;
+
+              // Render empty placeholders if there are no users on the leaderboard yet
+              final first = list.isNotEmpty ? list[0] : null;
+              final second = list.length > 1 ? list[1] : null;
+              final third = list.length > 2 ? list[2] : null;
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // Rank 2
+                  if (second != null)
+                    _buildPodiumUser(
+                      name: second.displayName,
+                      points: second.points,
+                      rank: 2,
+                      avatarUrl: second.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
+                      highlightColor: const Color(0xFFD5DEEA),
+                    )
+                  else
+                    const SizedBox(width: 80, height: 130), // empty space
+                  
+                  // Rank 1
+                  if (first != null)
+                    _buildPodiumUser(
+                      name: first.displayName,
+                      points: first.points,
+                      rank: 1,
+                      avatarUrl: first.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png',
+                      highlightColor: const Color(0xFFFFB61D),
+                      isCenter: true,
+                    )
+                  else
+                    const SizedBox(width: 100, height: 150), // empty space
+                  
+                  // Rank 3
+                  if (third != null)
+                    _buildPodiumUser(
+                      name: third.displayName,
+                      points: third.points,
+                      rank: 3,
+                      avatarUrl: third.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/02_aus2zc_tfpypg.png',
+                      highlightColor: const Color(0xFFD96806),
+                    )
+                  else
+                    const SizedBox(width: 80, height: 130), // empty space
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -221,6 +260,74 @@ class ExploreLeaderboardSection extends StatelessWidget {
                 color: AppColors.secondary,
                 fontWeight: FontWeight.w500,
               ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ExploreLeaderboardSkeleton extends StatelessWidget {
+  const _ExploreLeaderboardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ShimmerPlaceholder.circular(size: 80),
+            const SizedBox(height: 12),
+            ShimmerPlaceholder.rectangular(
+              width: 60,
+              height: 14,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            const SizedBox(height: 4),
+            ShimmerPlaceholder.rectangular(
+              width: 40,
+              height: 12,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ],
+        ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ShimmerPlaceholder.circular(size: 100),
+            const SizedBox(height: 12),
+            ShimmerPlaceholder.rectangular(
+              width: 80,
+              height: 16,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            const SizedBox(height: 4),
+            ShimmerPlaceholder.rectangular(
+              width: 50,
+              height: 12,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ],
+        ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ShimmerPlaceholder.circular(size: 80),
+            const SizedBox(height: 12),
+            ShimmerPlaceholder.rectangular(
+              width: 60,
+              height: 14,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            const SizedBox(height: 4),
+            ShimmerPlaceholder.rectangular(
+              width: 40,
+              height: 12,
+              borderRadius: BorderRadius.circular(4),
             ),
           ],
         ),

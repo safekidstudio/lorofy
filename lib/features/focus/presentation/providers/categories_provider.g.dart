@@ -33,7 +33,7 @@ final class FocusCategoriesProvider
   FocusCategories create() => FocusCategories();
 }
 
-String _$focusCategoriesHash() => r'dd7be4a7893730fcf4f220e043abe0a3e5263e50';
+String _$focusCategoriesHash() => r'54be96bcba52877ad059202fae4c4e4b05a22e6f';
 
 abstract class _$FocusCategories extends $AsyncNotifier<List<FocusCategory>> {
   FutureOr<List<FocusCategory>> build();
