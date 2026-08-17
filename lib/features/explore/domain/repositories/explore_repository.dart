@@ -5,6 +5,7 @@ import 'package:lorofy/features/focus/domain/models/focus_session.dart';
 abstract class ExploreRepository {
   Future<FocusStats> getFocusStats();
   Future<List<FocusSession>> getTodayActivities();
+  Future<List<FocusSession>> getMonthActivities();
   Future<Leaderboard> getLeaderboard({
     required String timeframe,
     String? countryCode,

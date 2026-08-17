@@ -39,7 +39,7 @@ class AppColors {
   // Input Background Color
   static const CupertinoDynamicColor inputBg =
       CupertinoDynamicColor.withBrightness(
-        color: Color(0xfffafafa),
+        color: Color(0xffe2e2e2),
         darkColor: Color(0xff2c2c2e),
       );
 

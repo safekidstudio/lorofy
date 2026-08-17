@@ -12,12 +12,16 @@ class AuthStatus {
   final String? accessToken;
   final bool? isOnboarded;
   final String? displayName;
+  final String? avatarUrl;
+  final String? username;
 
   AuthStatus({
     required this.state,
     this.accessToken,
     this.isOnboarded,
     this.displayName,
+    this.avatarUrl,
+    this.username,
   });
 
   AuthStatus copyWith({
@@ -25,12 +29,16 @@ class AuthStatus {
     String? accessToken,
     bool? isOnboarded,
     String? displayName,
+    String? avatarUrl,
+    String? username,
   }) {
     return AuthStatus(
       state: state ?? this.state,
       accessToken: accessToken ?? this.accessToken,
       isOnboarded: isOnboarded ?? this.isOnboarded,
       displayName: displayName ?? this.displayName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      username: username ?? this.username,
     );
   }
 }
@@ -55,6 +63,8 @@ class Auth extends _$Auth {
       if (token != null) {
         final cachedIsOnboarded = await _authStorage.getIsOnboarded();
         final cachedDisplayName = await _authStorage.getDisplayName();
+        final cachedAvatarUrl = await _authStorage.getAvatarUrl();
+        final cachedUsername = await _authStorage.getUsername();
 
         if (cachedIsOnboarded != null) {
           // Optimistic: instantly login with cached data for instant feed/homepage
@@ -63,6 +73,8 @@ class Auth extends _$Auth {
             accessToken: token,
             isOnboarded: cachedIsOnboarded,
             displayName: cachedDisplayName,
+            avatarUrl: cachedAvatarUrl,
+            username: cachedUsername,
           );
         }
 
@@ -73,6 +85,8 @@ class Auth extends _$Auth {
         await _authStorage.saveProfileCache(
           isOnboarded: profile.isOnboarded,
           displayName: profile.displayName,
+          avatarUrl: profile.avatarUrl,
+          username: profile.username,
         );
 
         // Update RAM state with fresh details
@@ -81,6 +95,8 @@ class Auth extends _$Auth {
           accessToken: token,
           isOnboarded: profile.isOnboarded,
           displayName: profile.displayName,
+          avatarUrl: profile.avatarUrl,
+          username: profile.username,
         );
       } else {
         state = AuthStatus(state: AuthState.unauthenticated);
@@ -104,6 +120,8 @@ class Auth extends _$Auth {
     required String refreshToken,
     required bool isOnboarded,
     required String? displayName,
+    required String? avatarUrl,
+    required String? username,
   }) async {
     // Save to Secure Storage
     await _authStorage.saveTokens(
@@ -114,6 +132,8 @@ class Auth extends _$Auth {
     await _authStorage.saveProfileCache(
       isOnboarded: isOnboarded,
       displayName: displayName,
+      avatarUrl: avatarUrl,
+      username: username,
     );
     // Update RAM and change state
     state = AuthStatus(
@@ -121,6 +141,8 @@ class Auth extends _$Auth {
       accessToken: accessToken,
       isOnboarded: isOnboarded,
       displayName: displayName,
+      avatarUrl: avatarUrl,
+      username: username,
     );
   }
 
@@ -133,14 +155,49 @@ class Auth extends _$Auth {
     state = AuthStatus(state: AuthState.unauthenticated);
   }
 
-  void updateOnboardedState({
+  Future<void> updateOnboardedState({
     required bool onboarded,
     required String displayName,
-  }) {
-    _authStorage.saveProfileCache(
+  }) async {
+    String? avatarUrl;
+    String? username;
+    try {
+      final profile = await ref.read(authRepositoryProvider).getMe();
+      avatarUrl = profile.avatarUrl;
+      username = profile.username;
+    } catch (e) {
+      // ignore
+    }
+
+    await _authStorage.saveProfileCache(
       isOnboarded: onboarded,
       displayName: displayName,
+      avatarUrl: avatarUrl,
+      username: username,
     );
-    state = state.copyWith(isOnboarded: onboarded, displayName: displayName);
+    state = state.copyWith(
+      isOnboarded: onboarded,
+      displayName: displayName,
+      avatarUrl: avatarUrl,
+      username: username,
+    );
+  }
+
+  Future<void> updateProfileState({
+    required String displayName,
+    required String? avatarUrl,
+    required String? username,
+  }) async {
+    await _authStorage.saveProfileCache(
+      isOnboarded: state.isOnboarded ?? true,
+      displayName: displayName,
+      avatarUrl: avatarUrl,
+      username: username,
+    );
+    state = state.copyWith(
+      displayName: displayName,
+      avatarUrl: avatarUrl,
+      username: username,
+    );
   }
 }

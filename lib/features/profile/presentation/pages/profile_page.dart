@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/layout/app_header.dart';
-import 'package:lorofy/components/shared/drawing_container.dart';
-import 'package:lorofy/components/ui/app_confirm_dialog.dart';
+import 'package:lorofy/components/ui/app_avatar.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/toast.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
+import 'package:lorofy/features/profile/presentation/widgets/logout_confirm_sheet.dart';
+import 'package:lorofy/features/profile/presentation/pages/my_profile_page.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -15,14 +17,9 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authStatus = ref.watch(authProvider);
-    final String displayName = authStatus.displayName ?? 'James';
-    final String username = authStatus.displayName != null
-        ? authStatus.displayName!.toLowerCase().replaceAll(' ', '')
-        : 'james';
-
-    // The premium avatar URL representing James
-    const String avatarUrl =
-        'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png';
+    final String displayName = authStatus.displayName ?? 'Lorofy User';
+    final String username = authStatus.username ?? 'lorofy.user';
+    final String? avatarUrl = authStatus.avatarUrl;
 
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
@@ -74,27 +71,7 @@ class ProfilePage extends ConsumerWidget {
                   Column(
                     children: [
                       // Blob Avatar Outline
-                      DrawingContainer(
-                        shape: DrawingShape.blob,
-                        width: 100,
-                        height: 100,
-                        borderColor: const Color(0xFF072013),
-                        borderWidth: 4.0,
-                        fillColor: CupertinoColors.transparent,
-                        child: Image.network(
-                          avatarUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                color: const Color(0xFFE5E5EA),
-                                child: const Icon(
-                                  CupertinoIcons.person_fill,
-                                  size: 60,
-                                  color: Color(0xFF8E8E93),
-                                ),
-                              ),
-                        ),
-                      ),
+                      AppAvatar(path: avatarUrl, size: 100, isDrawing: true),
                       const SizedBox(height: 16),
                       // Display Name
                       Text(
@@ -135,7 +112,12 @@ class ProfilePage extends ConsumerWidget {
                   _buildMenuItem(
                     context: context,
                     title: 'My Profile',
-                    onTap: () => _showComingSoon(context, 'My Profile'),
+                    onTap: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => const MyProfilePage(),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   _buildMenuItem(
@@ -185,16 +167,26 @@ class ProfilePage extends ConsumerWidget {
   }
 
   void _showLogoutConfirmationDialog(BuildContext context, WidgetRef ref) {
-    AppConfirmDialog.show(
-      context: context,
-      title: 'Logout',
-      message: 'Are you sure you want to log out of Lorofy? 🌿',
-      confirmLabel: 'Logout',
-      isDestructive: true,
-      onConfirm: () {
-        ref.read(authProvider.notifier).logout();
-        Navigator.pop(context); // Pop profile page after logout
-      },
+    Navigator.push(
+      context,
+      CupertinoModalSheetRoute(
+        builder: (context) => Sheet(
+          decoration: const MaterialSheetDecoration(
+            size: SheetSize.fit,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+            color: Color(0xFFF6F6F6),
+          ),
+          child: LogoutConfirmSheet(
+            onConfirm: () {
+              ref.read(authProvider.notifier).logout();
+              Navigator.pop(context); // Pop profile page after logout
+            },
+          ),
+        ),
+      ),
     );
   }
 

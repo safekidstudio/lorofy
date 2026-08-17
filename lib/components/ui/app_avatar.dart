@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/app_image.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 
@@ -8,6 +9,7 @@ class AppAvatar extends StatelessWidget {
   final bool isLoading;
   final Color? borderColor;
   final double borderWidth;
+  final bool isDrawing;
 
   const AppAvatar({
     super.key,
@@ -16,11 +18,28 @@ class AppAvatar extends StatelessWidget {
     this.isLoading = false,
     this.borderColor,
     this.borderWidth = 0.0,
+    this.isDrawing = false,
   });
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
+      final shimmerChild = ShimmerPlaceholder(
+        width: size,
+        height: size,
+        shape: BoxShape.rectangle,
+      );
+      if (isDrawing) {
+        return DrawingContainer(
+          shape: DrawingShape.blob,
+          width: size,
+          height: size,
+          borderColor: borderColor ?? const Color(0xFF072013),
+          borderWidth: borderWidth > 0 ? borderWidth : 4.0,
+          fillColor: CupertinoColors.transparent,
+          child: shimmerChild,
+        );
+      }
       return Container(
         width: size,
         height: size,
@@ -30,9 +49,7 @@ class AppAvatar extends StatelessWidget {
               ? Border.all(color: borderColor!, width: borderWidth)
               : null,
         ),
-        child: ClipOval(
-          child: ShimmerPlaceholder.circular(size: size),
-        ),
+        child: ClipOval(child: shimmerChild),
       );
     }
 
@@ -51,6 +68,18 @@ class AppAvatar extends StatelessWidget {
       avatarContent = _buildFallback();
     }
 
+    if (isDrawing) {
+      return DrawingContainer(
+        shape: DrawingShape.blob,
+        width: size,
+        height: size,
+        borderColor: borderColor ?? const Color(0xFF072013),
+        borderWidth: borderWidth > 0 ? borderWidth : 4.0,
+        fillColor: CupertinoColors.transparent,
+        child: avatarContent,
+      );
+    }
+
     return Container(
       width: size,
       height: size,
@@ -61,22 +90,20 @@ class AppAvatar extends StatelessWidget {
             ? Border.all(color: borderColor!, width: borderWidth)
             : null,
       ),
-      child: ClipOval(
-        child: avatarContent,
-      ),
+      child: ClipOval(child: avatarContent),
     );
   }
 
   Widget _buildFallback() {
-    return Container(
+    return Image.asset(
+      'assets/logos/lorofy.png',
       width: size,
       height: size,
-      color: const Color(0xFFE4E4E6),
-      alignment: Alignment.center,
-      child: Icon(
-        CupertinoIcons.person_alt,
-        size: size * 0.5,
-        color: const Color(0xFF8E8E93),
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        width: size,
+        height: size,
+        color: const Color(0xFFE4E4E6),
       ),
     );
   }

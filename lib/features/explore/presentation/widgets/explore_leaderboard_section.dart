@@ -89,6 +89,34 @@ class ExploreLeaderboardSection extends ConsumerWidget {
             data: (data) {
               final list = data.leaderboard.content;
 
+              if (list.isEmpty) {
+                return SizedBox(
+                  height: 150,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SVG(
+                          'assets/illustrations/crown.svg',
+                          width: 50,
+                          height: 50,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'No rankings yet',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            color: AppColors.secondary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
               // Render empty placeholders if there are no users on the leaderboard yet
               final first = list.isNotEmpty ? list[0] : null;
               final second = list.length > 1 ? list[1] : null;
@@ -106,6 +134,8 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                       rank: 2,
                       avatarUrl: second.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
                       highlightColor: const Color(0xFFD5DEEA),
+                      isYou: data.currentUserRank != null &&
+                          second.profileId == data.currentUserRank!.profileId,
                     )
                   else
                     const SizedBox(width: 80, height: 130), // empty space
@@ -119,6 +149,8 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                       avatarUrl: first.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png',
                       highlightColor: const Color(0xFFFFB61D),
                       isCenter: true,
+                      isYou: data.currentUserRank != null &&
+                          first.profileId == data.currentUserRank!.profileId,
                     )
                   else
                     const SizedBox(width: 100, height: 150), // empty space
@@ -131,6 +163,8 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                       rank: 3,
                       avatarUrl: third.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/02_aus2zc_tfpypg.png',
                       highlightColor: const Color(0xFFD96806),
+                      isYou: data.currentUserRank != null &&
+                          third.profileId == data.currentUserRank!.profileId,
                     )
                   else
                     const SizedBox(width: 80, height: 130), // empty space
@@ -150,6 +184,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
     required String avatarUrl,
     required Color highlightColor,
     bool isCenter = false,
+    required bool isYou,
   }) {
     final avatarSize = isCenter ? 100.0 : 80.0;
     Color badgeColor;
@@ -238,7 +273,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          name,
+          isYou ? 'You' : name,
           style: TextStyle(
             fontFamily: AppTextStyles.fontFamily,
             fontSize: 16,

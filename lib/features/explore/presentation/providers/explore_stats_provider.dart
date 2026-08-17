@@ -17,3 +17,9 @@ Future<List<FocusSession>> todayActivities(Ref ref) async {
   final ExploreRepository repository = ref.watch(exploreRepositoryProvider);
   return await repository.getTodayActivities();
 }
+
+@riverpod
+Future<List<FocusSession>> monthActivities(Ref ref) async {
+  final ExploreRepository repository = ref.watch(exploreRepositoryProvider);
+  return await repository.getMonthActivities();
+}

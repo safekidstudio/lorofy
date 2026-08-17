@@ -2,11 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 
 class Input extends StatefulWidget {
   final String? label;
   final String placeholder;
-  final TextEditingController controller;
+  final TextEditingController? controller;
+  final String? formControlName;
   final TextInputType keyboardType;
   final bool obscureText;
   final String? errorMessage;
@@ -20,7 +22,8 @@ class Input extends StatefulWidget {
     super.key,
     this.label,
     required this.placeholder,
-    required this.controller,
+    this.controller,
+    this.formControlName,
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.errorMessage,
@@ -39,6 +42,7 @@ class _InputState extends State<Input> {
   late FocusNode _focusNode;
   bool _isFocused = false;
   late bool _obscureText;
+  TextEditingController? _reactiveController;
 
   @override
   void initState() {
@@ -56,23 +60,64 @@ class _InputState extends State<Input> {
 
   @override
   void dispose() {
-    // Nếu focusNode truyền từ ngoài vào thì không tự dispose ở đây
     if (widget.focusNode == null) {
       _focusNode.dispose();
     }
+    _reactiveController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final hasError =
-        widget.errorMessage != null && widget.errorMessage!.isNotEmpty;
+    if (widget.formControlName != null) {
+      return ReactiveFormField<String, String>(
+        formControlName: widget.formControlName,
+        builder: (field) {
+          if (_reactiveController == null) {
+            _reactiveController = TextEditingController(text: field.value ?? '');
+            _reactiveController!.addListener(() {
+              if (field.value != _reactiveController!.text) {
+                field.didChange(_reactiveController!.text);
+              }
+            });
+          } else if (field.value != _reactiveController!.text) {
+            final text = field.value ?? '';
+            _reactiveController!.text = text;
+            _reactiveController!.selection = TextSelection.collapsed(offset: text.length);
+          }
+
+          final controlDisabled = field.control.disabled;
+          return _buildTextField(
+            context,
+            _reactiveController!,
+            field.errorText,
+            disabledOverride: controlDisabled,
+          );
+        },
+      );
+    } else {
+      return _buildTextField(
+        context,
+        widget.controller ?? TextEditingController(),
+        widget.errorMessage,
+      );
+    }
+  }
+
+  Widget _buildTextField(
+    BuildContext context,
+    TextEditingController controller,
+    String? errorMsg, {
+    bool disabledOverride = false,
+  }) {
+    final bool isDisabled = widget.disabled || disabledOverride;
+    final hasError = errorMsg != null && errorMsg.isNotEmpty;
 
     // --- Cấu hình Màu sắc Border & Ring vẽ tay ---
     Color borderColor;
     double borderWidth;
 
-    if (widget.disabled) {
+    if (isDisabled) {
       borderColor = CupertinoColors.transparent;
       borderWidth = 0.0;
     } else if (hasError) {
@@ -86,20 +131,23 @@ class _InputState extends State<Input> {
       borderWidth = 0.0;
     }
 
-    final fillColor = widget.disabled
-        ? const Color(0xFFCDCDD0) // solid medium grey for disabled state
-        : const Color(0xFFE4E4E6);
+    // Resolve the input background color against context
+    final resolvedBg = CupertinoDynamicColor.resolve(
+      AppColors.inputBg,
+      context,
+    );
+    final fillColor = resolvedBg;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 1. Label (Ẩn hoàn toàn nếu không truyền vào)
+        // 1. Label
         if (widget.label != null) ...[
           Text(
             widget.label!,
             style: AppTextStyles.label.copyWith(
-              color: widget.disabled
+              color: isDisabled
                   ? AppColors.primary.withValues(alpha: 0.5)
                   : (hasError ? CupertinoColors.systemRed : null),
             ),
@@ -107,30 +155,33 @@ class _InputState extends State<Input> {
           const SizedBox(height: 6),
         ],
 
-        // 2. Ô Input chính với hiệu ứng Opacity khi Disabled
+        // 2. Ô Input chính
         Opacity(
-          opacity: widget.disabled ? 0.6 : 1.0,
+          opacity: isDisabled ? 0.8 : 1.0,
           child: DrawingContainer(
             fillColor: fillColor,
             borderColor: borderColor,
             borderWidth: borderWidth,
             child: CupertinoTextField(
               focusNode: _focusNode,
-              controller: widget.controller,
+              controller: controller,
               placeholder: widget.placeholder,
               obscureText: _obscureText,
               keyboardType: widget.keyboardType,
-              enabled: !widget.disabled,
+              enabled: !isDisabled,
               onChanged: widget.onChanged,
-
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
               placeholderStyle: AppTextStyles.placeholder.copyWith(
                 fontSize: 16,
                 color: CupertinoColors.placeholderText,
               ),
-              style: AppTextStyles.body.copyWith(fontSize: 16),
-              decoration: null, // Clear standard border/decorations
-              // 3. Tích hợp Prefix & Suffix lọt lòng vào trong ô Input
+              style: AppTextStyles.body.copyWith(
+                fontSize: 16,
+                color: isDisabled ? AppColors.secondary : AppColors.primary,
+              ),
+              decoration: const BoxDecoration(
+                color: CupertinoColors.transparent,
+              ),
               prefix: widget.prefix != null
                   ? Padding(
                       padding: const EdgeInsets.only(left: 12),
@@ -143,34 +194,34 @@ class _InputState extends State<Input> {
                       child: widget.suffix,
                     )
                   : (widget.obscureText
-                        ? GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _obscureText = !_obscureText;
-                              });
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 12),
-                              child: SVG(
-                                _obscureText
-                                    ? 'assets/icons/eye-close.svg'
-                                    : 'assets/icons/eye.svg',
-                                width: 20,
-                                height: 20,
-                                color: AppColors.secondary,
-                              ),
+                      ? GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: SVG(
+                              _obscureText
+                                  ? 'assets/icons/eye-close.svg'
+                                  : 'assets/icons/eye.svg',
+                              width: 20,
+                              height: 20,
+                              color: AppColors.secondary,
                             ),
-                          )
-                        : null),
+                          ),
+                        )
+                      : null),
             ),
           ),
         ),
 
-        // 4. Error Message hiển thị phía dưới ô Input
+        // 4. Error Message
         if (hasError) ...[
           const SizedBox(height: 6),
           Text(
-            widget.errorMessage!,
+            errorMsg,
             style: AppTextStyles.body.copyWith(
               color: CupertinoColors.systemRed,
               fontSize: 12,

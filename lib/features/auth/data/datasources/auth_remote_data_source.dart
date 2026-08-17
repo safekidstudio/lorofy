@@ -84,6 +84,26 @@ class AuthRemoteDataSource {
     );
   }
 
+  // UPDATE PROFILE
+  Future<UserProfile> updateProfile({
+    String? displayName,
+    String? timezone,
+    String? avatarAssetId,
+  }) async {
+    final response = await _dio.patch(
+      '/profiles/update',
+      data: {
+        if (displayName != null) 'displayName': displayName,
+        if (timezone != null) 'timezone': timezone,
+        if (avatarAssetId != null) 'avatarAssetId': avatarAssetId,
+      },
+      options: ApiOptions.protected,
+    );
+    return response.unwrap(
+      (json) => UserProfile.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
   // LOGOUT
   Future<void> logout() async {
     await _dio.post('/auth/logout', options: ApiOptions.protected);

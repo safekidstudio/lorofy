@@ -6,6 +6,7 @@ import 'package:lorofy/components/layout/page_wrapper.dart';
 import 'package:lorofy/components/layout/top_bar.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 import '../providers/create_password_controller.dart';
 
 class CreatePasswordPage extends ConsumerStatefulWidget {
@@ -24,15 +25,21 @@ class CreatePasswordPage extends ConsumerStatefulWidget {
 }
 
 class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
-  final _passwordController = TextEditingController();
-  final _confirmController = TextEditingController();
-  String? _validationError;
+  late FormGroup _form;
 
   @override
-  void dispose() {
-    _passwordController.dispose();
-    _confirmController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _form = FormGroup({
+      'password': FormControl<String>(
+        validators: [Validators.required, Validators.minLength(6)],
+      ),
+      'confirmPassword': FormControl<String>(
+        validators: [Validators.required],
+      ),
+    }, validators: [
+      Validators.mustMatch('password', 'confirmPassword'),
+    ]);
   }
 
   int _getPasswordStrength(String password) {
@@ -45,19 +52,9 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
   }
 
   Future<void> _handleSubmit() async {
-    final password = _passwordController.text;
-    final confirm = _confirmController.text;
+    if (_form.invalid) return;
 
-    if (password.length < 6) {
-      setState(
-          () => _validationError = 'Password must be at least 6 characters');
-      return;
-    }
-    if (password != confirm) {
-      setState(() => _validationError = 'Passwords do not match');
-      return;
-    }
-    setState(() => _validationError = null);
+    final password = _form.control('password').value as String;
 
     await ref.read(createPasswordControllerProvider.notifier).createAccount(
           signupToken: widget.signupToken,
@@ -72,140 +69,166 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
     final isLoading = createState.isLoading;
     final serverError =
         createState.hasError ? _parseError(createState.error) : null;
-    final password = _passwordController.text;
-    final strength = _getPasswordStrength(password);
 
     return PageWrapper(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // 1. Back button
-          const TopBar(),
-          const Spacer(),
+      child: ReactiveForm(
+        formGroup: _form,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 1. Back button
+            const TopBar(),
+            const Spacer(),
 
-          // 2. Title
-          Text(
-            'Create your\npassword',
-            style: TextStyle(
-              fontFamily: AppTextStyles.titleFontFamily,
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
-              color: const Color(0xFF232321),
-              height: 1.15,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-
-          Text(
-            'Please create your strong password',
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.secondary,
-              fontSize: 14,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-
-          // 3. Password field
-          Input(
-            placeholder: 'Password',
-            controller: _passwordController,
-            obscureText: true,
-            disabled: isLoading,
-            onChanged: (_) => setState(() {}),
-            errorMessage:
-                _validationError != null && _validationError!.contains('least')
-                    ? _validationError
-                    : null,
-          ),
-
-          // 4. Password strength bar
-          if (password.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            _PasswordStrengthBar(strength: strength),
-            const SizedBox(height: 4),
+            // 2. Title
             Text(
-              _strengthLabel(strength),
-              style: AppTextStyles.body.copyWith(
-                fontSize: 12,
-                color: _strengthColor(strength),
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 16),
-
-          // 5. Confirm password field
-          Input(
-            placeholder: 'Confirm password',
-            controller: _confirmController,
-            obscureText: true,
-            disabled: isLoading,
-            onChanged: (_) => setState(() {}),
-            errorMessage: _validationError != null &&
-                    _validationError!.contains('match')
-                ? _validationError
-                : null,
-          ),
-
-          // 6. Server error
-          if (serverError != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              serverError,
-              style: AppTextStyles.body.copyWith(
-                color: CupertinoColors.systemRed,
-                fontSize: 13,
+              'Create your\npassword',
+              style: TextStyle(
+                fontFamily: AppTextStyles.titleFontFamily,
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF232321),
+                height: 1.15,
               ),
               textAlign: TextAlign.center,
             ),
-          ],
+            const SizedBox(height: 8),
 
-          const SizedBox(height: 28),
+            Text(
+              'Please create your strong password',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.secondary,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
 
-          // 7. Create button
-          Center(
-            child: SizedBox(
-              width: 180,
-              child: Button.primary(
-                text: 'Create',
-                isLoading: isLoading,
-                onPressed: isLoading ? null : _handleSubmit,
+            // 3. Password field
+            ReactiveFormConsumer(
+              builder: (context, form, child) {
+                final passwordControl = form.control('password');
+                String? errorText;
+                if (passwordControl.hasError(ValidationMessage.minLength) && passwordControl.dirty) {
+                  errorText = 'Password must be at least 6 characters';
+                }
+                return Input(
+                  placeholder: 'Password',
+                  formControlName: 'password',
+                  obscureText: true,
+                  disabled: isLoading,
+                  errorMessage: errorText,
+                );
+              },
+            ),
+
+            // 4. Password strength bar
+            ReactiveValueListenableBuilder<String>(
+              formControlName: 'password',
+              builder: (context, control, child) {
+                final val = control.value ?? '';
+                final strength = _getPasswordStrength(val);
+                if (val.isEmpty) return const SizedBox.shrink();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 8),
+                    _PasswordStrengthBar(strength: strength),
+                    const SizedBox(height: 4),
+                    Text(
+                      _strengthLabel(strength),
+                      style: AppTextStyles.body.copyWith(
+                        fontSize: 12,
+                        color: _strengthColor(strength),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // 5. Confirm password field
+            ReactiveFormConsumer(
+              builder: (context, form, child) {
+                final confirmControl = form.control('confirmPassword');
+                String? errorText;
+                if (confirmControl.hasError(ValidationMessage.mustMatch) && confirmControl.dirty) {
+                  errorText = 'Passwords do not match';
+                }
+                return Input(
+                  placeholder: 'Confirm password',
+                  formControlName: 'confirmPassword',
+                  obscureText: true,
+                  disabled: isLoading,
+                  errorMessage: errorText,
+                );
+              },
+            ),
+
+            // 6. Server error
+            if (serverError != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                serverError,
+                style: AppTextStyles.body.copyWith(
+                  color: CupertinoColors.systemRed,
+                  fontSize: 13,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+
+            const SizedBox(height: 28),
+
+            // 7. Create button
+            Center(
+              child: SizedBox(
+                width: 180,
+                child: ReactiveFormConsumer(
+                  builder: (context, form, child) {
+                    return Button.primary(
+                      text: 'Create',
+                      isLoading: isLoading,
+                      onPressed: (form.valid && !isLoading) ? _handleSubmit : null,
+                    );
+                  },
+                ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-          // 8. Terms note
-          Text.rich(
-            TextSpan(
-              text: 'By creating an account you agree to our ',
-              style: AppTextStyles.caption,
-              children: [
-                TextSpan(
-                  text: 'Terms of Service',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
+            // 8. Terms note
+            Text.rich(
+              TextSpan(
+                text: 'By creating an account you agree to our ',
+                style: AppTextStyles.caption,
+                children: [
+                  TextSpan(
+                    text: 'Terms of Service',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const TextSpan(text: ' and '),
-                TextSpan(
-                  text: 'Privacy Policy',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
+                  const TextSpan(text: ' and '),
+                  TextSpan(
+                    text: 'Privacy Policy',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
 
-          const Spacer(),
-        ],
+            const Spacer(),
+          ],
+        ),
       ),
     );
   }

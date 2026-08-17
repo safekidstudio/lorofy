@@ -12,6 +12,8 @@ class AuthStorage {
   static const _refreshTokenKey = "refresh_token";
   static const _isOnboardedKey = "is_onboarded";
   static const _displayNameKey = "display_name";
+  static const _avatarUrlKey = "avatar_url";
+  static const _usernameKey = "username";
 
   Future<void> saveTokens({
     required String accessToken,
@@ -32,6 +34,8 @@ class AuthStorage {
   Future<void> saveProfileCache({
     required bool isOnboarded,
     required String? displayName,
+    required String? avatarUrl,
+    required String? username,
   }) async {
     await _storage.write(key: _isOnboardedKey, value: isOnboarded ? 'true' : 'false');
     if (displayName != null) {
@@ -39,6 +43,24 @@ class AuthStorage {
     } else {
       await _storage.delete(key: _displayNameKey);
     }
+    if (avatarUrl != null) {
+      await _storage.write(key: _avatarUrlKey, value: avatarUrl);
+    } else {
+      await _storage.delete(key: _avatarUrlKey);
+    }
+    if (username != null) {
+      await _storage.write(key: _usernameKey, value: username);
+    } else {
+      await _storage.delete(key: _usernameKey);
+    }
+  }
+
+  Future<String?> getAvatarUrl() async {
+    return await _storage.read(key: _avatarUrlKey);
+  }
+
+  Future<String?> getUsername() async {
+    return await _storage.read(key: _usernameKey);
   }
 
   Future<bool?> getIsOnboarded() async {
@@ -54,6 +76,8 @@ class AuthStorage {
   Future<void> clearProfileCache() async {
     await _storage.delete(key: _isOnboardedKey);
     await _storage.delete(key: _displayNameKey);
+    await _storage.delete(key: _avatarUrlKey);
+    await _storage.delete(key: _usernameKey);
   }
 
   Future<void> clearTokens() async {

@@ -127,19 +127,35 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                               children: [
                                 // Rank 2 (Left)
                                 if (second != null)
-                                  _buildPodiumCol(second, borderColor: const Color(0xFFD5DEEA))
+                                  _buildPodiumCol(
+                                    second,
+                                    borderColor: const Color(0xFFD5DEEA),
+                                    isYou: data.currentUserRank != null &&
+                                        second.profileId == data.currentUserRank!.profileId,
+                                  )
                                 else
                                   const SizedBox(width: 80, height: 130),
 
                                 // Rank 1 (Center) - taller
                                 if (first != null)
-                                  _buildPodiumCol(first, isCenter: true, borderColor: const Color(0xFFFFB61D))
+                                  _buildPodiumCol(
+                                    first,
+                                    isCenter: true,
+                                    borderColor: const Color(0xFFFFB61D),
+                                    isYou: data.currentUserRank != null &&
+                                        first.profileId == data.currentUserRank!.profileId,
+                                  )
                                 else
                                   const SizedBox(width: 100, height: 150),
 
                                 // Rank 3 (Right)
                                 if (third != null)
-                                  _buildPodiumCol(third, borderColor: const Color(0xFFD96806))
+                                  _buildPodiumCol(
+                                    third,
+                                    borderColor: const Color(0xFFD96806),
+                                    isYou: data.currentUserRank != null &&
+                                        third.profileId == data.currentUserRank!.profileId,
+                                  )
                                 else
                                   const SizedBox(width: 80, height: 130),
                               ],
@@ -270,7 +286,12 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
     );
   }
 
-  Widget _buildPodiumCol(LeaderboardItem user, {bool isCenter = false, required Color borderColor}) {
+  Widget _buildPodiumCol(
+    LeaderboardItem user, {
+    bool isCenter = false,
+    required Color borderColor,
+    required bool isYou,
+  }) {
     final double avatarSize = isCenter ? 100.0 : 80.0;
     Color badgeColor;
     switch (user.rank) {
@@ -369,7 +390,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
         const SizedBox(height: 20),
         // User Name
         Text(
-          user.displayName,
+          isYou ? 'You' : user.displayName,
           style: const TextStyle(
             fontFamily: AppTextStyles.fontFamily,
             fontSize: 15,

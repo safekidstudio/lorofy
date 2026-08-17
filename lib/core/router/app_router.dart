@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lorofy/features/home/presentation/pages/home_page.dart';
 import 'package:lorofy/features/explore/presentation/pages/explore_page.dart';
 import 'package:lorofy/features/profile/presentation/pages/onboard_page.dart';
+import 'package:lorofy/features/profile/presentation/pages/my_profile_page.dart';
 import 'package:lorofy/features/focus/presentation/pages/session_settings_page.dart';
 import 'package:lorofy/features/settings/presentation/pages/settings_page.dart';
 import 'package:lorofy/features/focus/presentation/pages/sound_settings_page.dart';
@@ -20,8 +21,6 @@ part 'app_router.g.dart';
 
 @riverpod
 GoRouter appRouter(Ref ref) {
-  ref.watch(authProvider);
-
   return GoRouter(
     initialLocation: '/splash', // Bắt đầu chạy từ màn hình Splash
     refreshListenable: GoRouterRefreshNotifier(ref),
@@ -102,6 +101,11 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/onboard',
         builder: (context, state) => const OnboardPage(),
+      ),
+      // 8a. Màn hình My Profile
+      GoRoute(
+        path: '/my-profile',
+        builder: (context, state) => const MyProfilePage(),
       ),
       // 9. Màn hình Cài đặt
       GoRoute(

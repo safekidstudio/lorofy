@@ -87,3 +87,44 @@ final class TodayActivitiesProvider
 }
 
 String _$todayActivitiesHash() => r'fa7151f8075dd491dac3fc51d6f1d245c1f27037';
+
+@ProviderFor(monthActivities)
+final monthActivitiesProvider = MonthActivitiesProvider._();
+
+final class MonthActivitiesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<FocusSession>>,
+          List<FocusSession>,
+          FutureOr<List<FocusSession>>
+        >
+    with
+        $FutureModifier<List<FocusSession>>,
+        $FutureProvider<List<FocusSession>> {
+  MonthActivitiesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'monthActivitiesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$monthActivitiesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<FocusSession>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<FocusSession>> create(Ref ref) {
+    return monthActivities(ref);
+  }
+}
+
+String _$monthActivitiesHash() => r'fd28b041910dd53a714ac8ee75f97cf22f7c24d0';

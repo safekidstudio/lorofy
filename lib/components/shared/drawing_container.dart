@@ -139,20 +139,27 @@ class DrawingContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedFillColor = fillColor != null
+        ? CupertinoDynamicColor.resolve(fillColor!, context)
+        : null;
+    final resolvedBorderColor = borderColor != null
+        ? CupertinoDynamicColor.resolve(borderColor!, context)
+        : null;
+
     return CustomPaint(
-      painter: fillColor != null && fillColor != CupertinoColors.transparent
+      painter: resolvedFillColor != null && resolvedFillColor != CupertinoColors.transparent
           ? DrawingPainter(
-              fillColor: fillColor,
+              fillColor: resolvedFillColor,
               borderColor: CupertinoColors.transparent,
               borderWidth: 0.0,
               radius: radius,
               shape: shape,
             )
           : null,
-      foregroundPainter: (borderColor != null && borderColor != CupertinoColors.transparent && borderWidth > 0)
+      foregroundPainter: (resolvedBorderColor != null && resolvedBorderColor != CupertinoColors.transparent && borderWidth > 0)
           ? DrawingPainter(
               fillColor: CupertinoColors.transparent,
-              borderColor: borderColor!,
+              borderColor: resolvedBorderColor,
               borderWidth: borderWidth,
               radius: radius,
               shape: shape,

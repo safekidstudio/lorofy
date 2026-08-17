@@ -31,6 +31,8 @@ class AuthRepository {
           refreshToken: authResponse.refreshToken,
           isOnboarded: profile.isOnboarded,
           displayName: profile.displayName,
+          avatarUrl: profile.avatarUrl,
+          username: profile.username,
         );
   }
 
@@ -71,6 +73,26 @@ class AuthRepository {
       timezone: timezone,
       avatarAssetId: avatarAssetId,
     );
+    return profile;
+  }
+
+  Future<UserProfile> updateProfile({
+    String? displayName,
+    String? timezone,
+    String? avatarAssetId,
+  }) async {
+    final profile = await _remoteDataSource.updateProfile(
+      displayName: displayName,
+      timezone: timezone,
+      avatarAssetId: avatarAssetId,
+    );
+
+    await _ref.read(authProvider.notifier).updateProfileState(
+      displayName: profile.displayName ?? '',
+      avatarUrl: profile.avatarUrl,
+      username: profile.username,
+    );
+
     return profile;
   }
 

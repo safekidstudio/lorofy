@@ -10,6 +10,7 @@ import 'package:lorofy/components/layout/page_wrapper.dart';
 import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 import '../providers/register_controller.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
@@ -20,16 +21,20 @@ class RegisterPage extends ConsumerStatefulWidget {
 }
 
 class _RegisterPageState extends ConsumerState<RegisterPage> {
-  final _emailController = TextEditingController();
+  late FormGroup _form;
 
   @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _form = FormGroup({
+      'email': FormControl<String>(
+        validators: [Validators.required, Validators.email],
+      ),
+    });
   }
 
   Future<void> _onContinue() async {
-    final email = _emailController.text.trim();
+    final email = (_form.value['email'] as String?)?.trim() ?? '';
     if (email.isEmpty) return;
 
     await ref.read(registerControllerProvider.notifier).sendOtp(email: email);
@@ -52,79 +57,86 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         : null;
 
     return PageWrapper(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-              // 1. Header Back Button
-              const TopBar(),
-              const Spacer(),
+      child: ReactiveForm(
+        formGroup: _form,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 1. Header Back Button
+            const TopBar(),
+            const Spacer(),
 
-              // 2. Title "What's your email?"
-              Text(
-                "What's your email?",
-                style: TextStyle(
-                  fontFamily: AppTextStyles.titleFontFamily,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w900,
-                  color: const Color(0xFF232321),
+            // 2. Title "What's your email?"
+            Text(
+              "What's your email?",
+              style: TextStyle(
+                fontFamily: AppTextStyles.titleFontFamily,
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF232321),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+
+            // 3. Flat email input field (without top label text)
+            Input(
+              placeholder: 'example@lorofy.com',
+              formControlName: 'email',
+              keyboardType: TextInputType.emailAddress,
+              disabled: isLoading,
+              errorMessage: errorMessage,
+            ),
+            const SizedBox(height: 28),
+
+            // 4. Centered, smaller Continue button
+            Center(
+              child: SizedBox(
+                width: 180,
+                child: ReactiveFormConsumer(
+                  builder: (context, form, child) {
+                    return Button.primary(
+                      text: 'Continue',
+                      isLoading: isLoading,
+                      onPressed: (form.valid && !isLoading) ? _onContinue : null,
+                    );
+                  },
                 ),
-                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 28),
+            ),
+            const SizedBox(height: 28),
 
-              // 3. Flat email input field (without top label text)
-              Input(
-                placeholder: 'example@lorofy.com',
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                disabled: isLoading,
-                errorMessage: errorMessage,
-              ),
-              const SizedBox(height: 28),
+            // 5. Wavy Divider
+            const WavyDivider(text: 'Or'),
+            const SizedBox(height: 24),
 
-              // 4. Centered, smaller Continue button
-              Center(
-                child: SizedBox(
-                  width: 180,
-                  child: Button.primary(
-                    text: 'Continue',
-                    isLoading: isLoading,
-                    onPressed: isLoading ? null : _onContinue,
+            // 6. Circular Social Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SocialIconButton(
+                  svgPath: 'assets/icons/apple-drawing.svg',
+                  onPressed: () => AppToast.show(
+                    context,
+                    message: 'Apple Sign-in is coming soon!',
+                    type: ToastType.info,
                   ),
                 ),
-              ),
-              const SizedBox(height: 28),
-
-              // 5. Wavy Divider
-              const WavyDivider(text: 'Or'),
-              const SizedBox(height: 24),
-
-              // 6. Circular Social Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SocialIconButton(
-                    svgPath: 'assets/icons/apple-drawing.svg',
-                    onPressed: () => AppToast.show(
-                      context,
-                      message: 'Apple Sign-in is coming soon!',
-                      type: ToastType.info,
-                    ),
+                const SizedBox(width: 20),
+                SocialIconButton(
+                  svgPath: 'assets/icons/google-drawing.svg',
+                  onPressed: () => AppToast.show(
+                    context,
+                    message: 'Google Sign-in is coming soon!',
+                    type: ToastType.info,
                   ),
-                  const SizedBox(width: 20),
-                  SocialIconButton(
-                    svgPath: 'assets/icons/google-drawing.svg',
-                    onPressed: () => AppToast.show(
-                      context,
-                      message: 'Google Sign-in is coming soon!',
-                      type: ToastType.info,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const Spacer(),
+          ],
+        ),
+      ),
     );
   }
 

@@ -34,6 +34,21 @@ class ExploreRepositoryImpl implements ExploreRepository {
   }
 
   @override
+  Future<List<FocusSession>> getMonthActivities() async {
+    final now = DateTime.now();
+    final startDate = now.subtract(const Duration(days: 30));
+    final monthStart = DateTime(startDate.year, startDate.month, startDate.day);
+    final monthEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+
+    final pageResponse = await _remoteDataSource.getActivities(
+      startDate: monthStart.toUtc().toIso8601String(),
+      endDate: monthEnd.toUtc().toIso8601String(),
+      size: 200,
+    );
+    return pageResponse.content;
+  }
+
+  @override
   Future<Leaderboard> getLeaderboard({
     required String timeframe,
     String? countryCode,

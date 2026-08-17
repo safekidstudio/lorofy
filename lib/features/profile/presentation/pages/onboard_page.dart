@@ -13,6 +13,8 @@ import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/network/dio_client.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
+import 'package:lorofy/core/constants/app_constants.dart';
+import 'package:reactive_forms/reactive_forms.dart';
 import '../providers/country_provider.dart';
 import '../providers/onboard_controller.dart';
 
@@ -35,80 +37,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
   bool _isUploading = false;
 
   String _selectedCountryCode = 'VN';
-  final _nameController = TextEditingController();
-
-  final List<Map<String, String>> _defaultAvatars = [
-    {
-      'id': '40000000-0000-0000-0000-000000000001',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000002',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/78_jdqw4d_igelau.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000003',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619374/53_kafxzv_qm9i2y.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000004',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619374/45_pxz0fx_cbtmzz.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000005',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619373/31_js95zg_egf5ae.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000006',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619373/26_qse2gw_jgpexf.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000007',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619372/22_umn6dl_vganab.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000008',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619371/16_mrx1dn_wvbxb2.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000009',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000010',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/02_aus2zc_tfpypg.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000011',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/10_casfd5_o5c17e.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000012',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/04_bhucyh_t0s4i9.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000013',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619367/11_bb0em3_gsk14y.png',
-    },
-    {
-      'id': '40000000-0000-0000-0000-000000000014',
-      'url':
-          'https://res.cloudinary.com/ikupgdru/image/upload/v1784619367/09_uvurms_b4gjxz.png',
-    },
-  ];
+  late FormGroup _form;
 
   int _selectedAvatarIndex = 2;
   late final PageController _pageController;
@@ -117,11 +46,19 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
   @override
   void initState() {
     super.initState();
+
+    _form = FormGroup({
+      'displayName': FormControl<String>(
+        value: '',
+        validators: [Validators.required, Validators.minLength(3)],
+      ),
+    });
+
     // Default to the 3rd avatar from the list, matching the mockup selected item
-    _selectedAvatarId = _defaultAvatars[2]['id'];
-    _selectedAvatarUrl = _defaultAvatars[2]['url'];
+    _selectedAvatarId = AppConstants.defaultAvatars[2]['id'];
+    _selectedAvatarUrl = AppConstants.defaultAvatars[2]['url'];
     final int initialPage =
-        1000 * _defaultAvatars.length + _selectedAvatarIndex;
+        1000 * AppConstants.defaultAvatars.length + _selectedAvatarIndex;
     _pageController = PageController(
       initialPage: initialPage,
       viewportFraction: 0.22,
@@ -133,9 +70,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
     try {
       final profile = await ref.read(authRepositoryProvider).getMe();
       if (mounted) {
-        setState(() {
-          _nameController.text = profile.username;
-        });
+        _form.control('displayName').value = profile.username;
       }
     } catch (e) {
       // Ignore errors silently
@@ -146,7 +81,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_preCached) {
-      for (final avatar in _defaultAvatars) {
+      for (final avatar in AppConstants.defaultAvatars) {
         precacheImage(NetworkImage(avatar['url']!), context);
       }
       _preCached = true;
@@ -155,7 +90,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -216,8 +150,8 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
       // Revert optimistic UI on upload failure
       setState(() {
         _uploadedImagePath = null;
-        _selectedAvatarId = _defaultAvatars[_selectedAvatarIndex]['id'];
-        _selectedAvatarUrl = _defaultAvatars[_selectedAvatarIndex]['url'];
+        _selectedAvatarId = AppConstants.defaultAvatars[_selectedAvatarIndex]['id'];
+        _selectedAvatarUrl = AppConstants.defaultAvatars[_selectedAvatarIndex]['url'];
       });
       if (!mounted) return;
       AppToast.show(
@@ -250,7 +184,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
   }
 
   Future<void> _submitOnboarding() async {
-    final displayName = _nameController.text.trim();
+    final displayName = (_form.value['displayName'] as String?)?.trim() ?? '';
     if (displayName.length < 3) return;
 
     await ref
@@ -286,11 +220,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
           // Auto-redirect to home page after a 3-second delay
           Future.delayed(const Duration(seconds: 3), () {
             if (mounted && _isSuccess) {
+              final displayName = (_form.value['displayName'] as String?)?.trim() ?? '';
               ref
                   .read(authProvider.notifier)
                   .updateOnboardedState(
                     onboarded: true,
-                    displayName: _nameController.text.trim(),
+                    displayName: displayName,
                   );
             }
           });
@@ -379,11 +314,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                     Button.primary(
                       text: 'Get Started',
                       onPressed: () {
+                        final displayName = (_form.value['displayName'] as String?)?.trim() ?? '';
                         ref
                             .read(authProvider.notifier)
                             .updateOnboardedState(
                               onboarded: true,
-                              displayName: _nameController.text.trim(),
+                              displayName: displayName,
                             );
                       },
                     ),
@@ -399,47 +335,50 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
         backgroundColor: AppColors.background,
         resizeToAvoidBottomInset: true,
         child: SafeArea(
-          child: Column(
-            children: [
-              _buildProgressBar(),
-              Expanded(
-                child: SingleChildScrollView(
+          child: ReactiveForm(
+            formGroup: _form,
+            child: Column(
+              children: [
+                _buildProgressBar(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    physics: const BouncingScrollPhysics(),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: _buildStepContent(isLoading),
+                    ),
+                  ),
+                ),
+                Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
                     vertical: 16,
                   ),
-                  physics: const BouncingScrollPhysics(),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: _buildStepContent(isLoading),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (errorMessage != null) ...[
+                        Text(
+                          errorMessage,
+                          style: AppTextStyles.body.copyWith(
+                            color: CupertinoColors.systemRed,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      _buildActionButtons(isLoading),
+                    ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (errorMessage != null) ...[
-                      Text(
-                        errorMessage,
-                        style: AppTextStyles.body.copyWith(
-                          color: CupertinoColors.systemRed,
-                          fontSize: 13,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    _buildActionButtons(isLoading),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
@@ -589,20 +528,20 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
             // Infinite scroll uses a very large virtual item count
             itemCount: 100000,
             onPageChanged: (page) {
-              final index = page % _defaultAvatars.length;
+              final index = page % AppConstants.defaultAvatars.length;
               setState(() {
                 _selectedAvatarIndex = index;
-                _selectedAvatarId = _defaultAvatars[index]['id'];
-                _selectedAvatarUrl = _defaultAvatars[index]['url'];
+                _selectedAvatarId = AppConstants.defaultAvatars[index]['id'];
+                _selectedAvatarUrl = AppConstants.defaultAvatars[index]['url'];
                 _uploadedImagePath = null;
               });
             },
             physics: const BouncingScrollPhysics(),
             itemBuilder: (context, index) {
-              final mappedIndex = index % _defaultAvatars.length;
-              final avatar = _defaultAvatars[mappedIndex];
+              final mappedIndex = index % AppConstants.defaultAvatars.length;
+              final avatar = AppConstants.defaultAvatars[mappedIndex];
               final int initialPage =
-                  1000 * _defaultAvatars.length + _selectedAvatarIndex;
+                  1000 * AppConstants.defaultAvatars.length + _selectedAvatarIndex;
 
               return AnimatedBuilder(
                 animation: _pageController,
@@ -706,8 +645,9 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
             if (countries.isNotEmpty &&
                 !countries.any((c) => c.code == _selectedCountryCode)) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted)
+                if (mounted) {
                   setState(() => _selectedCountryCode = countries.first.code);
+                }
               });
             }
             return GridView.count(
@@ -806,7 +746,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                 color: Color(0xFF071B12),
                                 shape: BoxShape.circle,
                               ),
-                              child: SVG(
+                              child: const SVG(
                                 'assets/icons/check.svg',
                                 width: 10,
                                 height: 10,
@@ -845,7 +785,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
         const SizedBox(height: 48),
         Input(
           placeholder: 'user.example',
-          controller: _nameController,
+          formControlName: 'displayName',
           disabled: isDisabled,
           prefix: Container(
             padding: const EdgeInsets.all(4),
@@ -855,7 +795,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
               width: 24,
             ),
           ),
-          onChanged: (_) => setState(() {}),
         ),
       ],
     );
@@ -891,12 +830,16 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Button.primary(
-            text: 'Complete',
-            isLoading: isLoading,
-            onPressed: (_isNextButtonEnabled() && !isLoading)
-                ? _nextStep
-                : null,
+          ReactiveFormConsumer(
+            builder: (context, form, child) {
+              return Button.primary(
+                text: 'Complete',
+                isLoading: isLoading,
+                onPressed: (form.valid && !isLoading)
+                    ? _nextStep
+                    : null,
+              );
+            },
           ),
           const SizedBox(height: 12),
           Button.secondary(
@@ -907,13 +850,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
         ],
       );
     }
-  }
-
-  bool _isNextButtonEnabled() {
-    if (_currentStep == 2) {
-      return _nameController.text.trim().length >= 3;
-    }
-    return true;
   }
 
   String _parseError(Object error) {

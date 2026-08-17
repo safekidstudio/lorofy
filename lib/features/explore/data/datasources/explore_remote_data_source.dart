@@ -28,11 +28,15 @@ class ExploreRemoteDataSource {
     String? status,
     String? startDate,
     String? endDate,
+    int? page,
+    int? size,
   }) async {
     final Map<String, dynamic> queryParameters = {};
     if (status != null) queryParameters['status'] = status;
     if (startDate != null) queryParameters['startDate'] = startDate;
     if (endDate != null) queryParameters['endDate'] = endDate;
+    if (page != null) queryParameters['page'] = page;
+    if (size != null) queryParameters['size'] = size;
 
     final response = await _dio.get(
       '/profiles/activities',
@@ -60,7 +64,7 @@ class ExploreRemoteDataSource {
     final response = await _dio.get(
       '/leaderboards',
       queryParameters: queryParameters,
-      options: ApiOptions.public,
+      options: ApiOptions.protected,
     );
     return response.unwrap(
       (json) => LeaderboardModel.fromJson(json as Map<String, dynamic>),
