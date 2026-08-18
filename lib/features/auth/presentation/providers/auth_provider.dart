@@ -200,4 +200,18 @@ class Auth extends _$Auth {
       username: username,
     );
   }
+
+  Future<void> updateTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    await _authStorage.saveTokens(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    );
+    state = state.copyWith(
+      state: AuthState.authenticated,
+      accessToken: accessToken,
+    );
+  }
 }

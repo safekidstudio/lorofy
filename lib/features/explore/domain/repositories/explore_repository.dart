@@ -6,6 +6,13 @@ abstract class ExploreRepository {
   Future<FocusStats> getFocusStats();
   Future<List<FocusSession>> getTodayActivities();
   Future<List<FocusSession>> getMonthActivities();
+  Future<List<FocusSession>> getFilteredActivities({
+    String? status,
+    String? startDate,
+    String? endDate,
+    int? page,
+    int? size,
+  });
   Future<Leaderboard> getLeaderboard({
     required String timeframe,
     String? countryCode,

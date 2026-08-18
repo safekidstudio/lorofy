@@ -4,6 +4,8 @@ import 'package:lorofy/features/home/presentation/pages/home_page.dart';
 import 'package:lorofy/features/explore/presentation/pages/explore_page.dart';
 import 'package:lorofy/features/profile/presentation/pages/onboard_page.dart';
 import 'package:lorofy/features/profile/presentation/pages/my_profile_page.dart';
+import 'package:lorofy/features/profile/presentation/pages/my_activities_page.dart';
+import 'package:lorofy/features/profile/presentation/pages/notifications_page.dart';
 import 'package:lorofy/features/focus/presentation/pages/session_settings_page.dart';
 import 'package:lorofy/features/settings/presentation/pages/settings_page.dart';
 import 'package:lorofy/features/focus/presentation/pages/sound_settings_page.dart';
@@ -106,6 +108,16 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/my-profile',
         builder: (context, state) => const MyProfilePage(),
+      ),
+      // 8b. Màn hình My Activities
+      GoRoute(
+        path: '/my-activities',
+        builder: (context, state) => const MyActivitiesPage(),
+      ),
+      // 8c. Màn hình Notifications
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsPage(),
       ),
       // 9. Màn hình Cài đặt
       GoRoute(

@@ -123,13 +123,13 @@ class ProfilePage extends ConsumerWidget {
                   _buildMenuItem(
                     context: context,
                     title: 'Activities',
-                    onTap: () => _showComingSoon(context, 'Activities'),
+                    onTap: () => context.push('/my-activities'),
                   ),
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     context: context,
                     title: 'Notifications',
-                    onTap: () => _showComingSoon(context, 'Notifications'),
+                    onTap: () => context.push('/notifications'),
                   ),
                   const SizedBox(height: 8),
                   _buildMenuItem(

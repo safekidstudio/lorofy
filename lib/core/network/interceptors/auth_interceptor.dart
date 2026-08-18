@@ -67,17 +67,25 @@ class AuthInterceptor extends QueuedInterceptorsWrapper {
     );
 
     if (response.statusCode == 200) {
-      final newAccessToken = response.data['accessToken'];
-      final newRefreshToken = response.data['refreshToken'];
+      final responseData = response.data;
+      if (responseData != null) {
+        final data = responseData['data'];
+        if (data != null) {
+          final newAccessToken = data['accessToken'] as String?;
+          final newRefreshToken = data['refreshToken'] as String?;
 
-      // Lưu lại token mới vào storage
-      await ref
-          .read(authStorageProvider)
-          .saveTokens(
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken,
-          );
-      return true;
+          if (newAccessToken != null && newRefreshToken != null) {
+            // Cập nhật token mới vào authProvider (RAM) và Secure Storage
+            await ref
+                .read(authProvider.notifier)
+                .updateTokens(
+                  accessToken: newAccessToken,
+                  refreshToken: newRefreshToken,
+                );
+            return true;
+          }
+        }
+      }
     }
     return false;
   }
