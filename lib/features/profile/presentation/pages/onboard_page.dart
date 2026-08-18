@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lorofy/components/ui/app_avatar.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/button.dart';
-import 'package:lorofy/components/ui/input.dart';
 import 'package:lorofy/components/ui/toast.dart';
 import 'package:rive/rive.dart' hide LinearGradient, Image;
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
@@ -13,9 +11,11 @@ import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import 'package:lorofy/core/constants/app_constants.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-import '../providers/country_provider.dart';
 import '../providers/onboard_controller.dart';
 import 'package:lorofy/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:lorofy/features/profile/presentation/widgets/onboard/onboard_avatar_step.dart';
+import 'package:lorofy/features/profile/presentation/widgets/onboard/onboard_country_step.dart';
+import 'package:lorofy/features/profile/presentation/widgets/onboard/onboard_name_step.dart';
 
 class OnboardPage extends ConsumerStatefulWidget {
   const OnboardPage({super.key});
@@ -426,358 +426,41 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
   Widget _buildStepContent(bool isDisabled) {
     switch (_currentStep) {
       case 0:
-        return _buildAvatarStep(isDisabled);
+        return OnboardAvatarStep(
+          key: const ValueKey(0),
+          isDisabled: isDisabled,
+          uploadedImagePath: _uploadedImagePath,
+          selectedAvatarUrl: _selectedAvatarUrl,
+          isUploading: _isUploading,
+          selectedAvatarIndex: _selectedAvatarIndex,
+          pageController: _pageController,
+          onUploadPressed: _uploadAvatar,
+          onAvatarIndexChanged: (index) {
+            setState(() {
+              _selectedAvatarIndex = index;
+              _selectedAvatarId = AppConstants.defaultAvatars[index]['id'];
+              _selectedAvatarUrl = AppConstants.defaultAvatars[index]['url'];
+              _uploadedImagePath = null;
+            });
+          },
+        );
       case 1:
-        return _buildCountryStep(isDisabled);
+        return OnboardCountryStep(
+          key: const ValueKey(1),
+          isDisabled: isDisabled,
+          selectedCountryCode: _selectedCountryCode,
+          onCountryChanged: (code) {
+            setState(() => _selectedCountryCode = code);
+          },
+        );
       case 2:
-        return _buildNameStep(isDisabled);
+        return OnboardNameStep(
+          key: const ValueKey(2),
+          isDisabled: isDisabled,
+        );
       default:
         return const SizedBox.shrink();
     }
-  }
-
-  // --- STEP 1: AVATAR SELECT ---
-  Widget _buildAvatarStep(bool isDisabled) {
-    const double avatarSize = 130;
-
-    return Column(
-      key: const ValueKey(0),
-      children: [
-        const SizedBox(height: 20),
-        Center(
-          child: Stack(
-            children: [
-              AppAvatar(
-                path: _uploadedImagePath ?? _selectedAvatarUrl,
-                size: avatarSize,
-                isLoading: _isUploading,
-                borderColor: const Color(0xFF232321).withValues(alpha: 0.1),
-                borderWidth: 2,
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: GestureDetector(
-                  onTap: isDisabled || _isUploading ? null : _uploadAvatar,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: CupertinoColors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFFE4E4E6),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: CupertinoColors.systemGrey.withValues(
-                            alpha: 0.2,
-                          ),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      CupertinoIcons.camera_fill,
-                      size: 18,
-                      color: Color(0xFF232321),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 32),
-        Text('Choose your avatar', style: AppTextStyles.titleLarge),
-        const SizedBox(height: 8),
-        Text(
-          'Upload your avatar or using avatar list below',
-          style: AppTextStyles.body.copyWith(
-            color: AppColors.secondary,
-            fontSize: 14,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 32),
-        SizedBox(
-          height: 100,
-          child: PageView.builder(
-            controller: _pageController,
-            // Infinite scroll uses a very large virtual item count
-            itemCount: 100000,
-            onPageChanged: (page) {
-              final index = page % AppConstants.defaultAvatars.length;
-              setState(() {
-                _selectedAvatarIndex = index;
-                _selectedAvatarId = AppConstants.defaultAvatars[index]['id'];
-                _selectedAvatarUrl = AppConstants.defaultAvatars[index]['url'];
-                _uploadedImagePath = null;
-              });
-            },
-            physics: const BouncingScrollPhysics(),
-            itemBuilder: (context, index) {
-              final mappedIndex = index % AppConstants.defaultAvatars.length;
-              final avatar = AppConstants.defaultAvatars[mappedIndex];
-              final int initialPage =
-                  1000 * AppConstants.defaultAvatars.length + _selectedAvatarIndex;
-
-              return AnimatedBuilder(
-                animation: _pageController,
-                builder: (context, child) {
-                  double distance = 0.0;
-                  if (_pageController.position.haveDimensions) {
-                    distance = (_pageController.page! - index).abs();
-                  } else {
-                    distance = (index - initialPage).abs().toDouble();
-                  }
-
-                  double scale = 1.0;
-                  double opacity = 1.0;
-
-                  if (distance <= 1.0) {
-                    scale = 1.35 - (distance * 0.40);
-                    opacity = 1.0 - (distance * 0.30);
-                  } else if (distance <= 2.0) {
-                    scale = 0.95 - ((distance - 1.0) * 0.25);
-                    opacity = 0.70 - ((distance - 1.0) * 0.30);
-                  } else {
-                    scale = 0.70 - ((distance - 2.0) * 0.20);
-                    opacity = 0.40 - ((distance - 2.0) * 0.20);
-                    if (scale < 0.5) scale = 0.5;
-                    if (opacity < 0.2) opacity = 0.2;
-                  }
-
-                  final isSelected = mappedIndex == _selectedAvatarIndex;
-
-                  return GestureDetector(
-                    onTap: isDisabled
-                        ? null
-                        : () {
-                            _pageController.animateToPage(
-                              index,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOut,
-                            );
-                          },
-                    child: Center(
-                      child: Transform.scale(
-                        scale: scale,
-                        child: Opacity(
-                          opacity: opacity,
-                          child: Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: isSelected
-                                  ? Border.all(
-                                      color: const Color(0xFF232321),
-                                      width: 3,
-                                    )
-                                  : null,
-                            ),
-                            padding: isSelected
-                                ? const EdgeInsets.all(2)
-                                : EdgeInsets.zero,
-                            child: AppAvatar(path: avatar['url'], size: 52),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCountryStep(bool isDisabled) {
-    final countriesAsync = ref.watch(countriesProvider);
-
-    return Column(
-      key: const ValueKey(1),
-      children: [
-        const SizedBox(height: 20),
-        Text('Where are you from?', style: AppTextStyles.titleLarge),
-        const SizedBox(height: 8),
-        Text(
-          'Choose the country you are currently living in',
-          style: AppTextStyles.body.copyWith(
-            color: AppColors.secondary,
-            fontSize: 14,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 32),
-        countriesAsync.when(
-          loading: () => const CupertinoActivityIndicator(),
-          error: (e, _) => Text(
-            'Could not load countries',
-            style: AppTextStyles.body.copyWith(color: AppColors.secondary),
-          ),
-          data: (countries) {
-            // Auto-select first country if current selection not in list
-            if (countries.isNotEmpty &&
-                !countries.any((c) => c.code == _selectedCountryCode)) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  setState(() => _selectedCountryCode = countries.first.code);
-                }
-              });
-            }
-            return GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 3,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 0.85,
-              children: countries.map((country) {
-                final isSelected = country.code == _selectedCountryCode;
-
-                return GestureDetector(
-                  onTap: isDisabled
-                      ? null
-                      : () =>
-                            setState(() => _selectedCountryCode = country.code),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    decoration: BoxDecoration(
-                      color: CupertinoColors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isSelected
-                            ? const Color(0xFF232321)
-                            : CupertinoColors.transparent,
-                        width: 2.0,
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x05000000),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (country.flagUrl != null)
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image.network(
-                                    country.flagUrl!,
-                                    width: 48,
-                                    height: 48,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stack) =>
-                                        Container(
-                                          width: 48,
-                                          height: 48,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFE4E4E6),
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                        ),
-                                  ),
-                                )
-                              else
-                                Container(
-                                  width: 48,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE4E4E6),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                              const SizedBox(height: 10),
-                              Text(
-                                country.name,
-                                style: const TextStyle(
-                                  fontFamily: AppTextStyles.fontFamily,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF232321),
-                                ),
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (isSelected)
-                          Positioned(
-                            top: 6,
-                            right: 6,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF071B12),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const SVG(
-                                'assets/icons/check.svg',
-                                width: 10,
-                                height: 10,
-                                color: CupertinoColors.white,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  // --- STEP 3: USERNAME SELECT ---
-  Widget _buildNameStep(bool isDisabled) {
-    return Column(
-      key: const ValueKey(2),
-      children: [
-        const SizedBox(height: 20),
-        Text('Create your username', style: AppTextStyles.titleLarge),
-        const SizedBox(height: 8),
-        Text(
-          'Choose a unique display name for your profile',
-          style: AppTextStyles.body.copyWith(
-            color: AppColors.secondary,
-            fontSize: 14,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 48),
-        Input(
-          placeholder: 'user.example',
-          formControlName: 'displayName',
-          disabled: isDisabled,
-          prefix: Container(
-            padding: const EdgeInsets.all(4),
-            child: const SVG(
-              'assets/icons/at-symbol.svg',
-              height: 24,
-              width: 24,
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   Widget _buildActionButtons(bool isLoading) {
