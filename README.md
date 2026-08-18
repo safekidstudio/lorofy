@@ -23,35 +23,39 @@ Lorofy là ứng dụng giúp tăng hiệu suất làm việc và học tập b�
 
 ## 🏗️ Kiến trúc dự án (Architecture)
 
-Dự án tuân thủ mô hình **Feature-first Clean Architecture** kết hợp với hệ thống UI **Atomic Design** sử dụng bộ Cupertino Theme mượt mà như iOS trên cả hai nền tảng.
+Dự án tuân thủ mô hình **Feature-first Clean Architecture** kết hợp với hệ thống UI components dùng chung mượt mà theo Cupertino Design (iOS).
 
 ### Cấu trúc thư mục `lib/`
 
 ```
 lib/
-├── core/                           # Cấu hình dùng chung
-│   ├── theme/                      # Design tokens & Cupertino Theme
-│   ├── router/                     # Định tuyến go_router
-│   ├── network/                    # Dio Client & cấu hình API Interceptor
-│   ├── constants/                  # Hằng số toàn cục
-│   ├── utils/                      # Công cụ tiện ích
-│   ├── errors/                     # Xử lý lỗi hệ thống
-│   └── shared_domain/              # Entity/Repository dùng chung giữa >= 2 feature
-├── design_system/                  # Hệ thống ATOMIC DESIGN (không chứa logic nghiệp vụ)
-│   ├── atoms/                      # AppButton, AppTextField, AppIcon, AppSwitch, AppAvatar...
-│   ├── molecules/                  # SearchBar, StatChip, TimerControl...
-│   ├── organisms/                  # FocusSessionCard, LeaderboardRowList, StreakCalendar...
-│   └── templates/                  # Bố cục khung màn hình (DashboardTemplate...)
-├── features/                       # Quản lý theo từng module tính năng
-│   ├── auth/                       # Đăng ký, đăng nhập & xử lý JWT
-│   ├── focus_session/              # Phiên tập trung nhanh (Home / Quick Focus)
-│   ├── blocking/                   # Cấu hình chặn App/Website
-│   ├── scheduled/                  # Đặt lịch chặn tự động
-│   ├── leaderboard/                # Bảng xếp hạng bạn bè (WebSockets STOMP)
-│   ├── profile/                    # Thông tin cá nhân & Thống kê biểu đồ
-│   └── gamification/               # Điểm thưởng, mở khóa vật phẩm
-└── main.dart                       # Entry point ứng dụng
+├── core/                           # Cấu hình hệ thống dùng chung toàn ứng dụng
+│   ├── config/                     # Đọc cấu hình môi trường qua --dart-define
+│   ├── constants/                  # Hằng số toàn cục (AppConstants)
+│   ├── errors/                     # Xử lý ngoại lệ & thông điệp lỗi
+│   ├── network/                    # Dio HTTP client, Interceptors xử lý auth/token
+│   ├── router/                     # Cấu hình go_router định tuyến màn hình
+│   ├── storage/                    # Lưu trữ cục bộ (JWT, cache)
+│   └── theme/                      # Design tokens, màu sắc & kiểu chữ (AppTheme)
+├── components/                     # Hệ thống UI components dùng chung
+│   ├── layout/                     # Bố cục trang (AppHeader, PageWrapper)
+│   ├── ui/                         # Các widget giao diện cơ bản (Button, Input, AppAvatar...)
+│   └── shared/                     # Các widget dùng chung giữa các màn hình
+├── features/                       # Quản lý theo từng module tính năng (Feature-first Clean Architecture)
+│   ├── auth/                       # Đăng ký, đăng nhập, quên mật khẩu
+│   ├── explore/                    # Khám phá các nội dung học tập, nhạc tập trung
+│   ├── focus/                      # Quản lý phiên tập trung và chặn ứng dụng
+│   ├── home/                       # Màn hình chính của ứng dụng
+│   ├── mascot/                     # Chọn lựa và tương tác với thú cưng đồng hành
+│   ├── profile/                    # Thông tin cá nhân, biểu đồ thống kê & thông báo
+│   └── settings/                   # Cấu hình ứng dụng cài đặt chung
+└── main.dart                       # Entry point khởi tạo và chạy ứng dụng
 ```
+
+Mỗi module trong `features/` được chia thành 3 lớp chuẩn:
+1. **Domain:** Chứa entities, repository interfaces đại diện cho nghiệp vụ cốt lõi.
+2. **Data:** Chứa datasources (remote/local) và các triển khai cụ thể của repositories.
+3. **Presentation:** Chứa UI pages, widgets và Riverpod providers để quản lý trạng thái.
 
 ---
 
@@ -75,26 +79,61 @@ Hệ thống cơ sở dữ liệu Postgres sử dụng các bảng chính sau:
 ## 🛠️ Hướng dẫn cài đặt & Khởi chạy (Client)
 
 ### 1. Chuẩn bị môi trường
-- Flutter SDK (bản Stable mới nhất).
-- Đã cài đặt Android SDK / Xcode.
-- Backend Java Spring Boot đã chạy (local hoặc deploy lên cloud).
+- Flutter SDK (phiên bản Stable mới nhất hỗ trợ `--dart-define-from-file`).
+- Đã cấu hình đầy đủ Android SDK (Android Studio) / Xcode (macOS).
+- Backend Java Spring Boot đã sẵn sàng (ở môi trường cục bộ hoặc trên cloud).
 
 ### 2. Thiết lập dự án
 ```bash
-# Clone dự án về máy
-git clone <repository_url>
-cd lorofy
-
 # Cài đặt các thư viện/packages cần thiết
 flutter pub get
 ```
 
 ### 3. Sinh mã tự động (Build Runner)
 ```bash
+# Chạy build runner một lần để sinh các provider Riverpod, routes, JSON converters
 dart run build_runner build --delete-conflicting-outputs
+
+# Hoặc chạy watcher tự động biên dịch khi file thay đổi trong lúc code
+dart run build_runner watch --delete-conflicting-outputs
 ```
 
-### 4. Chạy ứng dụng
-```bash
-flutter run
+### 4. Môi trường & Khởi chạy ứng dụng
+Dự án sử dụng file cấu hình JSON được định nghĩa tại thư mục `configs/` để phân tách giữa môi trường Phát triển (**Development**) và Sản xuất (**Production**).
+
+#### 🔹 Môi trường Phát triển (Development)
+Sử dụng file cấu hình: [env.dev.json](configs/env.dev.json) (kết nối Backend cục bộ tại localhost).
+
+* **Khởi chạy (Run):**
+  ```bash
+  flutter run --dart-define-from-file=configs/env.dev.json
+  ```
+* **Build (Android Debug APK):**
+  ```bash
+  flutter build apk --debug --dart-define-from-file=configs/env.dev.json
+  ```
+* **Build (iOS Simulator/Debug):**
+  ```bash
+  flutter build ios --debug --dart-define-from-file=configs/env.dev.json
+  ```
+
+#### 🔸 Môi trường Sản xuất (Production)
+Sử dụng file cấu hình: [env.json](configs/env.json) (kết nối Backend chính thức tại cloud).
+
+* **Khởi chạy (Run Release):**
+  ```bash
+  flutter run --release --dart-define-from-file=configs/env.json
+  ```
+* **Build Android APK (Release):**
+  ```bash
+  flutter build apk --release --dart-define-from-file=configs/env.json
+  ```
+* **Build Android App Bundle (Release - dùng tải lên CH Play):**
+  ```bash
+  flutter build appbundle --release --dart-define-from-file=configs/env.json
+  ```
+* **Build iOS IPA (Release - dùng tải lên App Store):**
+  ```bash
+  flutter build ipa --release --dart-define-from-file=configs/env.json
+  ```
 ```
