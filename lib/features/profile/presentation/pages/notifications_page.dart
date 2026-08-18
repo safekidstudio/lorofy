@@ -6,11 +6,30 @@ import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/profile/presentation/widgets/notification_card.dart';
 import 'package:lorofy/features/profile/presentation/providers/notifications_provider.dart';
 
-class NotificationsPage extends ConsumerWidget {
+class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends ConsumerState<NotificationsPage> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final notificationsAsync = ref.watch(notificationsProvider);
 
     return CupertinoPageScaffold(
@@ -84,7 +103,9 @@ class NotificationsPage extends ConsumerWidget {
                     );
                   }
                   return CupertinoScrollbar(
+                    controller: _scrollController,
                     child: ListView.builder(
+                      controller: _scrollController,
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       itemCount: notifications.length,
