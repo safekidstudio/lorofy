@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,13 +9,13 @@ import 'package:lorofy/components/ui/toast.dart';
 import 'package:rive/rive.dart' hide LinearGradient, Image;
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/core/network/dio_client.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import 'package:lorofy/core/constants/app_constants.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 import '../providers/country_provider.dart';
 import '../providers/onboard_controller.dart';
+import 'package:lorofy/features/profile/data/repositories/profile_repository_impl.dart';
 
 class OnboardPage extends ConsumerStatefulWidget {
   const OnboardPage({super.key});
@@ -121,31 +120,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
         _isUploading = true;
       });
 
-      final dio = ref.read(dioProvider);
       final bytes = await image.readAsBytes();
-      final formData = FormData.fromMap({
-        'file': MultipartFile.fromBytes(bytes, filename: image.name),
+      final uploadResult = await ref.read(profileRepositoryProvider).uploadAvatar(bytes, image.name);
+      final assetId = uploadResult.id;
+      setState(() {
+        _selectedAvatarId = assetId;
       });
-
-      final response = await dio.post(
-        '/media/upload',
-        data: formData,
-        options: Options(
-          extra: {'requiresAuth': true},
-          contentType: 'multipart/form-data',
-        ),
-      );
-
-      final responseData = response.data;
-      if (responseData != null) {
-        final dataField = responseData['data'];
-        if (dataField != null) {
-          final assetId = dataField['id'] as String;
-          setState(() {
-            _selectedAvatarId = assetId;
-          });
-        }
-      }
     } catch (e) {
       // Revert optimistic UI on upload failure
       setState(() {

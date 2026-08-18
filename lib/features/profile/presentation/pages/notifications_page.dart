@@ -1,125 +1,21 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/profile/domain/models/notification_item.dart';
+import 'package:lorofy/features/profile/presentation/providers/notifications_provider.dart';
 
-class NotificationItem {
-  final String id;
-  final String sender;
-  final String action;
-  final String topic;
-  final String timeAgo;
-  final bool isUnread;
-
-  NotificationItem({
-    required this.id,
-    required this.sender,
-    required this.action,
-    required this.topic,
-    required this.timeAgo,
-    required this.isUnread,
-  });
-
-  NotificationItem copyWith({bool? isUnread}) {
-    return NotificationItem(
-      id: id,
-      sender: sender,
-      action: action,
-      topic: topic,
-      timeAgo: timeAgo,
-      isUnread: isUnread ?? this.isUnread,
-    );
-  }
-}
-
-class NotificationsPage extends StatefulWidget {
+class NotificationsPage extends ConsumerWidget {
   const NotificationsPage({super.key});
 
-  @override
-  State<NotificationsPage> createState() => _NotificationsPageState();
-}
-
-class _NotificationsPageState extends State<NotificationsPage> {
-  final List<NotificationItem> _notifications = [
-    NotificationItem(
-      id: '1',
-      sender: 'Lorofy',
-      action: 'shared the meeting',
-      topic: 'Boctamp Online Course',
-      timeAgo: '3 hours ago',
-      isUnread: true,
-    ),
-    NotificationItem(
-      id: '2',
-      sender: 'Lorofy',
-      action: 'shared the meeting',
-      topic: 'Boctamp Online Course',
-      timeAgo: '3 hours ago',
-      isUnread: false,
-    ),
-    NotificationItem(
-      id: '3',
-      sender: 'Lorofy',
-      action: 'shared the meeting',
-      topic: 'Boctamp Online Course',
-      timeAgo: '3 hours ago',
-      isUnread: false,
-    ),
-    NotificationItem(
-      id: '4',
-      sender: 'Lorofy',
-      action: 'shared the meeting',
-      topic: 'Boctamp Online Course',
-      timeAgo: '3 hours ago',
-      isUnread: false,
-    ),
-    NotificationItem(
-      id: '5',
-      sender: 'Lorofy',
-      action: 'shared the meeting',
-      topic: 'Boctamp Online Course',
-      timeAgo: '3 hours ago',
-      isUnread: false,
-    ),
-    NotificationItem(
-      id: '6',
-      sender: 'Lorofy',
-      action: 'shared the meeting',
-      topic: 'Boctamp Online Course',
-      timeAgo: '3 hours ago',
-      isUnread: false,
-    ),
-    NotificationItem(
-      id: '7',
-      sender: 'Lorofy',
-      action: 'shared the meeting',
-      topic: 'Boctamp Online Course',
-      timeAgo: '3 hours ago',
-      isUnread: false,
-    ),
-  ];
-
-  void _markAllAsRead() {
-    setState(() {
-      for (int i = 0; i < _notifications.length; i++) {
-        _notifications[i] = _notifications[i].copyWith(isUnread: false);
-      }
-    });
-  }
-
-  void _toggleNotificationRead(int index) {
-    setState(() {
-      _notifications[index] = _notifications[index].copyWith(
-        isUnread: !_notifications[index].isUnread,
-      );
-    });
-  }
-
-  Widget _buildNotificationCard(int index) {
-    final item = _notifications[index];
-
+  Widget _buildNotificationCard(
+    BuildContext context,
+    WidgetRef ref,
+    NotificationItem item,
+  ) {
     return GestureDetector(
-      onTap: () => _toggleNotificationRead(index),
+      onTap: () => ref.read(notificationsProvider.notifier).toggleRead(item.id),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         child: Stack(
@@ -234,7 +130,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notificationsAsync = ref.watch(notificationsProvider);
+
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
       child: SafeArea(
@@ -262,7 +160,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
               title: 'Notifications',
               rightActions: CupertinoButton(
                 padding: EdgeInsets.zero,
-                onPressed: _markAllAsRead,
+                onPressed: () =>
+                    ref.read(notificationsProvider.notifier).markAllAsRead(),
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   child: SizedBox(
@@ -299,13 +198,43 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
             // Notifications List
             Expanded(
-              child: CupertinoScrollbar(
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  itemCount: _notifications.length,
-                  itemBuilder: (context, index) => _buildNotificationCard(index),
+              child: notificationsAsync.when(
+                loading: () => const Center(
+                  child: CupertinoActivityIndicator(),
                 ),
+                error: (error, stack) => Center(
+                  child: Text(
+                    'Failed to load notifications: ${error.toString()}',
+                    style: const TextStyle(
+                      fontFamily: AppTextStyles.fontFamily,
+                      color: Color(0xFF8E8E93),
+                    ),
+                  ),
+                ),
+                data: (notifications) {
+                  if (notifications.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No notifications found',
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          color: Color(0xFF8E8E93),
+                        ),
+                      ),
+                    );
+                  }
+                  return CupertinoScrollbar(
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      itemCount: notifications.length,
+                      itemBuilder: (context, index) {
+                        final item = notifications[index];
+                        return _buildNotificationCard(context, ref, item);
+                      },
+                    ),
+                  );
+                },
               ),
             ),
           ],

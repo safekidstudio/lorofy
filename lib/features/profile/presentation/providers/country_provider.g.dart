@@ -48,4 +48,4 @@ final class CountriesProvider
   }
 }
 
-String _$countriesHash() => r'12e058940869d8ccfe073e44fabd00ec15007918';
+String _$countriesHash() => r'85979e3a03caff63d83e4df79e615f1d2b1e97c3';
