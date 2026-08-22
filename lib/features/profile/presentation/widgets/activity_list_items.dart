@@ -164,6 +164,29 @@ class TodayActivityItem extends StatelessWidget {
                   color: Color(0xFF8E8E93),
                 ),
               ),
+              if (session.earnedPoints > 0) ...[
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SVG(
+                      'assets/icons/point.svg',
+                      width: 12,
+                      height: 12,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '+${session.earnedPoints} pts',
+                      style: const TextStyle(
+                        fontFamily: AppTextStyles.fontFamily,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFF2E2E),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ],

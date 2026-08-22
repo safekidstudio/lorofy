@@ -12,6 +12,7 @@ import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.d
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.dart';
 import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
+import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 
 
 // ---------------------------------------------------------------------------
@@ -256,6 +257,9 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
         );
         // Add growth points to the active mascot
         ref.read(mascotProvider.notifier).addGrowthPoints(session.earnedPoints);
+        // Sync points in Auth provider
+        final currentPoints = ref.read(authProvider).rankPoints ?? 0;
+        ref.read(authProvider.notifier).updatePointsState(currentPoints + session.earnedPoints);
       }).catchError((e) {
         debugPrint('Error completing backend session: $e');
       });

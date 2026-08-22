@@ -106,9 +106,44 @@ class ProfilePage extends ConsumerWidget {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: () => context.push('/my-points'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF2E2E).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: const Color(0xFFFF2E2E).withValues(alpha: 0.25),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SVG(
+                                'assets/icons/point.svg',
+                                width: 16,
+                                height: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${authStatus.rankPoints ?? 0} pts',
+                                style: const TextStyle(
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFFF2E2E),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   _buildMenuItem(
                     context: context,
                     title: 'My Profile',
@@ -118,6 +153,12 @@ class ProfilePage extends ConsumerWidget {
                         builder: (context) => const MyProfilePage(),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildMenuItem(
+                    context: context,
+                    title: 'My Points',
+                    onTap: () => context.push('/my-points'),
                   ),
                   const SizedBox(height: 8),
                   _buildMenuItem(

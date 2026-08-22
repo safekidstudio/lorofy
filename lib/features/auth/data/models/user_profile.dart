@@ -7,6 +7,7 @@ class UserProfile {
   final String timezone;
   final bool isOnboarded;
   final String? avatarUrl;
+  final int rankPoints;
 
   UserProfile({
     required this.id,
@@ -17,6 +18,7 @@ class UserProfile {
     required this.timezone,
     required this.isOnboarded,
     this.avatarUrl,
+    required this.rankPoints,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class UserProfile {
       timezone: json['timezone'] as String,
       isOnboarded: json['onboarded'] as bool,
       avatarUrl: json['avatarUrl'] as String?,
+      rankPoints: json['rankPoints'] as int? ?? 0,
     );
   }
 }

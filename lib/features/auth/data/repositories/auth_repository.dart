@@ -33,6 +33,7 @@ class AuthRepository {
           displayName: profile.displayName,
           avatarUrl: profile.avatarUrl,
           username: profile.username,
+          rankPoints: profile.rankPoints,
         );
   }
 

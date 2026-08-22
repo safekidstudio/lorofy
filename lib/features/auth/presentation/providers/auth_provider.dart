@@ -14,6 +14,7 @@ class AuthStatus {
   final String? displayName;
   final String? avatarUrl;
   final String? username;
+  final int? rankPoints;
 
   AuthStatus({
     required this.state,
@@ -22,6 +23,7 @@ class AuthStatus {
     this.displayName,
     this.avatarUrl,
     this.username,
+    this.rankPoints,
   });
 
   AuthStatus copyWith({
@@ -31,6 +33,7 @@ class AuthStatus {
     String? displayName,
     String? avatarUrl,
     String? username,
+    int? rankPoints,
   }) {
     return AuthStatus(
       state: state ?? this.state,
@@ -39,6 +42,7 @@ class AuthStatus {
       displayName: displayName ?? this.displayName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       username: username ?? this.username,
+      rankPoints: rankPoints ?? this.rankPoints,
     );
   }
 }
@@ -97,6 +101,7 @@ class Auth extends _$Auth {
           displayName: profile.displayName,
           avatarUrl: profile.avatarUrl,
           username: profile.username,
+          rankPoints: profile.rankPoints,
         );
       } else {
         state = AuthStatus(state: AuthState.unauthenticated);
@@ -122,6 +127,7 @@ class Auth extends _$Auth {
     required String? displayName,
     required String? avatarUrl,
     required String? username,
+    required int rankPoints,
   }) async {
     // Save to Secure Storage
     await _authStorage.saveTokens(
@@ -143,6 +149,7 @@ class Auth extends _$Auth {
       displayName: displayName,
       avatarUrl: avatarUrl,
       username: username,
+      rankPoints: rankPoints,
     );
   }
 
@@ -213,5 +220,9 @@ class Auth extends _$Auth {
       state: AuthState.authenticated,
       accessToken: accessToken,
     );
+  }
+
+  void updatePointsState(int points) {
+    state = state.copyWith(rankPoints: points);
   }
 }
