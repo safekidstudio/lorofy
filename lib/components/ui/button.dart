@@ -14,6 +14,7 @@ class Button extends StatelessWidget {
   final bool isLoading;
   final bool disabled;
   final TextStyle? textStyle;
+  final double? height;
 
   const Button({
     super.key,
@@ -25,6 +26,7 @@ class Button extends StatelessWidget {
     this.isLoading = false,
     this.disabled = false,
     this.textStyle,
+    this.height,
   });
 
   // --- Factory Constructors cho việc gọi nhanh chuẩn Shadcn ---
@@ -36,6 +38,7 @@ class Button extends StatelessWidget {
     bool isLoading = false,
     bool disabled = false,
     TextStyle? textStyle,
+    double? height,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -45,6 +48,7 @@ class Button extends StatelessWidget {
     isLoading: isLoading,
     disabled: disabled,
     textStyle: textStyle,
+    height: height,
   );
 
   factory Button.secondary({
@@ -55,6 +59,7 @@ class Button extends StatelessWidget {
     bool isLoading = false,
     bool disabled = false,
     TextStyle? textStyle,
+    double? height,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -64,6 +69,7 @@ class Button extends StatelessWidget {
     isLoading: isLoading,
     disabled: disabled,
     textStyle: textStyle,
+    height: height,
   );
 
   factory Button.destructive({
@@ -74,6 +80,7 @@ class Button extends StatelessWidget {
     bool isLoading = false,
     bool disabled = false,
     TextStyle? textStyle,
+    double? height,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -83,6 +90,7 @@ class Button extends StatelessWidget {
     isLoading: isLoading,
     disabled: disabled,
     textStyle: textStyle,
+    height: height,
   );
 
   factory Button.ghost({
@@ -93,6 +101,7 @@ class Button extends StatelessWidget {
     bool isLoading = false,
     bool disabled = false,
     TextStyle? textStyle,
+    double? height,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -102,6 +111,7 @@ class Button extends StatelessWidget {
     isLoading: isLoading,
     disabled: disabled,
     textStyle: textStyle,
+    height: height,
   );
 
   factory Button.link({
@@ -112,6 +122,7 @@ class Button extends StatelessWidget {
     bool isLoading = false,
     bool disabled = false,
     TextStyle? textStyle,
+    double? height,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -121,6 +132,7 @@ class Button extends StatelessWidget {
     isLoading: isLoading,
     disabled: disabled,
     textStyle: textStyle,
+    height: height,
   );
 
   @override
@@ -161,6 +173,8 @@ class Button extends StatelessWidget {
         variant == ButtonVariant.secondary ||
         variant == ButtonVariant.destructive;
 
+    final double buttonHeight = height ?? 56.0;
+
     Widget buttonBody = isLoading
         ? Loader(color: textColor, size: 22)
         : Row(
@@ -193,7 +207,7 @@ class Button extends StatelessWidget {
     Widget innerContainer;
     if (useDrawingStyle) {
       innerContainer = DrawingContainer(
-        height: 51,
+        height: buttonHeight,
         fillColor: backgroundColor,
         borderColor: CupertinoColors.transparent,
         borderWidth: 0.0,
@@ -203,7 +217,7 @@ class Button extends StatelessWidget {
       );
     } else {
       innerContainer = Container(
-        height: variant == ButtonVariant.link ? null : 51,
+        height: variant == ButtonVariant.link ? null : buttonHeight,
         padding: variant == ButtonVariant.link
             ? EdgeInsets.zero
             : const EdgeInsets.symmetric(horizontal: 16),

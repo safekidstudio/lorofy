@@ -40,7 +40,9 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
       _ => 'ALL',
     };
 
-    final leaderboardAsync = ref.watch(leaderboardProvider(timeframe: timeframe));
+    final leaderboardAsync = ref.watch(
+      leaderboardProvider(timeframe: timeframe),
+    );
 
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
@@ -81,8 +83,6 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                     // Tabs Selector
                     Center(
                       child: SlidingSegmentedControl(
-                        width: 190,
-                        height: 30,
                         tabs: const ['Day', 'Week', 'National'],
                         selectedIndex: _selectedTab,
                         onTabChanged: (index) {
@@ -130,8 +130,10 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                   _buildPodiumCol(
                                     second,
                                     borderColor: const Color(0xFFD5DEEA),
-                                    isYou: data.currentUserRank != null &&
-                                        second.profileId == data.currentUserRank!.profileId,
+                                    isYou:
+                                        data.currentUserRank != null &&
+                                        second.profileId ==
+                                            data.currentUserRank!.profileId,
                                   )
                                 else
                                   const SizedBox(width: 80, height: 130),
@@ -142,8 +144,10 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                     first,
                                     isCenter: true,
                                     borderColor: const Color(0xFFFFB61D),
-                                    isYou: data.currentUserRank != null &&
-                                        first.profileId == data.currentUserRank!.profileId,
+                                    isYou:
+                                        data.currentUserRank != null &&
+                                        first.profileId ==
+                                            data.currentUserRank!.profileId,
                                   )
                                 else
                                   const SizedBox(width: 100, height: 150),
@@ -153,8 +157,10 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                   _buildPodiumCol(
                                     third,
                                     borderColor: const Color(0xFFD96806),
-                                    isYou: data.currentUserRank != null &&
-                                        third.profileId == data.currentUserRank!.profileId,
+                                    isYou:
+                                        data.currentUserRank != null &&
+                                        third.profileId ==
+                                            data.currentUserRank!.profileId,
                                   )
                                 else
                                   const SizedBox(width: 80, height: 130),
@@ -181,8 +187,10 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                             else
                               Column(
                                 children: listItems.map((entry) {
-                                  final isYou = data.currentUserRank != null &&
-                                      entry.profileId == data.currentUserRank!.profileId;
+                                  final isYou =
+                                      data.currentUserRank != null &&
+                                      entry.profileId ==
+                                          data.currentUserRank!.profileId;
 
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 8.0),
@@ -205,7 +213,8 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                             child: Text(
                                               entry.rank.toString(),
                                               style: TextStyle(
-                                                fontFamily: AppTextStyles.titleFontFamily,
+                                                fontFamily: AppTextStyles
+                                                    .titleFontFamily,
                                                 fontSize: 16,
                                                 color: isYou
                                                     ? CupertinoColors.white
@@ -223,13 +232,21 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                             ),
                                             clipBehavior: Clip.antiAlias,
                                             child: Image.network(
-                                              entry.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
+                                              entry.avatarUrl ??
+                                                  'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
                                               fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) =>
-                                                  Container(
-                                                    color: const Color(0xFFE5E5EA),
+                                              errorBuilder:
+                                                  (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) => Container(
+                                                    color: const Color(
+                                                      0xFFE5E5EA,
+                                                    ),
                                                     child: const Icon(
-                                                      CupertinoIcons.person_fill,
+                                                      CupertinoIcons
+                                                          .person_fill,
                                                       size: 16,
                                                       color: Color(0xFF8E8E93),
                                                     ),
@@ -242,7 +259,8 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                             child: Text(
                                               isYou ? 'You' : entry.displayName,
                                               style: TextStyle(
-                                                fontFamily: AppTextStyles.fontFamily,
+                                                fontFamily:
+                                                    AppTextStyles.fontFamily,
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
                                                 color: isYou
@@ -255,13 +273,13 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                           Text(
                                             '${entry.points} pts',
                                             style: TextStyle(
-                                              fontFamily: AppTextStyles.fontFamily,
+                                              fontFamily:
+                                                  AppTextStyles.fontFamily,
                                               fontSize: 13,
                                               fontWeight: FontWeight.w500,
                                               color: isYou
-                                                  ? CupertinoColors.white.withValues(
-                                                      alpha: 0.8,
-                                                    )
+                                                  ? CupertinoColors.white
+                                                        .withValues(alpha: 0.8)
                                                   : const Color(0xFF8E8E93),
                                             ),
                                           ),
@@ -321,7 +339,8 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
               borderWidth: 4.0,
               fillColor: CupertinoColors.transparent,
               child: Image.network(
-                user.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
+                user.avatarUrl ??
+                    'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: const Color(0xFFE5E5EA),

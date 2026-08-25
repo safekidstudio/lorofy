@@ -11,14 +11,28 @@ class ExploreRecordSection extends ConsumerStatefulWidget {
   const ExploreRecordSection({super.key});
 
   @override
-  ConsumerState<ExploreRecordSection> createState() => _ExploreRecordSectionState();
+  ConsumerState<ExploreRecordSection> createState() =>
+      _ExploreRecordSectionState();
 }
 
 class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
   bool _isDayToggle = true;
 
   String _getMonthAbbreviation(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     if (month >= 1 && month <= 12) {
       return months[month - 1];
     }
@@ -58,18 +72,24 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
           const SizedBox(height: 16),
           _isDayToggle
               ? todayAsync.when(
-                  loading: () => const _RecordListSkeleton(itemCount: 3, isDay: true),
+                  loading: () =>
+                      const _RecordListSkeleton(itemCount: 3, isDay: true),
                   error: (err, stack) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Center(child: Text('Error loading today records: $err')),
+                    child: Center(
+                      child: Text('Error loading today records: $err'),
+                    ),
                   ),
                   data: (sessions) => _buildDayRecordList(sessions),
                 )
               : monthAsync.when(
-                  loading: () => const _RecordListSkeleton(itemCount: 4, isDay: false),
+                  loading: () =>
+                      const _RecordListSkeleton(itemCount: 4, isDay: false),
                   error: (err, stack) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Center(child: Text('Error loading month records: $err')),
+                    child: Center(
+                      child: Text('Error loading month records: $err'),
+                    ),
                   ),
                   data: (sessions) => _buildMonthRecordList(sessions),
                 ),
@@ -80,7 +100,6 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
 
   Widget _buildRecordToggle() {
     return SlidingSegmentedControl(
-      height: 30,
       tabs: const ['Day', 'Month'],
       selectedIndex: _isDayToggle ? 0 : 1,
       onTabChanged: (index) {
@@ -92,8 +111,9 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
   }
 
   Widget _buildDayRecordList(List<FocusSession> sessions) {
-    final completedSessions = sessions.where((s) => s.status == 'COMPLETED').toList()
-      ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    final completedSessions =
+        sessions.where((s) => s.status == 'COMPLETED').toList()
+          ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
 
     if (completedSessions.isEmpty) {
       return const SizedBox(
@@ -122,13 +142,16 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
         final minute = localTime.minute.toString().padLeft(2, '0');
         final period = hour >= 12 ? 'PM' : 'AM';
         final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-        final timeStrFormatted = '${displayHour.toString().padLeft(2, '0')}:$minute';
+        final timeStrFormatted =
+            '${displayHour.toString().padLeft(2, '0')}:$minute';
 
         final int flowerCount = session.earnedPoints;
         final String durationStr = '${session.actualMinutes} mins';
         final bool isHighlight = index == 0;
 
-        final Color numberColor = isHighlight ? AppColors.primary : AppColors.secondary;
+        final Color numberColor = isHighlight
+            ? AppColors.primary
+            : AppColors.secondary;
         final Color labelColor = AppColors.secondary.withValues(alpha: 0.6);
         final Color durationColor = AppColors.secondary.withValues(alpha: 0.6);
 
@@ -200,17 +223,22 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
   }
 
   Widget _buildMonthRecordList(List<FocusSession> sessions) {
-    final completedSessions = sessions.where((s) => s.status == 'COMPLETED').toList();
+    final completedSessions = sessions
+        .where((s) => s.status == 'COMPLETED')
+        .toList();
 
     // Group by local date string "yyyy-MM-dd"
     final Map<String, int> dailyFlowers = {};
     for (var session in completedSessions) {
       final localDate = DateTime.parse(session.startedAt).toLocal();
-      final dateKey = '${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')}';
-      dailyFlowers[dateKey] = (dailyFlowers[dateKey] ?? 0) + session.earnedPoints;
+      final dateKey =
+          '${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')}';
+      dailyFlowers[dateKey] =
+          (dailyFlowers[dateKey] ?? 0) + session.earnedPoints;
     }
 
-    final sortedDates = dailyFlowers.keys.toList()..sort((a, b) => b.compareTo(a));
+    final sortedDates = dailyFlowers.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
 
     if (sortedDates.isEmpty) {
       return const SizedBox(
@@ -229,7 +257,8 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
     }
 
     final todayLocal = DateTime.now().toLocal();
-    final todayKey = '${todayLocal.year}-${todayLocal.month.toString().padLeft(2, '0')}-${todayLocal.day.toString().padLeft(2, '0')}';
+    final todayKey =
+        '${todayLocal.year}-${todayLocal.month.toString().padLeft(2, '0')}-${todayLocal.day.toString().padLeft(2, '0')}';
 
     return Column(
       spacing: 10,
@@ -242,10 +271,14 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
         final bool isToday = dateKey == todayKey;
 
         final String dayStr = date.day.toString();
-        final String monthStr = isToday ? 'Today' : _getMonthAbbreviation(date.month);
+        final String monthStr = isToday
+            ? 'Today'
+            : _getMonthAbbreviation(date.month);
 
         final bool isHighlight = isToday || index == 0;
-        final Color numberColor = isHighlight ? AppColors.primary : AppColors.secondary;
+        final Color numberColor = isHighlight
+            ? AppColors.primary
+            : AppColors.secondary;
         final Color labelColor = AppColors.secondary.withValues(alpha: 0.6);
 
         return Column(
@@ -338,7 +371,8 @@ class _RecordListSkeleton extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isDay) const ShimmerPlaceholder.rectangular(height: 16, width: 50),
+              if (isDay)
+                const ShimmerPlaceholder.rectangular(height: 16, width: 50),
             ],
           ),
         ),

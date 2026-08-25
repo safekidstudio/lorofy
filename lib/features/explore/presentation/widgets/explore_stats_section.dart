@@ -107,107 +107,108 @@ class ExploreStatsSection extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Stats Cards Row (Today Focus / All Focus)
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 130,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF072013), // Dark green
-                          borderRadius: BorderRadius.circular(AppRadius.md),
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Today Focus',
-                              style: TextStyle(
-                                fontFamily: AppTextStyles.fontFamily,
-                                color: const Color(0xFF8E9B93),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Center(
-                              child: Text(
-                                todayFocusCount.toString(),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF072013), // Dark green
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Today Focus',
                                 style: TextStyle(
-                                  fontFamily: AppTextStyles.titleFontFamily,
-                                  color: CupertinoColors.white,
-                                  fontSize: 40,
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  color: const Color(0xFF8E9B93),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                            ),
-                            Center(
-                              child: RichText(
-                                text: TextSpan(
-                                  children: _buildDurationSpans(
-                                    _formatDuration(todayFocusMinutes),
-                                    CupertinoColors.white,
+                              Center(
+                                child: Text(
+                                  todayFocusCount.toString(),
+                                  style: TextStyle(
+                                    fontFamily: AppTextStyles.titleFontFamily,
+                                    color: CupertinoColors.white,
+                                    fontSize: 40,
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Container(
-                        height: 130,
-                        decoration: BoxDecoration(
-                          color: CupertinoColors.white,
-                          borderRadius: BorderRadius.circular(AppRadius.md),
-                          boxShadow: [
-                            BoxShadow(
-                              color: CupertinoColors.systemGrey.withValues(alpha: 0.1),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'All Focus',
-                              style: TextStyle(
-                                fontFamily: AppTextStyles.fontFamily,
-                                color: const Color(0xFF8E8E93),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Center(
-                              child: Text(
-                                allFocusCount.toString(),
-                                style: TextStyle(
-                                  fontFamily: AppTextStyles.titleFontFamily,
-                                  color: const Color(0xFF232321),
-                                  fontSize: 40,
-                                ),
-                              ),
-                            ),
-                            Center(
-                              child: RichText(
-                                text: TextSpan(
-                                  children: _buildDurationSpans(
-                                    _formatDuration(allFocusMinutes),
-                                    const Color(0xFF8E8E93),
+                              Center(
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: _buildDurationSpans(
+                                      _formatDuration(todayFocusMinutes),
+                                      CupertinoColors.white,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.white,
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                            boxShadow: [
+                              BoxShadow(
+                                color: CupertinoColors.systemGrey.withValues(alpha: 0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'All Focus',
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  color: const Color(0xFF8E8E93),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Center(
+                                child: Text(
+                                  allFocusCount.toString(),
+                                  style: TextStyle(
+                                    fontFamily: AppTextStyles.titleFontFamily,
+                                    color: const Color(0xFF232321),
+                                    fontSize: 40,
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: _buildDurationSpans(
+                                      _formatDuration(allFocusMinutes),
+                                      const Color(0xFF8E8E93),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
 
