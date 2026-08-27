@@ -175,14 +175,13 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
     required List<String> tabs,
     required int selectedIndex,
     required ValueChanged<int> onTabChanged,
-    required double width,
+    double? width,
   }) {
     return SlidingSegmentedControl(
       tabs: tabs,
       selectedIndex: selectedIndex,
       onTabChanged: onTabChanged,
       width: width,
-      height: 32.0,
       activeColor: const Color(0xFF232321),
       backgroundColor: const Color(0xFFECECED),
       inactiveTextColor: const Color(0xFF8E8E93),
@@ -406,7 +405,6 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
                       setState(() => _selectedTimeframe = timeframe);
                       _loadActivities(reset: true);
                     },
-                    width: 155.0,
                   ),
                   _buildStatusDropdown(context),
                 ],
@@ -420,35 +418,34 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
               child: _isLoading
                   ? _buildSkeleton()
                   : (displayList.isEmpty
-                      ? _buildEmptyState()
-                      : CupertinoScrollbar(
-                          child: ListView.builder(
-                            controller: _scrollController,
-                            physics: const BouncingScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                            ),
-                            itemCount: displayList.length + (_isLoadingMore ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              if (index == displayList.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 16),
-                                  child: Center(
-                                    child: Loader(size: 24),
-                                  ),
-                                );
-                              }
+                        ? _buildEmptyState()
+                        : CupertinoScrollbar(
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
+                              itemCount:
+                                  displayList.length + (_isLoadingMore ? 1 : 0),
+                              itemBuilder: (context, index) {
+                                if (index == displayList.length) {
+                                  return const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 16),
+                                    child: Center(child: Loader(size: 24)),
+                                  );
+                                }
 
-                              final item = displayList[index];
-                              if (item is FocusSession) {
-                                return TodayActivityItem(session: item);
-                              } else if (item is PastDaySummary) {
-                                return PastDayActivityItem(summary: item);
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                        )),
+                                final item = displayList[index];
+                                if (item is FocusSession) {
+                                  return TodayActivityItem(session: item);
+                                } else if (item is PastDaySummary) {
+                                  return PastDayActivityItem(summary: item);
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
+                          )),
             ),
           ],
         ),

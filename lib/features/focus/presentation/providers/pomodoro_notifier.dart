@@ -268,6 +268,8 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     final targetRounds = settings.isDeepFocusMode ? 1 : settings.targetRounds;
     if (state.currentRound >= targetRounds) {
       state = state.copyWith(phase: PomodoroState.completed);
+      // Stop ambient sound on session completion
+      ref.read(musicPlayerProvider.notifier).stop();
     } else {
       final breakMinutes = settings.isDeepFocusMode ? 0 : settings.breakMinutes;
       startBreak(breakMinutes, isLong: false);

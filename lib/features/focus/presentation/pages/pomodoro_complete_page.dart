@@ -91,56 +91,36 @@ class PomodoroCompletePage extends StatelessWidget {
                           ),
                         ),
                         
-                        if (earnedPoints > 0 || earnedCoins > 0) ...[
+                        if (earnedPoints > 0) ...[
                           const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (earnedPoints > 0)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFD60A).withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(CupertinoIcons.star_fill, color: Color(0xFFFFD60A), size: 16),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'PTS',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFFFFCC00),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFD60A).withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                              if (earnedPoints > 0 && earnedCoins > 0) const SizedBox(width: 12),
-                              if (earnedCoins > 0)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFF9500).withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(CupertinoIcons.money_dollar_circle_fill, color: Color(0xFFFF9500), size: 16),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Coins',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFFFF9500),
-                                        ),
+                                child: Row(
+                                  children: [
+                                    const SVG(
+                                      'assets/icons/point.svg',
+                                      width: 16,
+                                      height: 16,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '+$earnedPoints PTS',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFFFFCC00),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
+                              ),
                             ],
                           ),
                         ],

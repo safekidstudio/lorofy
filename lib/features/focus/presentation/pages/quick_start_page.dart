@@ -140,7 +140,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
 
     // Automatically select the first category as default if none is selected
     ref.watch(focusCategoriesProvider).whenData((categories) {
-      if (categories.isNotEmpty && settings.selectedCategory == null) {
+      if (settings.isLoaded && categories.isNotEmpty && settings.selectedCategory == null) {
         Future.microtask(() {
           ref
               .read(pomodoroSettingsProvider.notifier)
@@ -204,8 +204,9 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                       builder: (context, ref, child) {
                         final mascotState = ref.watch(mascotProvider);
                         final activeMascot = mascotState.activeMascot;
-                        if (activeMascot == null)
+                        if (activeMascot == null) {
                           return const SizedBox.shrink();
+                        }
                         return MascotGraphic(
                           mascot: activeMascot,
                           isFocusing: phase == PomodoroState.focus,
@@ -243,7 +244,9 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                         pomodoroState: phase,
                         displaySeconds: displaySeconds,
                         currentRound: timerState.currentRound,
-                        targetRounds: settings.isDeepFocusMode ? 1 : settings.targetRounds,
+                        targetRounds: settings.isDeepFocusMode
+                            ? 1
+                            : settings.targetRounds,
                         isLongBreak: timerState.isLongBreak,
                       ),
                     ),
@@ -332,5 +335,3 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
     );
   }
 }
-
-

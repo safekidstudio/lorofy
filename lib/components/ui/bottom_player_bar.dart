@@ -148,7 +148,7 @@ class BottomPlayerBar extends ConsumerWidget {
                           shape: BoxShape.circle,
                         ),
                         child: const SVG(
-                          'icons/check.svg',
+                          'assets/icons/check.svg',
                           width: 16,
                           height: 16,
                           color: CupertinoColors.white,

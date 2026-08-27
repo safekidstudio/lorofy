@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/loader.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
@@ -15,6 +16,7 @@ class Button extends StatelessWidget {
   final bool disabled;
   final TextStyle? textStyle;
   final double? height;
+  final bool playClickSound;
 
   const Button({
     super.key,
@@ -27,6 +29,7 @@ class Button extends StatelessWidget {
     this.disabled = false,
     this.textStyle,
     this.height,
+    this.playClickSound = true,
   });
 
   // --- Factory Constructors cho việc gọi nhanh chuẩn Shadcn ---
@@ -238,7 +241,12 @@ class Button extends StatelessWidget {
       opacity: isButtonDisabled ? 0.5 : 1.0,
       child: CupertinoButton(
         padding: EdgeInsets.zero, // Triệt tiêu padding mặc định của Cupertino
-        onPressed: isButtonDisabled ? null : onPressed,
+        onPressed: isButtonDisabled ? null : () {
+          if (playClickSound) {
+            SystemSound.play(SystemSoundType.click);
+          }
+          onPressed?.call();
+        },
         minimumSize: const Size(
           0,
           0,

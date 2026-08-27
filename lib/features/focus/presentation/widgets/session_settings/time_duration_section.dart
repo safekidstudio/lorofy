@@ -51,9 +51,14 @@ class TimeDurationSection extends ConsumerWidget {
               onChanged: (val) {
                 ref
                     .read(pomodoroSettingsProvider.notifier)
-                    .updateSettings(
+                    .updateSettingsStateOnly(
                       settings.copyWith(focusMinutes: val.round()),
                     );
+              },
+              onChangeEnd: (val) {
+                ref
+                    .read(pomodoroSettingsProvider.notifier)
+                    .saveToStorage();
               },
             ),
           ),

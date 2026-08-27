@@ -17,6 +17,7 @@ class PomodoroSettings {
   final bool autoStartFocus;
   final bool pushNotifications;
   final bool backgroundProcess;
+  final bool isLoaded;
 
   const PomodoroSettings({
     required this.focusMinutes,
@@ -33,6 +34,7 @@ class PomodoroSettings {
     this.autoStartFocus = true,
     this.pushNotifications = true,
     this.backgroundProcess = true,
+    this.isLoaded = false,
   });
 
   PomodoroSettings copyWith({
@@ -50,6 +52,7 @@ class PomodoroSettings {
     bool? autoStartFocus,
     bool? pushNotifications,
     bool? backgroundProcess,
+    bool? isLoaded,
   }) {
     int newFocusMinutes = focusMinutes ?? this.focusMinutes;
     if (newFocusMinutes > 180) {
@@ -71,6 +74,57 @@ class PomodoroSettings {
       autoStartFocus: autoStartFocus ?? this.autoStartFocus,
       pushNotifications: pushNotifications ?? this.pushNotifications,
       backgroundProcess: backgroundProcess ?? this.backgroundProcess,
+      isLoaded: isLoaded ?? this.isLoaded,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'focusMinutes': focusMinutes,
+        'breakMinutes': breakMinutes,
+        'longBreakMinutes': longBreakMinutes,
+        'targetRounds': targetRounds,
+        'ambientSound': ambientSound.name,
+        'selectedCategory': selectedCategory?.toJson(),
+        'timedReminder': timedReminder,
+        'isDeepFocusMode': isDeepFocusMode,
+        'blockMode': blockMode.name,
+        'blockedCategories': blockedCategories.toList(),
+        'autoStartBreak': autoStartBreak,
+        'autoStartFocus': autoStartFocus,
+        'pushNotifications': pushNotifications,
+        'backgroundProcess': backgroundProcess,
+        'isLoaded': isLoaded,
+      };
+
+  factory PomodoroSettings.fromJson(Map<String, dynamic> json) {
+    return PomodoroSettings(
+      focusMinutes: (json['focusMinutes'] as num? ?? 25).toInt(),
+      breakMinutes: (json['breakMinutes'] as num? ?? 5).toInt(),
+      longBreakMinutes: (json['longBreakMinutes'] as num? ?? 10).toInt(),
+      targetRounds: (json['targetRounds'] as num? ?? 4).toInt(),
+      ambientSound: AmbientSound.values.firstWhere(
+        (e) => e.name == json['ambientSound'],
+        orElse: () => AmbientSound.none,
+      ),
+      selectedCategory: json['selectedCategory'] != null
+          ? FocusCategory.fromJson(
+              json['selectedCategory'] as Map<String, dynamic>)
+          : null,
+      timedReminder: json['timedReminder'] as bool? ?? true,
+      isDeepFocusMode: json['isDeepFocusMode'] as bool? ?? false,
+      blockMode: BlockMode.values.firstWhere(
+        (e) => e.name == json['blockMode'],
+        orElse: () => BlockMode.MEDIUM,
+      ),
+      blockedCategories: (json['blockedCategories'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toSet() ??
+          const {'Social Media'},
+      autoStartBreak: json['autoStartBreak'] as bool? ?? true,
+      autoStartFocus: json['autoStartFocus'] as bool? ?? true,
+      pushNotifications: json['pushNotifications'] as bool? ?? true,
+      backgroundProcess: json['backgroundProcess'] as bool? ?? true,
+      isLoaded: json['isLoaded'] as bool? ?? true,
     );
   }
 }

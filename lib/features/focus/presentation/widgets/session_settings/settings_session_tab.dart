@@ -17,7 +17,7 @@ class SettingsSessionTab extends ConsumerWidget {
     return SingleChildScrollView(
       key: const ValueKey('session_tab'),
       physics: const BouncingScrollPhysics(),
-      padding: AppPadding.allMd,
+      padding: AppPadding.allLg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

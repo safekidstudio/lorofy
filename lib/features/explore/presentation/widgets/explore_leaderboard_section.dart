@@ -59,7 +59,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                       ),
                     ),
                     SVG(
-                      'icons/chevron-right.svg',
+                      'assets/icons/chevron-right.svg',
                       width: 16,
                       height: 16,
                       color: AppColors.primary.withValues(alpha: 0.4),
@@ -286,7 +286,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           spacing: 2,
           children: [
-            SVG('illustrations/flower.svg', width: 14, height: 14),
+            SVG('assets/illustrations/flower.svg', width: 14, height: 14),
             Text(
               '$points pts',
               style: const TextStyle(

@@ -129,12 +129,12 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             padding: EdgeInsets.only(
-              left: AppPadding.md,
-              right: AppPadding.md,
-              top: AppPadding.md,
+              left: AppPadding.lg,
+              right: AppPadding.lg,
+              top: AppPadding.lg,
               bottom: playerState.currentlyPlaying != null
                   ? 100.0
-                  : AppPadding.md,
+                  : AppPadding.lg,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

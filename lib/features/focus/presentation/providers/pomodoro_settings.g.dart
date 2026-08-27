@@ -42,7 +42,7 @@ final class PomodoroSettingsNotifierProvider
 }
 
 String _$pomodoroSettingsNotifierHash() =>
-    r'455920e1d46acacc5767e278ea6445cec3adb59d';
+    r'998c541e9fddd00ef0fe9f653143c165af96d78c';
 
 abstract class _$PomodoroSettingsNotifier extends $Notifier<PomodoroSettings> {
   PomodoroSettings build();

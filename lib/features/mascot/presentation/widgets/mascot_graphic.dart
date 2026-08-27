@@ -12,12 +12,16 @@ class MascotGraphic extends StatefulWidget {
   final Mascot mascot;
   final bool isFocusing;
   final double focusProgressRatio;
+  final double? width;
+  final double? height;
 
   const MascotGraphic({
     super.key,
     required this.mascot,
     this.isFocusing = false,
     this.focusProgressRatio = 0.0,
+    this.width,
+    this.height,
   });
 
   @override
@@ -124,9 +128,14 @@ class _MascotGraphicState extends State<MascotGraphic> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double defaultSize = (screenWidth * 0.65).clamp(220.0, 350.0);
+    final double renderWidth = widget.width ?? defaultSize;
+    final double renderHeight = widget.height ?? defaultSize;
+
     return SizedBox(
-      width: 220,
-      height: 220,
+      width: renderWidth,
+      height: renderHeight,
       child: Stack(
         alignment: Alignment.center,
         children: [

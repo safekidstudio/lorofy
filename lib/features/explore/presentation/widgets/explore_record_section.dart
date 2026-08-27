@@ -195,7 +195,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
                       children: List.generate(
                         flowerCount,
                         (i) => const SVG(
-                          'illustrations/flower.svg',
+                          'assets/illustrations/flower.svg',
                           width: 30,
                           height: 30,
                         ),
@@ -321,7 +321,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
                       children: List.generate(
                         flowerCount,
                         (i) => const SVG(
-                          'illustrations/flower.svg',
+                          'assets/illustrations/flower.svg',
                           width: 44,
                           height: 44,
                         ),

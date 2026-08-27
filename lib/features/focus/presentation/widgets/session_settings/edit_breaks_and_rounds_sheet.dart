@@ -475,13 +475,9 @@ class _EditBreaksAndRoundsSheetState
                           const SizedBox(height: 16),
                           const Spacer(),
                           Center(
-                            child: SizedBox(
-                              width: 160,
-                              height: 48,
-                              child: Button.primary(
-                                text: 'Save',
-                                onPressed: _onSave,
-                              ),
+                            child: Button.primary(
+                              text: 'Save',
+                              onPressed: _onSave,
                             ),
                           ),
                           const SizedBox(height: 24),

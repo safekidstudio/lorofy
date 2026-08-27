@@ -422,7 +422,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SVG('illustrations/flower.svg', width: 12, height: 12),
+            const SVG('assets/illustrations/flower.svg', width: 12, height: 12),
             const SizedBox(width: 2),
             Text(
               '${user.points} pts',

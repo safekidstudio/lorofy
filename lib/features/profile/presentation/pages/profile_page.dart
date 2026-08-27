@@ -89,7 +89,7 @@ class ProfilePage extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const SVG(
-                            'icons/at-symbol.svg',
+                            'assets/icons/at-symbol.svg',
                             width: 16,
                             height: 16,
                             color: AppColors.secondary,
@@ -274,7 +274,7 @@ class ProfilePage extends ConsumerWidget {
               ),
             ),
             SVG(
-              'icons/chevron-right.svg',
+              'assets/icons/chevron-right.svg',
               width: 16,
               height: 16,
               color: iconColor,
