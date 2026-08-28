@@ -126,44 +126,47 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 // Rank 2 (Left)
-                                if (second != null)
-                                  _buildPodiumCol(
-                                    second,
-                                    borderColor: const Color(0xFFD5DEEA),
-                                    isYou:
-                                        data.currentUserRank != null &&
-                                        second.profileId ==
-                                            data.currentUserRank!.profileId,
-                                  )
-                                else
-                                  const SizedBox(width: 80, height: 130),
+                                Expanded(
+                                  child: second != null
+                                      ? _buildPodiumCol(
+                                          second,
+                                          borderColor: const Color(0xFFD5DEEA),
+                                          isYou:
+                                              data.currentUserRank != null &&
+                                              second.profileId ==
+                                                  data.currentUserRank!.profileId,
+                                        )
+                                      : const SizedBox(height: 130),
+                                ),
 
                                 // Rank 1 (Center) - taller
-                                if (first != null)
-                                  _buildPodiumCol(
-                                    first,
-                                    isCenter: true,
-                                    borderColor: const Color(0xFFFFB61D),
-                                    isYou:
-                                        data.currentUserRank != null &&
-                                        first.profileId ==
-                                            data.currentUserRank!.profileId,
-                                  )
-                                else
-                                  const SizedBox(width: 100, height: 150),
+                                Expanded(
+                                  child: first != null
+                                      ? _buildPodiumCol(
+                                          first,
+                                          isCenter: true,
+                                          borderColor: const Color(0xFFFFB61D),
+                                          isYou:
+                                              data.currentUserRank != null &&
+                                              first.profileId ==
+                                                  data.currentUserRank!.profileId,
+                                        )
+                                      : const SizedBox(height: 150),
+                                ),
 
                                 // Rank 3 (Right)
-                                if (third != null)
-                                  _buildPodiumCol(
-                                    third,
-                                    borderColor: const Color(0xFFD96806),
-                                    isYou:
-                                        data.currentUserRank != null &&
-                                        third.profileId ==
-                                            data.currentUserRank!.profileId,
-                                  )
-                                else
-                                  const SizedBox(width: 80, height: 130),
+                                Expanded(
+                                  child: third != null
+                                      ? _buildPodiumCol(
+                                          third,
+                                          borderColor: const Color(0xFFD96806),
+                                          isYou:
+                                              data.currentUserRank != null &&
+                                              third.profileId ==
+                                                  data.currentUserRank!.profileId,
+                                        )
+                                      : const SizedBox(height: 130),
+                                ),
                               ],
                             ),
 
@@ -410,6 +413,9 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
         // User Name
         Text(
           isYou ? 'You' : user.displayName,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             fontFamily: AppTextStyles.fontFamily,
             fontSize: 15,
@@ -453,59 +459,65 @@ class _LeaderboardPageSkeleton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const ShimmerPlaceholder.circular(size: 80),
-                const SizedBox(height: 12),
-                ShimmerPlaceholder.rectangular(
-                  width: 60,
-                  height: 14,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                const SizedBox(height: 4),
-                ShimmerPlaceholder.rectangular(
-                  width: 40,
-                  height: 12,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const ShimmerPlaceholder.circular(size: 80),
+                  const SizedBox(height: 12),
+                  ShimmerPlaceholder.rectangular(
+                    width: 60,
+                    height: 14,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  const SizedBox(height: 4),
+                  ShimmerPlaceholder.rectangular(
+                    width: 40,
+                    height: 12,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ],
+              ),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const ShimmerPlaceholder.circular(size: 100),
-                const SizedBox(height: 12),
-                ShimmerPlaceholder.rectangular(
-                  width: 80,
-                  height: 16,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                const SizedBox(height: 4),
-                ShimmerPlaceholder.rectangular(
-                  width: 50,
-                  height: 12,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const ShimmerPlaceholder.circular(size: 100),
+                  const SizedBox(height: 12),
+                  ShimmerPlaceholder.rectangular(
+                    width: 80,
+                    height: 16,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  const SizedBox(height: 4),
+                  ShimmerPlaceholder.rectangular(
+                    width: 50,
+                    height: 12,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ],
+              ),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const ShimmerPlaceholder.circular(size: 80),
-                const SizedBox(height: 12),
-                ShimmerPlaceholder.rectangular(
-                  width: 60,
-                  height: 14,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                const SizedBox(height: 4),
-                ShimmerPlaceholder.rectangular(
-                  width: 40,
-                  height: 12,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const ShimmerPlaceholder.circular(size: 80),
+                  const SizedBox(height: 12),
+                  ShimmerPlaceholder.rectangular(
+                    width: 60,
+                    height: 14,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  const SizedBox(height: 4),
+                  ShimmerPlaceholder.rectangular(
+                    width: 40,
+                    height: 12,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

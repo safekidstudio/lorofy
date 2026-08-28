@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
+import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/profile/presentation/providers/country_provider.dart';
 
@@ -35,9 +36,7 @@ class OnboardCountryStep extends ConsumerWidget {
         ),
         const SizedBox(height: 32),
         countriesAsync.when(
-          loading: () => const Center(
-            child: CupertinoActivityIndicator(),
-          ),
+          loading: () => const _OnboardCountrySkeleton(),
           error: (e, _) => Center(
             child: Text(
               'Could not load countries',
@@ -89,36 +88,38 @@ class OnboardCountryStep extends ConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (country.flagUrl != null)
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image.network(
-                                    country.flagUrl!,
-                                    width: 48,
-                                    height: 48,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stack) =>
-                                        Container(
-                                          width: 48,
-                                          height: 48,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFE4E4E6),
-                                            borderRadius: BorderRadius.circular(
-                                              10,
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: country.flagUrl != null
+                                    ? Image.network(
+                                        country.flagUrl!,
+                                        width: 48,
+                                        height: 48,
+                                        fit: BoxFit.cover,
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                          if (loadingProgress == null) return child;
+                                          return Center(
+                                            child: Text(
+                                              country.flagEmoji,
+                                              style: const TextStyle(fontSize: 32),
                                             ),
-                                          ),
+                                          );
+                                        },
+                                        errorBuilder: (context, error, stack) =>
+                                            Center(
+                                              child: Text(
+                                                country.flagEmoji,
+                                                style: const TextStyle(fontSize: 32),
+                                              ),
+                                            ),
+                                      )
+                                    : Center(
+                                        child: Text(
+                                          country.flagEmoji,
+                                          style: const TextStyle(fontSize: 32),
                                         ),
-                                  ),
-                                )
-                              else
-                                Container(
-                                  width: 48,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE4E4E6),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
+                                      ),
+                              ),
                               const SizedBox(height: 10),
                               Text(
                                 country.name,
@@ -162,6 +163,50 @@ class OnboardCountryStep extends ConsumerWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+class _OnboardCountrySkeleton extends StatelessWidget {
+  const _OnboardCountrySkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 3,
+      mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      childAspectRatio: 0.85,
+      children: List.generate(
+        6,
+        (index) => Container(
+          decoration: BoxDecoration(
+            color: CupertinoColors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x05000000),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const ShimmerPlaceholder.circular(size: 48),
+              const SizedBox(height: 12),
+              ShimmerPlaceholder.rectangular(
+                width: 60,
+                height: 14,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

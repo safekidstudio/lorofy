@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lorofy/core/network/dio_client.dart';
 import 'package:lorofy/features/profile/domain/models/country_model.dart';
 import 'package:lorofy/features/profile/domain/repositories/profile_repository.dart';
@@ -41,14 +43,46 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<List<CountryModel>> getCountries() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedData = prefs.getString('cached_countries');
+      
+      if (cachedData != null) {
+        final decoded = jsonDecode(cachedData) as List<dynamic>;
+        
+        // Trigger background fetch to refresh cache silently
+        _fetchAndCacheCountries(prefs).catchError((_) {});
+
+        return decoded
+            .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } catch (_) {}
+
+    // Fallback to direct network call if cache is empty
     final response = await _dio.get(
       '/profiles/countries',
       options: ApiOptions.protected,
     );
     final data = response.data['data'] as List<dynamic>;
+
+    // Save to cache asynchronously
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('cached_countries', jsonEncode(data));
+    }).catchError((_) {});
+
     return data
         .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<void> _fetchAndCacheCountries(SharedPreferences prefs) async {
+    final response = await _dio.get(
+      '/profiles/countries',
+      options: ApiOptions.protected,
+    );
+    final data = response.data['data'] as List<dynamic>;
+    await prefs.setString('cached_countries', jsonEncode(data));
   }
 }
 

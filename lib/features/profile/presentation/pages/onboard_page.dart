@@ -81,7 +81,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
     super.didChangeDependencies();
     if (!_preCached) {
       for (final avatar in AppConstants.defaultAvatars) {
-        precacheImage(NetworkImage(avatar['url']!), context);
+        final path = avatar['url']!;
+        if (path.startsWith('assets/')) {
+          precacheImage(AssetImage(path), context);
+        } else {
+          precacheImage(NetworkImage(path), context);
+        }
       }
       _preCached = true;
     }

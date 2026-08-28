@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:lorofy/core/constants/app_constants.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 
 class AppImage extends StatelessWidget {
@@ -23,19 +24,31 @@ class AppImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine the source type of the image path
-    final isNetwork = path.startsWith('http://') ||
-        path.startsWith('https://') ||
-        path.startsWith('blob:') ||
-        (kIsWeb && !path.startsWith('assets/'));
+    String resolvedPath = path;
 
-    final isAsset = path.startsWith('assets/');
+    // Check if the path matches a remote default avatar URL and resolve it locally
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      for (final avatar in AppConstants.defaultAvatars) {
+        if (avatar['remoteUrl'] == path) {
+          resolvedPath = avatar['url']!;
+          break;
+        }
+      }
+    }
+
+    // Determine the source type of the resolved image path
+    final isNetwork = resolvedPath.startsWith('http://') ||
+        resolvedPath.startsWith('https://') ||
+        resolvedPath.startsWith('blob:') ||
+        (kIsWeb && !resolvedPath.startsWith('assets/'));
+
+    final isAsset = resolvedPath.startsWith('assets/');
 
     Widget imageWidget;
 
     if (isNetwork) {
       imageWidget = Image.network(
-        path,
+        resolvedPath,
         width: width,
         height: height,
         fit: fit,
@@ -62,7 +75,7 @@ class AppImage extends StatelessWidget {
       );
     } else if (isAsset) {
       imageWidget = Image.asset(
-        path,
+        resolvedPath,
         width: width,
         height: height,
         fit: fit,
@@ -72,7 +85,7 @@ class AppImage extends StatelessWidget {
       );
     } else {
       imageWidget = Image.file(
-        File(path),
+        File(resolvedPath),
         width: width,
         height: height,
         fit: fit,
