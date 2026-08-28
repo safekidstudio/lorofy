@@ -4,6 +4,7 @@ import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/domain/models/spotify_playlist.dart';
 import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
 import 'package:lorofy/components/ui/bottom_player_bar.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 
 class PlaylistDetailPage extends ConsumerWidget {
   final String playlistTitle;
@@ -32,21 +33,7 @@ class PlaylistDetailPage extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
                     children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFE4E4E6),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            CupertinoIcons.left_chevron,
-                            size: 18,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
+                      AppBackButton(onPressed: () => Navigator.pop(context)),
                       Expanded(
                         child: Center(
                           child: Padding(
@@ -79,7 +66,7 @@ class PlaylistDetailPage extends ConsumerWidget {
                       final song = songs[index];
                       final isPlayingThis = playerState.currentlyPlaying?.title == song.title;
 
-                      return GestureDetector(
+                      return CardActionArea(
                         onTap: () {
                           ref.read(musicPlayerProvider.notifier).play(song);
                         },

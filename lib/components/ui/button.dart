@@ -42,6 +42,7 @@ class Button extends StatelessWidget {
     bool disabled = false,
     TextStyle? textStyle,
     double? height,
+    bool playClickSound = true,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -52,6 +53,7 @@ class Button extends StatelessWidget {
     disabled: disabled,
     textStyle: textStyle,
     height: height,
+    playClickSound: playClickSound,
   );
 
   factory Button.secondary({
@@ -63,6 +65,7 @@ class Button extends StatelessWidget {
     bool disabled = false,
     TextStyle? textStyle,
     double? height,
+    bool playClickSound = true,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -73,6 +76,7 @@ class Button extends StatelessWidget {
     disabled: disabled,
     textStyle: textStyle,
     height: height,
+    playClickSound: playClickSound,
   );
 
   factory Button.destructive({
@@ -84,6 +88,7 @@ class Button extends StatelessWidget {
     bool disabled = false,
     TextStyle? textStyle,
     double? height,
+    bool playClickSound = true,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -94,6 +99,7 @@ class Button extends StatelessWidget {
     disabled: disabled,
     textStyle: textStyle,
     height: height,
+    playClickSound: playClickSound,
   );
 
   factory Button.ghost({
@@ -105,6 +111,7 @@ class Button extends StatelessWidget {
     bool disabled = false,
     TextStyle? textStyle,
     double? height,
+    bool playClickSound = true,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -115,6 +122,7 @@ class Button extends StatelessWidget {
     disabled: disabled,
     textStyle: textStyle,
     height: height,
+    playClickSound: playClickSound,
   );
 
   factory Button.link({
@@ -126,6 +134,7 @@ class Button extends StatelessWidget {
     bool disabled = false,
     TextStyle? textStyle,
     double? height,
+    bool playClickSound = true,
   }) => Button(
     text: text,
     onPressed: onPressed,
@@ -136,6 +145,7 @@ class Button extends StatelessWidget {
     disabled: disabled,
     textStyle: textStyle,
     height: height,
+    playClickSound: playClickSound,
   );
 
   @override
@@ -243,6 +253,7 @@ class Button extends StatelessWidget {
         padding: EdgeInsets.zero, // Triệt tiêu padding mặc định của Cupertino
         onPressed: isButtonDisabled ? null : () {
           if (playClickSound) {
+            print('BUTTON_CLICK: Playing SystemSoundType.click for button "$text"');
             SystemSound.play(SystemSoundType.click);
           }
           onPressed?.call();

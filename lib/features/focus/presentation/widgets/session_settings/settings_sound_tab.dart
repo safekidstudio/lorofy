@@ -14,6 +14,7 @@ import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 import 'package:lorofy/components/ui/pro_upgrade_sheet.dart';
 import 'package:lorofy/components/ui/bottom_player_bar.dart';
 import 'package:lorofy/components/ui/button.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/features/focus/presentation/widgets/session_settings/playlist_detail_page.dart';
 
 final List<SpotifySong> _recentlyPlayed = [
@@ -282,7 +283,7 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
               itemCount: playlistsList.length,
               itemBuilder: (context, index) {
                 final playlist = playlistsList[index];
-                return GestureDetector(
+                return CardActionArea(
                   onTap: () {
                     Navigator.push(
                       context,
@@ -371,7 +372,7 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
             final isPlayingThis =
                 playerState.currentlyPlaying?.title == song.title;
 
-            return GestureDetector(
+            return CardActionArea(
               onTap: () {
                 ref.read(musicPlayerProvider.notifier).play(song);
               },

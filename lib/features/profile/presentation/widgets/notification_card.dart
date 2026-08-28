@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/profile/domain/models/notification_item.dart';
 
@@ -14,7 +15,7 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return CardActionArea(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),

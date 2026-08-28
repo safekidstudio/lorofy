@@ -48,7 +48,7 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
 
   void updateSettings(PomodoroSettings newSettings) {
     state = newSettings.copyWith(isLoaded: true);
-    print('POMODORO_SETTINGS: updateSettings - saving: focusMinutes = ${state.focusMinutes}');
+    print('POMODORO_SETTINGS: updateSettings - saving: focusMinutes = ${state.focusMinutes}, ambientSound = ${state.ambientSound}');
     saveToStorage();
   }
 
@@ -57,7 +57,7 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
   }
 
   void saveToStorage() {
-    print('POMODORO_SETTINGS: saveToStorage - committing to disk: focusMinutes = ${state.focusMinutes}');
+    print('POMODORO_SETTINGS: saveToStorage - committing to disk: focusMinutes = ${state.focusMinutes}, ambientSound = ${state.ambientSound}');
     try {
       final jsonStr = jsonEncode(state.toJson());
       ref.read(settingsStorageProvider).saveSettings(jsonStr);

@@ -108,6 +108,7 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
 
   Future<void> play(SpotifySong song) async {
     final assetPath = _getAssetPath(song);
+    print('MUSIC_PLAYER: play - song: "${song.title}" (isAmbient: ${song.isAmbient}), assetPath: "$assetPath"');
 
     state = state.copyWith(
       currentlyPlaying: song,
@@ -118,7 +119,10 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
 
     try {
       // Pause current active player if switching tracks
-      await _activePlayer?.pause();
+      if (_activePlayer != null) {
+        print('MUSIC_PLAYER: play - pausing previous player');
+        await _activePlayer?.pause();
+      }
 
       // Cancel existing stream subs before switching player
       await _positionSubscription?.cancel();
@@ -136,38 +140,52 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
           state = state.copyWith(duration: dur);
         });
 
+        print('MUSIC_PLAYER: play - resuming player for: $assetPath');
         await player.resume();
+        print('MUSIC_PLAYER: play - successfully playing: "${song.title}"');
+      } else {
+        print('MUSIC_PLAYER: play - assetPath is null, nothing to play.');
       }
-    } catch (e) {
+    } catch (e, stack) {
+      print('MUSIC_PLAYER_ERROR: Failed to play song "${song.title}": $e\n$stack');
       // Silently catch audio failures in web/desktop testing environments
     }
   }
 
   Future<void> togglePlay() async {
-    if (state.currentlyPlaying == null || _activePlayer == null) return;
+    if (state.currentlyPlaying == null || _activePlayer == null) {
+      print('MUSIC_PLAYER: togglePlay ignored - currentlyPlaying or _activePlayer is null');
+      return;
+    }
 
     try {
       if (state.isPlaying) {
+        print('MUSIC_PLAYER: togglePlay - pausing player');
         await _activePlayer!.pause();
         state = state.copyWith(isPlaying: false);
       } else {
+        print('MUSIC_PLAYER: togglePlay - resuming player');
         await _activePlayer!.resume();
         state = state.copyWith(isPlaying: true);
       }
-    } catch (e) {
-      // Catch exceptions
+    } catch (e, stack) {
+      print('MUSIC_PLAYER_ERROR: togglePlay failed: $e\n$stack');
     }
   }
 
   /// Pauses audio but keeps [currentlyPlaying] intact (preview state is preserved).
   /// Use this when navigating away from settings so the user's selection is remembered.
   Future<void> pause() async {
-    if (_activePlayer == null) return;
+    if (_activePlayer == null) {
+      print('MUSIC_PLAYER: pause ignored - _activePlayer is null');
+      return;
+    }
     try {
+      print('MUSIC_PLAYER: pause - pausing active player');
       await _activePlayer!.pause();
       state = state.copyWith(isPlaying: false);
-    } catch (e) {
-      // Catch exceptions
+    } catch (e, stack) {
+      print('MUSIC_PLAYER_ERROR: pause failed: $e\n$stack');
     }
   }
 
@@ -176,6 +194,7 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
   }
 
   Future<void> stop() async {
+    print('MUSIC_PLAYER: stop - stopping playback');
     try {
       await _activePlayer?.pause();
       await _positionSubscription?.cancel();
@@ -183,8 +202,8 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
       _positionSubscription = null;
       _durationSubscription = null;
       _activePlayer = null;
-    } catch (e) {
-      // Catch exceptions
+    } catch (e, stack) {
+      print('MUSIC_PLAYER_ERROR: stop failed: $e\n$stack');
     }
     state = state.copyWith(
       clearPlaying: true,

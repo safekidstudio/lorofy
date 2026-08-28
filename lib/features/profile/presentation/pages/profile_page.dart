@@ -6,6 +6,7 @@ import 'package:lorofy/components/ui/app_avatar.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/toast.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/features/profile/presentation/widgets/logout_confirm_sheet.dart';
@@ -29,22 +30,7 @@ class ProfilePage extends ConsumerWidget {
           children: [
             // Header
             AppHeader(
-              leftActions: CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => Navigator.pop(context),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFE4E4E6),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const SVG(
-                    'assets/icons/chevron-left.svg',
-                    width: 24,
-                    height: 24,
-                  ),
-                ),
-              ),
+              leftActions: AppBackButton(onPressed: () => Navigator.pop(context)),
               title: 'Profile',
               rightActions: CupertinoButton(
                 padding: EdgeInsets.zero,
@@ -107,7 +93,7 @@ class ProfilePage extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      GestureDetector(
+                      CardActionArea(
                         onTap: () => context.push('/my-points'),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -253,7 +239,7 @@ class ProfilePage extends ConsumerWidget {
         ? AppColors.destructive
         : AppColors.secondary;
 
-    return GestureDetector(
+    return CardActionArea(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(

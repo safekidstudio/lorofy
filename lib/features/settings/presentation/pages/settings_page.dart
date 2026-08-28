@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Divider, Colors, Material;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/layout/app_header.dart';
-import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/app_switch.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
@@ -100,9 +99,8 @@ class SettingsPage extends ConsumerWidget {
     VoidCallback? onTap,
     Color? titleColor,
   }) {
-    return GestureDetector(
+    return CardActionArea(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
       child: Container(
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -157,23 +155,8 @@ class SettingsPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              AppHeader(
-                leftActions: CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () => context.pop(),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE4E4E6),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const SVG(
-                      'assets/icons/chevron-left.svg',
-                      width: 24,
-                      height: 24,
-                    ),
-                  ),
-                ),
+              const AppHeader(
+                leftActions: AppBackButton(),
                 title: 'Settings',
               ),
               Expanded(

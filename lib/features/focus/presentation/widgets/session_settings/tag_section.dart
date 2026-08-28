@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/domain/models/focus_category.dart';
@@ -86,7 +87,7 @@ class TagSection extends ConsumerWidget {
                 final category = categories[index];
                 final isSelected = settings.selectedCategory?.id == category.id;
 
-                return GestureDetector(
+                return CardActionArea(
                   onTap: () {
                     ref
                         .read(pomodoroSettingsProvider.notifier)

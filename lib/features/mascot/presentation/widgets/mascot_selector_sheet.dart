@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'; // For some material progress indicator styles if needed, or we can build our own
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/mascot/domain/models/mascot.dart';
 import 'package:lorofy/features/mascot/domain/models/mascot_stage.dart';
@@ -54,7 +55,10 @@ class MascotSelectorSheet extends ConsumerWidget {
                     style: AppTextStyles.titleLarge,
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE5E5EA),
                       borderRadius: BorderRadius.circular(12),
@@ -84,12 +88,19 @@ class MascotSelectorSheet extends ConsumerWidget {
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
                   itemCount: mascotState.mascots.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final mascot = mascotState.mascots[index];
                     final isActive = mascot.id == activeMascot?.id;
 
-                    return _buildMascotCard(context, ref, mascot, isActive, mascotState.userPoints);
+                    return _buildMascotCard(
+                      context,
+                      ref,
+                      mascot,
+                      isActive,
+                      mascotState.userPoints,
+                    );
                   },
                 ),
               ),
@@ -219,7 +230,7 @@ class MascotSelectorSheet extends ConsumerWidget {
                         ),
                     ],
                   ),
-                ]
+                ],
               ],
             ),
           ),
@@ -241,19 +252,27 @@ class MascotSelectorSheet extends ConsumerWidget {
   ) {
     if (!mascot.isUnlocked) {
       final canUnlock = userPoints >= mascot.unlockCostPoints;
-      return CupertinoButton(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        color: canUnlock ? const Color(0xFF232321) : const Color(0xFFE5E5EA),
-        borderRadius: BorderRadius.circular(12),
-        onPressed: canUnlock ? () => notifier.unlockMascot(mascot.id) : null,
-        child: Text(
-          'Unlock\n${mascot.unlockCostPoints} pts',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontFamily: AppTextStyles.fontFamily,
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            color: canUnlock ? CupertinoColors.white : const Color(0xFF8E8E93),
+      return SoundClickable(
+        onTap: canUnlock ? () => notifier.unlockMascot(mascot.id) : null,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: canUnlock
+                ? const Color(0xFF232321)
+                : const Color(0xFFE5E5EA),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            'Unlock\n${mascot.unlockCostPoints} pts',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: AppTextStyles.fontFamily,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: canUnlock
+                  ? CupertinoColors.white
+                  : const Color(0xFF8E8E93),
+            ),
           ),
         ),
       );
@@ -278,18 +297,22 @@ class MascotSelectorSheet extends ConsumerWidget {
       );
     }
 
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: const Color(0xFF232321),
-      borderRadius: BorderRadius.circular(12),
-      onPressed: () => notifier.selectActiveMascot(mascot.id),
-      child: const Text(
-        'Select',
-        style: TextStyle(
-          fontFamily: AppTextStyles.fontFamily,
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
-          color: CupertinoColors.white,
+    return SoundClickable(
+      onTap: () => notifier.selectActiveMascot(mascot.id),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF232321),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Text(
+          'Select',
+          style: TextStyle(
+            fontFamily: AppTextStyles.fontFamily,
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: CupertinoColors.white,
+          ),
         ),
       ),
     );

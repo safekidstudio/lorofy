@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
 class SlidingSegmentedControl extends StatelessWidget {
@@ -65,8 +66,7 @@ class SlidingSegmentedControl extends StatelessWidget {
               children: List.generate(
                 tabs.length,
                 (index) => Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
+                  child: CardActionArea(
                     onTap: () => onTabChanged(index),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
