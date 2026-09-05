@@ -275,16 +275,19 @@ class ExploreLeaderboardSection extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 24),
-        Text(
-          isYou ? 'You' : name,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontFamily: AppTextStyles.fontFamily,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: AppColors.primary,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Text(
+            isYou ? 'You' : name,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: AppTextStyles.fontFamily,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
           ),
         ),
         const SizedBox(height: 4),

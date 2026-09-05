@@ -411,16 +411,19 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
         ),
         const SizedBox(height: 20),
         // User Name
-        Text(
-          isYou ? 'You' : user.displayName,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontFamily: AppTextStyles.fontFamily,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: AppColors.primary,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Text(
+            isYou ? 'You' : user.displayName,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontFamily: AppTextStyles.fontFamily,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
           ),
         ),
         const SizedBox(height: 4),

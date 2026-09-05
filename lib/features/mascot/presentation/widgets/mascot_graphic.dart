@@ -12,6 +12,8 @@ class MascotGraphic extends StatefulWidget {
   final Mascot mascot;
   final bool isFocusing;
   final double focusProgressRatio;
+  final bool isSuccess;
+  final bool isFailed;
   final double? width;
   final double? height;
 
@@ -20,6 +22,8 @@ class MascotGraphic extends StatefulWidget {
     required this.mascot,
     this.isFocusing = false,
     this.focusProgressRatio = 0.0,
+    this.isSuccess = false,
+    this.isFailed = false,
     this.width,
     this.height,
   });
@@ -31,7 +35,10 @@ class MascotGraphic extends StatefulWidget {
 class _MascotGraphicState extends State<MascotGraphic> {
   SMINumber? _riveNumberInput;
   SMINumber? _riveStageInput;
+  SMIBool? _riveIsFocusingInput;
   SMITrigger? _riveEvolveTrigger;
+  SMITrigger? _riveSuccessTrigger;
+  SMITrigger? _riveFailTrigger;
   bool _isRiveInitialized = false;
   MascotStage? _lastSeenStage;
 
@@ -39,6 +46,14 @@ class _MascotGraphicState extends State<MascotGraphic> {
   void initState() {
     super.initState();
     _lastSeenStage = widget.mascot.currentStage;
+  }
+
+  void fireSuccess() {
+    _riveSuccessTrigger?.fire();
+  }
+
+  void fireFailed() {
+    _riveFailTrigger?.fire();
   }
 
   void _onRiveInit(Artboard artboard) {
@@ -57,8 +72,18 @@ class _MascotGraphicState extends State<MascotGraphic> {
           } else if (input.name == 'stage') {
             _riveStageInput = input;
           }
-        } else if (input is SMITrigger && input.name == 'evolve') {
-          _riveEvolveTrigger = input;
+        } else if (input is SMIBool) {
+          if (input.name == 'isFocusing' || input.name == 'is_focusing' || input.name == 'focusing') {
+            _riveIsFocusingInput = input;
+          }
+        } else if (input is SMITrigger) {
+          if (input.name == 'evolve') {
+            _riveEvolveTrigger = input;
+          } else if (input.name == 'isSuccess' || input.name == 'success') {
+            _riveSuccessTrigger = input;
+          } else if (input.name == 'isFailed' || input.name == 'fail' || input.name == 'failed') {
+            _riveFailTrigger = input;
+          }
         }
       }
       
@@ -77,13 +102,26 @@ class _MascotGraphicState extends State<MascotGraphic> {
       _riveStageInput!.value = stage.levelValue.toDouble();
     }
 
-    // 2. Fire trigger if stage changes (evolution animation)
+    // 2. Apply isFocusing boolean state
+    if (_riveIsFocusingInput != null) {
+      _riveIsFocusingInput!.value = widget.isFocusing;
+    }
+
+    // 3. Fire trigger if stage changes (evolution animation)
     if (_lastSeenStage != null && _lastSeenStage != stage) {
       _riveEvolveTrigger?.fire();
       _lastSeenStage = stage;
     }
 
-    // 3. Map progress value
+    // 4. Fire triggers on success/failure state transitions
+    if (widget.isSuccess) {
+      _riveSuccessTrigger?.fire();
+    }
+    if (widget.isFailed) {
+      _riveFailTrigger?.fire();
+    }
+
+    // 5. Map progress value
     if (_riveNumberInput != null) {
       if (mascot.type == MascotType.tree) {
         // Special mapping for Lorofy's grow-plant.riv:
@@ -118,10 +156,18 @@ class _MascotGraphicState extends State<MascotGraphic> {
         _isRiveInitialized = false;
       });
     }
+    if (widget.isSuccess && !oldWidget.isSuccess) {
+      _riveSuccessTrigger?.fire();
+    }
+    if (widget.isFailed && !oldWidget.isFailed) {
+      _riveFailTrigger?.fire();
+    }
     if (oldWidget.mascot.currentPoints != widget.mascot.currentPoints ||
         oldWidget.mascot.type != widget.mascot.type ||
         oldWidget.isFocusing != widget.isFocusing ||
-        oldWidget.focusProgressRatio != widget.focusProgressRatio) {
+        oldWidget.focusProgressRatio != widget.focusProgressRatio ||
+        oldWidget.isSuccess != widget.isSuccess ||
+        oldWidget.isFailed != widget.isFailed) {
       _applyInputs();
     }
   }
