@@ -11,6 +11,7 @@ import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:reactive_forms/reactive_forms.dart';
+import '../providers/login_controller.dart';
 import '../providers/register_controller.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
@@ -125,11 +126,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 const SizedBox(width: 20),
                 SocialIconButton(
                   svgPath: 'assets/icons/google-drawing.svg',
-                  onPressed: () => AppToast.show(
-                    context,
-                    message: 'Google Sign-in is coming soon!',
-                    type: ToastType.info,
-                  ),
+                  onPressed: isLoading
+                      ? null
+                      : () => ref
+                          .read(loginControllerProvider.notifier)
+                          .loginWithGoogle(),
                 ),
               ],
             ),

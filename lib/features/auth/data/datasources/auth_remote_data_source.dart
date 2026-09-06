@@ -25,6 +25,27 @@ class AuthRemoteDataSource {
     );
   }
 
+  // OAUTH LOGIN (Google / Apple)
+  Future<AuthResponse> loginWithOAuth({
+    required String provider,
+    required String token,
+    String? fullName,
+  }) async {
+    final response = await _dio.post(
+      '/auth/oauth',
+      data: {
+        'provider': provider,
+        'token': token,
+        'fullName': ?fullName,
+      },
+      options: ApiOptions.public,
+    );
+
+    return response.unwrap(
+      (json) => AuthResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
   // SIGN UP
   // STEP 1: Send OTP to email
   Future<void> sendOtp(String email) async {

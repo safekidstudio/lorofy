@@ -146,11 +146,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 const SizedBox(width: 20),
                 SocialIconButton(
                   svgPath: 'assets/icons/google-drawing.svg',
-                  onPressed: () => AppToast.show(
-                    context,
-                    message: 'Google Sign-in is coming soon!',
-                    type: ToastType.success,
-                  ),
+                  onPressed: loginState.isLoading
+                      ? null
+                      : () => ref
+                          .read(loginControllerProvider.notifier)
+                          .loginWithGoogle(),
                 ),
               ],
             ),

@@ -37,6 +37,39 @@ class AuthRepository {
         );
   }
 
+  Future<void> loginWithOAuth({
+    required String provider,
+    required String token,
+    String? fullName,
+  }) async {
+    final authResponse = await _remoteDataSource.loginWithOAuth(
+      provider: provider,
+      token: token,
+      fullName: fullName,
+    );
+
+    await _ref
+        .read(authStorageProvider)
+        .saveTokens(
+          accessToken: authResponse.accessToken,
+          refreshToken: authResponse.refreshToken,
+        );
+
+    final profile = await _remoteDataSource.getMyProfile();
+
+    await _ref
+        .read(authProvider.notifier)
+        .loginSuccess(
+          accessToken: authResponse.accessToken,
+          refreshToken: authResponse.refreshToken,
+          isOnboarded: profile.isOnboarded,
+          displayName: profile.displayName,
+          avatarUrl: profile.avatarUrl,
+          username: profile.username,
+          rankPoints: profile.rankPoints,
+        );
+  }
+
   // STEP 1: Gửi OTP về email
   Future<void> sendOtp(String email) async {
     await _remoteDataSource.sendOtp(email);

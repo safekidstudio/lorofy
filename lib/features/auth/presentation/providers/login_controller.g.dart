@@ -33,7 +33,7 @@ final class LoginControllerProvider
   LoginController create() => LoginController();
 }
 
-String _$loginControllerHash() => r'cac6fea89dad26e809e89738d3a73e0ee4560fd5';
+String _$loginControllerHash() => r'0aeb6f0d113e70dfc99212971b96ddced24a0103';
 
 abstract class _$LoginController extends $AsyncNotifier<void> {
   FutureOr<void> build();

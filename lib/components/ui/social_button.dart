@@ -3,12 +3,12 @@ import 'package:lorofy/components/ui/svg_asset.dart';
 
 class SocialIconButton extends StatelessWidget {
   final String svgPath;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const SocialIconButton({
     super.key,
     required this.svgPath,
-    required this.onPressed,
+    this.onPressed,
   });
 
   @override
