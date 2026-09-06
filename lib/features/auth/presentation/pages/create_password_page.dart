@@ -32,23 +32,9 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
     super.initState();
     _form = FormGroup({
       'password': FormControl<String>(
-        validators: [Validators.required, Validators.minLength(6)],
+        validators: [Validators.required, Validators.minLength(8)],
       ),
-      'confirmPassword': FormControl<String>(
-        validators: [Validators.required],
-      ),
-    }, validators: [
-      Validators.mustMatch('password', 'confirmPassword'),
-    ]);
-  }
-
-  int _getPasswordStrength(String password) {
-    if (password.isEmpty) return 0;
-    int score = 0;
-    if (password.length >= 8) score++;
-    if (RegExp(r'[A-Z]').hasMatch(password)) score++;
-    if (RegExp(r'[0-9]').hasMatch(password)) score++;
-    return score;
+    });
   }
 
   Future<void> _handleSubmit() async {
@@ -95,7 +81,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
             const SizedBox(height: 8),
 
             Text(
-              'Please create your strong password',
+              'Password must be at least 8 characters',
               style: AppTextStyles.body.copyWith(
                 color: AppColors.secondary,
                 fontSize: 14,
@@ -110,7 +96,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
                 final passwordControl = form.control('password');
                 String? errorText;
                 if (passwordControl.hasError(ValidationMessage.minLength) && passwordControl.dirty) {
-                  errorText = 'Password must be at least 6 characters';
+                  errorText = 'Password must be at least 8 characters';
                 }
                 return Input(
                   placeholder: 'Password',
@@ -122,52 +108,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
               },
             ),
 
-            // 4. Password strength bar
-            ReactiveValueListenableBuilder<String>(
-              formControlName: 'password',
-              builder: (context, control, child) {
-                final val = control.value ?? '';
-                final strength = _getPasswordStrength(val);
-                if (val.isEmpty) return const SizedBox.shrink();
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 8),
-                    _PasswordStrengthBar(strength: strength),
-                    const SizedBox(height: 4),
-                    Text(
-                      _strengthLabel(strength),
-                      style: AppTextStyles.body.copyWith(
-                        fontSize: 12,
-                        color: _strengthColor(strength),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            // 5. Confirm password field
-            ReactiveFormConsumer(
-              builder: (context, form, child) {
-                final confirmControl = form.control('confirmPassword');
-                String? errorText;
-                if (confirmControl.hasError(ValidationMessage.mustMatch) && confirmControl.dirty) {
-                  errorText = 'Passwords do not match';
-                }
-                return Input(
-                  placeholder: 'Confirm password',
-                  formControlName: 'confirmPassword',
-                  obscureText: true,
-                  disabled: isLoading,
-                  errorMessage: errorText,
-                );
-              },
-            ),
-
-            // 6. Server error
+            // 4. Server error
             if (serverError != null) ...[
               const SizedBox(height: 12),
               Text(
@@ -182,7 +123,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
 
             const SizedBox(height: 28),
 
-            // 7. Create button
+            // 5. Create button
             Center(
               child: SizedBox(
                 width: 180,
@@ -200,7 +141,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
 
             const SizedBox(height: 20),
 
-            // 8. Terms note
+            // 6. Terms note
             Text.rich(
               TextSpan(
                 text: 'By creating an account you agree to our ',
@@ -233,32 +174,6 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
     );
   }
 
-  String _strengthLabel(int strength) {
-    switch (strength) {
-      case 1:
-        return 'Weak';
-      case 2:
-        return 'Fair';
-      case 3:
-        return 'Strong';
-      default:
-        return 'Too short';
-    }
-  }
-
-  Color _strengthColor(int strength) {
-    switch (strength) {
-      case 1:
-        return CupertinoColors.systemRed;
-      case 2:
-        return CupertinoColors.systemOrange;
-      case 3:
-        return CupertinoColors.systemGreen;
-      default:
-        return AppColors.secondary;
-    }
-  }
-
   String _parseError(Object? error) {
     if (error == null) return 'Something went wrong';
     final msg = error.errorMessage;
@@ -269,39 +184,5 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
       return 'This email is already registered.';
     }
     return msg;
-  }
-}
-
-// Password strength visual bar
-class _PasswordStrengthBar extends StatelessWidget {
-  final int strength; // 0-3
-
-  const _PasswordStrengthBar({required this.strength});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(3, (i) {
-        final isActive = i < strength;
-        Color color;
-        if (strength == 1) {
-          color = CupertinoColors.systemRed;
-        } else if (strength == 2) {
-          color = CupertinoColors.systemOrange;
-        } else {
-          color = CupertinoColors.systemGreen;
-        }
-        return Expanded(
-          child: Container(
-            margin: EdgeInsets.only(right: i < 2 ? 4 : 0),
-            height: 4,
-            decoration: BoxDecoration(
-              color: isActive ? color : AppColors.border,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-        );
-      }),
-    );
   }
 }

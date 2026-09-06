@@ -12,6 +12,7 @@ import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:lorofy/components/ui/global_loading_overlay.dart';
 import 'package:lorofy/features/profile/presentation/widgets/avatar_select_sheet.dart';
 import 'package:lorofy/core/constants/app_constants.dart';
 import 'package:lorofy/features/profile/data/repositories/profile_repository_impl.dart';
@@ -108,6 +109,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
   }
 
   Future<void> _updateAvatarDirectly(String assetId, String url) async {
+    AppLoading.show(ref, 'Updating avatar...');
     setState(() {
       _isLoading = true;
       _selectedAvatarUrl = url;
@@ -122,11 +124,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       );
 
       if (mounted) {
-        AppToast.show(
-          context,
-          message: 'Avatar updated successfully!',
-          type: ToastType.success,
-        );
+        AppLoading.showSuccess(ref, 'Avatar updated!');
         setState(() {
           _originalAvatarUrl = url;
           _form.control('avatarId').reset(value: null);
@@ -134,11 +132,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       }
     } catch (e) {
       if (mounted) {
-        AppToast.show(
-          context,
-          message: 'Failed to update avatar: ${e.toString()}',
-          type: ToastType.error,
-        );
+        AppLoading.showError(ref, 'Failed to update avatar');
       }
     } finally {
       if (mounted) {
@@ -153,6 +147,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
       if (image == null) return;
 
+      AppLoading.show(ref, 'Uploading avatar...');
       // Optimistic UI: immediately show local image preview & set uploading status
       setState(() {
         _uploadedImagePath = image.path;
@@ -164,25 +159,21 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       final uploadResult = await ref.read(profileRepositoryProvider).uploadAvatar(bytes, image.name);
       final assetId = uploadResult.id;
 
-          final displayName = (_form.value['displayName'] as String?)?.trim() ?? _originalDisplayName;
-          final profile = await ref.read(authRepositoryProvider).updateProfile(
-            displayName: displayName,
-            avatarAssetId: assetId,
-          );
+      final displayName = (_form.value['displayName'] as String?)?.trim() ?? _originalDisplayName;
+      final profile = await ref.read(authRepositoryProvider).updateProfile(
+        displayName: displayName,
+        avatarAssetId: assetId,
+      );
 
-          if (mounted) {
-            AppToast.show(
-              context,
-              message: 'Avatar updated successfully!',
-              type: ToastType.success,
-            );
-            setState(() {
-              _originalAvatarUrl = profile.avatarUrl;
-              _selectedAvatarUrl = profile.avatarUrl;
-              _uploadedImagePath = null;
-              _form.control('avatarId').reset(value: null);
-            });
-          }
+      if (mounted) {
+        AppLoading.showSuccess(ref, 'Avatar uploaded!');
+        setState(() {
+          _originalAvatarUrl = profile.avatarUrl;
+          _selectedAvatarUrl = profile.avatarUrl;
+          _uploadedImagePath = null;
+          _form.control('avatarId').reset(value: null);
+        });
+      }
     } catch (e) {
       // Revert optimistic UI on upload/update failure
       setState(() {
@@ -191,11 +182,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
         _form.control('avatarId').reset(value: null);
       });
       if (!mounted) return;
-      AppToast.show(
-        context,
-        message: 'Failed to upload and update avatar: ${e.toString()}',
-        type: ToastType.error,
-      );
+      AppLoading.showError(ref, 'Failed to upload avatar');
     } finally {
       if (mounted) {
         setState(() => _isUploading = false);
@@ -214,6 +201,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       return;
     }
 
+    AppLoading.show(ref, 'Updating profile...');
     setState(() => _isUpdating = true);
 
     try {
@@ -224,20 +212,12 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
           );
 
       if (mounted) {
-        AppToast.show(
-          context,
-          message: 'Profile updated successfully!',
-          type: ToastType.success,
-        );
+        AppLoading.showSuccess(ref, 'Profile updated!');
         Navigator.pop(context); // Go back to profile page
       }
     } catch (e) {
       if (mounted) {
-        AppToast.show(
-          context,
-          message: 'Failed to update profile: ${e.toString()}',
-          type: ToastType.error,
-        );
+        AppLoading.showError(ref, 'Failed to update profile');
       }
     } finally {
       if (mounted) {

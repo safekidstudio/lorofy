@@ -6,6 +6,7 @@ import 'core/theme/app_theme.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lorofy/core/storage/settings_storage.dart';
+import 'package:lorofy/components/ui/global_loading_overlay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +49,11 @@ class MyApp extends ConsumerWidget {
         DefaultWidgetsLocalizations.delegate,
       ],
       routerConfig: router,
+      builder: (context, child) {
+        return GlobalLoadingOverlay(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

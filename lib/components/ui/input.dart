@@ -87,10 +87,14 @@ class _InputState extends State<Input> {
           }
 
           final controlDisabled = field.control.disabled;
+          // Only show error if explicitly passed or if control is dirty (user has actually typed)
+          final showReactiveError = field.control.dirty && field.errorText != null;
+          final activeErrorMsg = widget.errorMessage ?? (showReactiveError ? field.errorText : null);
+
           return _buildTextField(
             context,
             _reactiveController!,
-            field.errorText,
+            activeErrorMsg,
             disabledOverride: controlDisabled,
           );
         },
@@ -217,18 +221,36 @@ class _InputState extends State<Input> {
           ),
         ),
 
-        // 4. Error Message
-        if (hasError) ...[
-          const SizedBox(height: 6),
-          Text(
-            errorMsg,
-            style: AppTextStyles.body.copyWith(
-              color: CupertinoColors.systemRed,
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-            ),
+        // 3. Smooth Animated Error Message
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            switchInCurve: Curves.easeInOut,
+            switchOutCurve: Curves.easeInOut,
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            child: hasError
+                ? Padding(
+                    key: ValueKey<String>(errorMsg),
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      errorMsg,
+                      style: AppTextStyles.body.copyWith(
+                        color: CupertinoColors.systemRed,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(key: ValueKey('empty_error')),
           ),
-        ],
+        ),
       ],
     );
   }
