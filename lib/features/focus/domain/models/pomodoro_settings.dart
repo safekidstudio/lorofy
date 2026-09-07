@@ -28,7 +28,7 @@ class PomodoroSettings {
     this.selectedCategory,
     this.timedReminder = true,
     this.isDeepFocusMode = false,
-    this.blockMode = BlockMode.MEDIUM,
+    this.blockMode = BlockMode.medium,
     this.blockedCategories = const {'Social Media'},
     this.autoStartBreak = true,
     this.autoStartFocus = true,
@@ -113,8 +113,8 @@ class PomodoroSettings {
       timedReminder: json['timedReminder'] as bool? ?? true,
       isDeepFocusMode: json['isDeepFocusMode'] as bool? ?? false,
       blockMode: BlockMode.values.firstWhere(
-        (e) => e.name == json['blockMode'],
-        orElse: () => BlockMode.MEDIUM,
+        (e) => e.name == json['blockMode'] || e.value == json['blockMode'],
+        orElse: () => BlockMode.medium,
       ),
       blockedCategories: (json['blockedCategories'] as List<dynamic>?)
               ?.map((e) => e as String)

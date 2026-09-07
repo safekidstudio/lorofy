@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:lorofy/features/focus/domain/models/ambient_sound.dart';
 import 'package:lorofy/features/focus/domain/models/ambient_sound_meta.dart';
 import 'package:lorofy/features/focus/domain/models/spotify_playlist.dart';
+import 'package:lorofy/core/utils/logger.dart';
 
 
 class PlayerState {
@@ -108,7 +109,7 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
 
   Future<void> play(SpotifySong song) async {
     final assetPath = _getAssetPath(song);
-    print('MUSIC_PLAYER: play - song: "${song.title}" (isAmbient: ${song.isAmbient}), assetPath: "$assetPath"');
+    AppLogger.debug('play - song: "${song.title}" (isAmbient: ${song.isAmbient}), assetPath: "$assetPath"', tag: 'MusicPlayer');
 
     state = state.copyWith(
       currentlyPlaying: song,
@@ -120,7 +121,7 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
     try {
       // Pause current active player if switching tracks
       if (_activePlayer != null) {
-        print('MUSIC_PLAYER: play - pausing previous player');
+        AppLogger.debug('play - pausing previous player', tag: 'MusicPlayer');
         await _activePlayer?.pause();
       }
 
@@ -140,36 +141,36 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
           state = state.copyWith(duration: dur);
         });
 
-        print('MUSIC_PLAYER: play - resuming player for: $assetPath');
+        AppLogger.debug('play - resuming player for: $assetPath', tag: 'MusicPlayer');
         await player.resume();
-        print('MUSIC_PLAYER: play - successfully playing: "${song.title}"');
+        AppLogger.debug('play - successfully playing: "${song.title}"', tag: 'MusicPlayer');
       } else {
-        print('MUSIC_PLAYER: play - assetPath is null, nothing to play.');
+        AppLogger.debug('play - assetPath is null, nothing to play.', tag: 'MusicPlayer');
       }
     } catch (e, stack) {
-      print('MUSIC_PLAYER_ERROR: Failed to play song "${song.title}": $e\n$stack');
+      AppLogger.error('Failed to play song "${song.title}"', error: e, stackTrace: stack, tag: 'MusicPlayer');
       // Silently catch audio failures in web/desktop testing environments
     }
   }
 
   Future<void> togglePlay() async {
     if (state.currentlyPlaying == null || _activePlayer == null) {
-      print('MUSIC_PLAYER: togglePlay ignored - currentlyPlaying or _activePlayer is null');
+      AppLogger.debug('togglePlay ignored - currentlyPlaying or _activePlayer is null', tag: 'MusicPlayer');
       return;
     }
 
     try {
       if (state.isPlaying) {
-        print('MUSIC_PLAYER: togglePlay - pausing player');
+        AppLogger.debug('togglePlay - pausing player', tag: 'MusicPlayer');
         await _activePlayer!.pause();
         state = state.copyWith(isPlaying: false);
       } else {
-        print('MUSIC_PLAYER: togglePlay - resuming player');
+        AppLogger.debug('togglePlay - resuming player', tag: 'MusicPlayer');
         await _activePlayer!.resume();
         state = state.copyWith(isPlaying: true);
       }
     } catch (e, stack) {
-      print('MUSIC_PLAYER_ERROR: togglePlay failed: $e\n$stack');
+      AppLogger.error('togglePlay failed', error: e, stackTrace: stack, tag: 'MusicPlayer');
     }
   }
 
@@ -177,15 +178,15 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
   /// Use this when navigating away from settings so the user's selection is remembered.
   Future<void> pause() async {
     if (_activePlayer == null) {
-      print('MUSIC_PLAYER: pause ignored - _activePlayer is null');
+      AppLogger.debug('pause ignored - _activePlayer is null', tag: 'MusicPlayer');
       return;
     }
     try {
-      print('MUSIC_PLAYER: pause - pausing active player');
+      AppLogger.debug('pause - pausing active player', tag: 'MusicPlayer');
       await _activePlayer!.pause();
       state = state.copyWith(isPlaying: false);
     } catch (e, stack) {
-      print('MUSIC_PLAYER_ERROR: pause failed: $e\n$stack');
+      AppLogger.error('pause failed', error: e, stackTrace: stack, tag: 'MusicPlayer');
     }
   }
 
@@ -194,7 +195,7 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
   }
 
   Future<void> stop() async {
-    print('MUSIC_PLAYER: stop - stopping playback');
+    AppLogger.debug('stop - stopping playback', tag: 'MusicPlayer');
     try {
       await _activePlayer?.pause();
       await _positionSubscription?.cancel();
@@ -203,7 +204,7 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
       _durationSubscription = null;
       _activePlayer = null;
     } catch (e, stack) {
-      print('MUSIC_PLAYER_ERROR: stop failed: $e\n$stack');
+      AppLogger.error('stop failed', error: e, stackTrace: stack, tag: 'MusicPlayer');
     }
     state = state.copyWith(
       clearPlaying: true,

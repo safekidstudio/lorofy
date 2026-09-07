@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'failures.dart';
 
 class AppException implements Exception {
   final String message;
@@ -32,8 +33,42 @@ class BadRequestException extends AppException {
 }
 
 extension ErrorExtractor on Object {
+  Failure toFailure() {
+    final error = this;
+    if (error is Failure) return error;
+
+    if (error is DioException) {
+      if (error.response?.statusCode == 401) {
+        return UnauthorizedFailure(errorMessage, 'UNAUTHORIZED');
+      }
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.sendTimeout ||
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.connectionError) {
+        return NetworkFailure(errorMessage, 'NETWORK_ERROR');
+      }
+      return ServerFailure(errorMessage, error.response?.statusCode?.toString());
+    }
+
+    if (error is UnauthorizedException) {
+      return UnauthorizedFailure(error.message, error.code);
+    }
+    if (error is NetworkException) {
+      return NetworkFailure(error.message, error.code);
+    }
+    if (error is ServerException) {
+      return ServerFailure(error.message, error.code);
+    }
+
+    return ServerFailure(errorMessage);
+  }
+
   String get errorMessage {
     final error = this;
+    if (error is Failure) {
+      return error.message;
+    }
+
     if (error is DioException) {
       final appError = error.error;
       if (appError is AppException) {
@@ -56,15 +91,15 @@ extension ErrorExtractor on Object {
           error.type == DioExceptionType.sendTimeout ||
           error.type == DioExceptionType.receiveTimeout ||
           error.type == DioExceptionType.connectionError) {
-        return "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.";
+        return "Unable to connect to server. Please check your network connection.";
       }
 
       final status = error.response?.statusCode;
       if (status != null) {
-        return "[$status] Đã xảy ra lỗi không mong muốn.";
+        return "[$status] An unexpected error occurred.";
       }
 
-      return error.message ?? "Đã xảy ra lỗi kết nối.";
+      return error.message ?? "Connection error occurred.";
     }
 
     if (error is AppException) {

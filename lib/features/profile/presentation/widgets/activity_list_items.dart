@@ -58,7 +58,7 @@ Widget _buildFlowerRow(int healthyCount, int failedCount) {
           'assets/illustrations/flower.svg',
           width: 14,
           height: 30,
-          color: Color(0xFF8D583F), // Tint wilted flowers brown
+          color: CupertinoColors.activeOrange, // Tint wilted flowers orange
         ),
       ),
     ],
@@ -88,7 +88,7 @@ class TodayActivityItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFECECED), width: 1)),
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
       ),
       child: Row(
         children: [
@@ -101,7 +101,7 @@ class TodayActivityItem extends StatelessWidget {
                   fontFamily: AppTextStyles.titleFontFamily,
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.primary.withValues(alpha: 0.5),
+                  color: AppColors.foreground.withValues(alpha: 0.5),
                   letterSpacing: -0.5,
                   height: 1.0,
                 ),
@@ -112,7 +112,7 @@ class TodayActivityItem extends StatelessWidget {
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.secondary,
+                  color: AppColors.mutedForeground,
                   letterSpacing: -0.5,
                   height: 1.0,
                 ),
@@ -140,7 +140,7 @@ class TodayActivityItem extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFD1D1),
+                    color: CupertinoColors.systemRed.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
@@ -149,7 +149,7 @@ class TodayActivityItem extends StatelessWidget {
                       fontFamily: AppTextStyles.fontFamily,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFFF3B30),
+                      color: CupertinoColors.systemRed,
                     ),
                   ),
                 ),
@@ -161,7 +161,7 @@ class TodayActivityItem extends StatelessWidget {
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF8E8E93),
+                  color: AppColors.mutedForeground,
                 ),
               ),
               if (session.earnedPoints > 0) ...[
@@ -181,7 +181,7 @@ class TodayActivityItem extends StatelessWidget {
                         fontFamily: AppTextStyles.fontFamily,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFFFF2E2E),
+                        color: CupertinoColors.systemRed,
                       ),
                     ),
                   ],
@@ -222,7 +222,7 @@ class PastDayActivityItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFECECED), width: 1)),
+        border: Border(bottom: BorderSide(color: AppColors.border, width: 1)),
       ),
       child: Row(
         children: [
@@ -235,7 +235,7 @@ class PastDayActivityItem extends StatelessWidget {
                   fontFamily: AppTextStyles.titleFontFamily,
                   fontSize: 32,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.primary.withValues(alpha: 0.5),
+                  color: AppColors.foreground.withValues(alpha: 0.5),
                   letterSpacing: 0,
                   height: 0.85,
                 ),
@@ -246,7 +246,7 @@ class PastDayActivityItem extends StatelessWidget {
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.secondary,
+                  color: AppColors.mutedForeground,
                   letterSpacing: -0.5,
                   height: 1.0,
                 ),

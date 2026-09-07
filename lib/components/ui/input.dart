@@ -128,7 +128,7 @@ class _InputState extends State<Input> {
       borderColor = CupertinoColors.systemRed;
       borderWidth = 2.0;
     } else if (_isFocused) {
-      borderColor = const Color(0xFF232321);
+      borderColor = AppColors.foreground;
       borderWidth = 2.0;
     } else {
       borderColor = CupertinoColors.transparent;
@@ -137,7 +137,7 @@ class _InputState extends State<Input> {
 
     // Resolve the input background color against context
     final resolvedBg = CupertinoDynamicColor.resolve(
-      AppColors.inputBg,
+      AppColors.input,
       context,
     );
     final fillColor = resolvedBg;
@@ -152,7 +152,7 @@ class _InputState extends State<Input> {
             widget.label!,
             style: AppTextStyles.label.copyWith(
               color: isDisabled
-                  ? AppColors.primary.withValues(alpha: 0.5)
+                  ? AppColors.foreground.withValues(alpha: 0.5)
                   : (hasError ? CupertinoColors.systemRed : null),
             ),
           ),
@@ -181,7 +181,7 @@ class _InputState extends State<Input> {
               ),
               style: AppTextStyles.body.copyWith(
                 fontSize: 16,
-                color: isDisabled ? AppColors.secondary : AppColors.primary,
+                color: isDisabled ? AppColors.mutedForeground : AppColors.foreground,
               ),
               decoration: const BoxDecoration(
                 color: CupertinoColors.transparent,
@@ -212,7 +212,7 @@ class _InputState extends State<Input> {
                                   : 'assets/icons/eye.svg',
                               width: 20,
                               height: 20,
-                              color: AppColors.secondary,
+                              color: AppColors.mutedForeground,
                             ),
                           ),
                         )

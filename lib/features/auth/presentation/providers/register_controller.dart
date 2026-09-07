@@ -10,7 +10,7 @@ class RegisterController extends _$RegisterController {
     return null;
   }
 
-  // Step 1: Gửi OTP về email
+  // Step 1: Send OTP to email
   Future<void> sendOtp({required String email}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {

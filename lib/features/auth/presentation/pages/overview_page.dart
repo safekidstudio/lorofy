@@ -58,13 +58,13 @@ class _OverviewPageState extends State<OverviewPage> {
               const Spacer(flex: 3),
 
               // 3. Heading: Welcome to Lorofy
-              Text(
+              const Text(
                 'Welcome to Lorofy',
                 style: TextStyle(
                   fontFamily: AppTextStyles.titleFontFamily,
                   fontSize: 32,
                   fontWeight: FontWeight.w900,
-                  color: const Color(0xFF232321),
+                  color: AppColors.foreground,
                   letterSpacing: -0.5,
                 ),
                 textAlign: TextAlign.center,
@@ -72,15 +72,15 @@ class _OverviewPageState extends State<OverviewPage> {
               const SizedBox(height: 12),
 
               // 4. Subtitle description
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
                   'Every second you focus with Lorofy is a step toward growth.',
                   style: TextStyle(
                     fontFamily: AppTextStyles.fontFamily,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
-                    color: const Color(0xFF8E8E93),
+                    color: AppColors.mutedForeground,
                     height: 1.4,
                   ),
                   textAlign: TextAlign.center,

@@ -26,10 +26,10 @@ class OtpInput extends StatelessWidget {
       textStyle: AppTextStyles.body.copyWith(
         fontSize: 22,
         fontWeight: FontWeight.w600,
-        color: AppColors.primary,
+        color: AppColors.foreground,
       ),
       decoration: BoxDecoration(
-        color: AppColors.inputBg,
+        color: AppColors.input,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(
           color: AppColors.border,
@@ -42,7 +42,7 @@ class OtpInput extends StatelessWidget {
     final focusedPinTheme = defaultPinTheme.copyWith(
       decoration: defaultPinTheme.decoration!.copyWith(
         border: Border.all(
-          color: AppColors.primary,
+          color: AppColors.foreground,
           width: 2,
         ),
       ),

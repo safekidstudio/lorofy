@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'verify_otp_controller.g.dart';
 
-// State chứa signupToken sau khi verify thành công
+// State containing signupToken after successful verification
 class VerifyOtpState {
   final bool isLoading;
   final String? signupToken;
@@ -36,7 +36,7 @@ class VerifyOtpController extends _$VerifyOtpController {
     return const VerifyOtpState();
   }
 
-  // Step 2: Xác thực OTP → lưu signupToken vào state
+  // Step 2: Verify OTP -> store signupToken in state
   Future<void> verifyOtp({
     required String email,
     required String otpCode,
@@ -52,7 +52,7 @@ class VerifyOtpController extends _$VerifyOtpController {
     }
   }
 
-  // Gửi lại OTP (gọi lại sendOtp)
+  // Resend OTP (re-invokes sendOtp)
   Future<String?> resendOtp({required String email}) async {
     state = state.copyWith(isLoading: true, error: null);
     try {

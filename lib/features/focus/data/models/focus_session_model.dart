@@ -24,8 +24,8 @@ class FocusSessionModel extends FocusSession {
     // Parse BlockMode
     final blockModeStr = json['blockMode'] as String? ?? 'MEDIUM';
     final blockMode = BlockMode.values.firstWhere(
-      (e) => e.name == blockModeStr,
-      orElse: () => BlockMode.MEDIUM,
+      (e) => e.value == blockModeStr || e.name == blockModeStr.toLowerCase(),
+      orElse: () => BlockMode.medium,
     );
 
     return FocusSessionModel(

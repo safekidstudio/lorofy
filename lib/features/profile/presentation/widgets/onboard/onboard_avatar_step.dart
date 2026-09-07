@@ -39,7 +39,7 @@ class OnboardAvatarStep extends StatelessWidget {
                 path: uploadedImagePath ?? selectedAvatarUrl,
                 size: avatarSize,
                 isLoading: isUploading,
-                borderColor: const Color(0xFF232321).withValues(alpha: 0.1),
+                borderColor: AppColors.foreground.withValues(alpha: 0.1),
                 borderWidth: 2,
               ),
               Positioned(
@@ -53,7 +53,7 @@ class OnboardAvatarStep extends StatelessWidget {
                       color: CupertinoColors.white,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFFE4E4E6),
+                        color: AppColors.secondary,
                         width: 2,
                       ),
                       boxShadow: [
@@ -69,7 +69,7 @@ class OnboardAvatarStep extends StatelessWidget {
                     child: const Icon(
                       CupertinoIcons.camera_fill,
                       size: 18,
-                      color: Color(0xFF232321),
+                      color: AppColors.foreground,
                     ),
                   ),
                 ),
@@ -83,7 +83,7 @@ class OnboardAvatarStep extends StatelessWidget {
         Text(
           'Upload your avatar or using avatar list below',
           style: AppTextStyles.body.copyWith(
-            color: AppColors.secondary,
+            color: AppColors.mutedForeground,
             fontSize: 14,
           ),
           textAlign: TextAlign.center,
@@ -155,7 +155,7 @@ class OnboardAvatarStep extends StatelessWidget {
                               shape: BoxShape.circle,
                               border: isSelected
                                   ? Border.all(
-                                      color: const Color(0xFF232321),
+                                      color: AppColors.foreground,
                                       width: 3,
                                     )
                                   : null,

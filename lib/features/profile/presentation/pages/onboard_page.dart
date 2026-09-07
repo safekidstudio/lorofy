@@ -276,7 +276,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                         fontFamily: AppTextStyles.titleFontFamily,
                         fontSize: 32,
                         fontWeight: FontWeight.w900,
-                        color: const Color(0xFF232321),
+                        color: AppColors.foreground,
                         letterSpacing: -0.5,
                       ),
                       textAlign: TextAlign.center,
@@ -289,7 +289,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                         fontFamily: AppTextStyles.fontFamily,
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
-                        color: const Color(0xFF8E8E93),
+                        color: AppColors.mutedForeground,
                         height: 1.4,
                       ),
                       textAlign: TextAlign.center,
@@ -371,7 +371,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
 
     if (isDesktop) {
       return Container(
-        color: const Color(0xFFF2F4F7),
+        color: AppColors.background,
         alignment: Alignment.center,
         child: Container(
           width: 420,
@@ -409,7 +409,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
           width: 240,
           height: 4,
           decoration: BoxDecoration(
-            color: const Color(0xFFE4E4E6),
+            color: AppColors.secondary,
             borderRadius: BorderRadius.circular(3),
           ),
           alignment: Alignment.centerLeft,
@@ -419,7 +419,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
             width: 240 * percent,
             height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFF232321).withValues(alpha: .8),
+              color: AppColors.foreground.withValues(alpha: .8),
               borderRadius: BorderRadius.circular(3),
             ),
           ),

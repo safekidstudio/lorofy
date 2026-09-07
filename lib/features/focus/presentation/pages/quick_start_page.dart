@@ -7,6 +7,7 @@ import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/logo.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/toast.dart';
+import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/widgets/focus_timer/sound_button.dart';
 import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.dart';
@@ -83,7 +84,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                 onPressed: onReset,
                 child: const Icon(
                   CupertinoIcons.xmark,
-                  color: Color(0xFF232321),
+                  color: AppColors.foreground,
                   size: 24,
                 ),
               )
@@ -111,7 +112,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
             onPressed: onReset,
             child: const Icon(
               CupertinoIcons.multiply,
-              color: Color(0xFF232321),
+              color: AppColors.foreground,
               size: 24,
             ),
           ),

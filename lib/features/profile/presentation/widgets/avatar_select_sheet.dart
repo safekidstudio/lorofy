@@ -30,7 +30,7 @@ class AvatarSelectSheet extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE4E4E6),
+                  color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -44,7 +44,7 @@ class AvatarSelectSheet extends StatelessWidget {
                 fontFamily: AppTextStyles.titleFontFamily,
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
-                color: AppColors.primary,
+                color: AppColors.foreground,
               ),
               textAlign: TextAlign.center,
             ),
@@ -56,7 +56,7 @@ class AvatarSelectSheet extends StatelessWidget {
               prefix: const Icon(
                 CupertinoIcons.photo_on_rectangle,
                 size: 20,
-                color: Color(0xFF232321),
+                color: AppColors.foreground,
               ),
               onPressed: () {
                 Navigator.pop(context);
@@ -73,7 +73,7 @@ class AvatarSelectSheet extends StatelessWidget {
                 fontFamily: AppTextStyles.fontFamily,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: AppColors.secondary,
+                color: AppColors.mutedForeground,
               ),
             ),
             const SizedBox(height: 12),
@@ -102,7 +102,7 @@ class AvatarSelectSheet extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: const Color(0xFFE4E4E6),
+                          color: AppColors.secondary,
                           width: 1.5,
                         ),
                       ),

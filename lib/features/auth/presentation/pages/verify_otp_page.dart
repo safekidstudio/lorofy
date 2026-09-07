@@ -105,13 +105,13 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
           const Spacer(),
 
           // 2. Title
-          Text(
+          const Text(
             'Verify your OTP',
             style: TextStyle(
               fontFamily: AppTextStyles.titleFontFamily,
               fontSize: 32,
               fontWeight: FontWeight.w900,
-              color: const Color(0xFF232321),
+              color: AppColors.foreground,
             ),
             textAlign: TextAlign.center,
           ),
@@ -122,14 +122,14 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
             TextSpan(
               text: 'Enter your OTP sent to ',
               style: AppTextStyles.body.copyWith(
-                color: AppColors.secondary,
+                color: AppColors.mutedForeground,
                 fontSize: 14,
               ),
               children: [
                 TextSpan(
                   text: _maskedEmail,
                   style: AppTextStyles.body.copyWith(
-                    color: AppColors.primary,
+                    color: AppColors.foreground,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -184,7 +184,7 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
               Text(
                 "Didn't receive it? ",
                 style: AppTextStyles.body.copyWith(
-                  color: AppColors.secondary,
+                  color: AppColors.mutedForeground,
                   fontSize: 14,
                 ),
               ),
@@ -192,7 +192,7 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
                   ? Text(
                       'Resend in ${_cooldownSeconds}s',
                       style: AppTextStyles.body.copyWith(
-                        color: AppColors.secondary,
+                        color: AppColors.mutedForeground,
                         fontSize: 14,
                       ),
                     )
@@ -202,11 +202,11 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
                       child: Text(
                         'Resend OTP',
                         style: AppTextStyles.body.copyWith(
-                          color: AppColors.primary,
+                          color: AppColors.foreground,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           decoration: TextDecoration.underline,
-                          decorationColor: AppColors.primary,
+                          decorationColor: AppColors.foreground,
                         ),
                       ),
                     ),

@@ -44,7 +44,7 @@ class NotificationCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF071B12), // Brand dark green
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Center(
@@ -69,20 +69,20 @@ class NotificationCard extends StatelessWidget {
                                 text: '${item.sender} ',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF232321),
+                                  color: AppColors.foreground,
                                 ),
                               ),
                               TextSpan(
                                 text: '${item.action} ',
                                 style: const TextStyle(
-                                  color: Color(0xFF555555),
+                                  color: AppColors.mutedForeground,
                                 ),
                               ),
                               TextSpan(
                                 text: item.topic,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF232321),
+                                  color: AppColors.foreground,
                                 ),
                               ),
                             ],
@@ -99,7 +99,7 @@ class NotificationCard extends StatelessWidget {
                           style: const TextStyle(
                             fontFamily: AppTextStyles.fontFamily,
                             fontSize: 12,
-                            color: Color(0xFF8E8E93),
+                            color: AppColors.mutedForeground,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -119,7 +119,7 @@ class NotificationCard extends StatelessWidget {
                   width: 10,
                   height: 10,
                   decoration: const BoxDecoration(
-                    color: Color(0xFF000000), // Black dot as in screenshot
+                    color: AppColors.primary,
                     shape: BoxShape.circle,
                   ),
                 ),

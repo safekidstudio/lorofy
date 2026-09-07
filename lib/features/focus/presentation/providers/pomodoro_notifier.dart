@@ -206,7 +206,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     try {
       final FocusRepository repository = ref.read(focusRepositoryProvider);
       final settings = ref.read(pomodoroSettingsProvider);
-      final activeBlockMode = settings.isDeepFocusMode ? settings.blockMode : BlockMode.MEDIUM;
+      final activeBlockMode = settings.isDeepFocusMode ? settings.blockMode : BlockMode.medium;
       final session = await repository.startSession(
         categoryId: state.selectedCategory?.id,
         blockMode: activeBlockMode,

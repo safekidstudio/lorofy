@@ -70,24 +70,24 @@ class AuthRepository {
         );
   }
 
-  // STEP 1: Gửi OTP về email
+  // STEP 1: Send OTP to email
   Future<void> sendOtp(String email) async {
     await _remoteDataSource.sendOtp(email);
   }
 
-  // STEP 2: Xác thực OTP → trả về signupToken
+  // STEP 2: Verify OTP -> returns signupToken
   Future<String> verifyOtp(String email, String otpCode) async {
     return await _remoteDataSource.verifyOtp(email, otpCode);
   }
 
-  // STEP 3: Tạo tài khoản bằng signupToken + password, sau đó tự động login
+  // STEP 3: Create account using signupToken + password, then auto-login
   Future<void> register({
     required String signupToken,
     required String password,
     required String email,
   }) async {
     await _remoteDataSource.register(signupToken, password);
-    // Auto-login sau khi tạo tài khoản thành công
+    // Auto-login after successful registration
     await login(email, password);
   }
 

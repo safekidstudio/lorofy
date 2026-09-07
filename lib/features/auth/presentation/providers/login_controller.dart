@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lorofy/core/config/app_config.dart';
+import 'package:lorofy/core/utils/logger.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -20,7 +22,7 @@ class LoginController extends _$LoginController {
   @override
   FutureOr<void> build() {
     if (kIsWeb) {
-      _googleSignIn.onCurrentUserChanged.listen((googleUser) async {
+      final sub = _googleSignIn.onCurrentUserChanged.listen((googleUser) async {
         if (googleUser != null) {
           final googleAuth = await googleUser.authentication;
           final token = googleAuth.idToken ?? googleAuth.accessToken;
@@ -35,6 +37,9 @@ class LoginController extends _$LoginController {
             });
           }
         }
+      });
+      ref.onDispose(() {
+        sub.cancel();
       });
     }
     return null;
@@ -61,9 +66,9 @@ class LoginController extends _$LoginController {
       final googleAuth = await googleUser.authentication;
       final token = googleAuth.idToken ?? googleAuth.accessToken;
 
-      print('=== GOOGLE AUTH DEBUG ===');
-      print('idToken: ${googleAuth.idToken}');
-      print('accessToken: ${googleAuth.accessToken}');
+      AppLogger.debug('=== GOOGLE AUTH DEBUG ===', tag: 'GoogleAuth');
+      AppLogger.debug('idToken: ${googleAuth.idToken}', tag: 'GoogleAuth');
+      AppLogger.debug('accessToken: ${googleAuth.accessToken}', tag: 'GoogleAuth');
 
       if (token == null || token.isEmpty) {
         state = AsyncValue.error(

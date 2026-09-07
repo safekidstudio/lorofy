@@ -22,7 +22,7 @@ class BlockModeSelectionSheet extends ConsumerWidget {
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            color: Color(0xFFF6F6F6),
+            color: AppColors.background,
           ),
           child: SelectAllowedAppsSheet(),
         ),
@@ -41,12 +41,12 @@ class BlockModeSelectionSheet extends ConsumerWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF071B12) : CupertinoColors.white,
+          color: isSelected ? AppColors.primary : CupertinoColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF071B12)
-                : const Color(0xFFE5E5EA),
+                ? AppColors.primary
+                : AppColors.border,
             width: 1.5,
           ),
         ),
@@ -59,7 +59,7 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                 fontFamily: AppTextStyles.fontFamily,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? CupertinoColors.white : AppColors.primary,
+                color: isSelected ? CupertinoColors.white : AppColors.foreground,
               ),
             ),
             const SizedBox(height: 6),
@@ -70,7 +70,7 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                 fontSize: 12,
                 color: isSelected
                     ? CupertinoColors.white.withValues(alpha: 0.8)
-                    : AppColors.secondary,
+                    : AppColors.mutedForeground,
               ),
             ),
             if (isSelected) ...[
@@ -93,7 +93,7 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                       fontFamily: AppTextStyles.fontFamily,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF071B12),
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
@@ -119,13 +119,13 @@ class BlockModeSelectionSheet extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isSelected
-                  ? const Color(0xFF071B12)
+                  ? AppColors.primary
                   : CupertinoColors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected
-                    ? const Color(0xFF071B12)
-                    : const Color(0xFFE5E5EA),
+                    ? AppColors.primary
+                    : AppColors.border,
                 width: 1.5,
               ),
             ),
@@ -140,7 +140,7 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                     color: isSelected
                         ? CupertinoColors.white
-                        : AppColors.primary,
+                        : AppColors.foreground,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -151,7 +151,7 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                     fontSize: 12,
                     color: isSelected
                         ? CupertinoColors.white.withValues(alpha: 0.8)
-                        : AppColors.secondary,
+                        : AppColors.mutedForeground,
                   ),
                 ),
               ],
@@ -169,7 +169,7 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: isSelected
                     ? null
-                    : Border.all(color: const Color(0xFFE5E5EA), width: 1.5),
+                    : Border.all(color: AppColors.border, width: 1.5),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -181,8 +181,8 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       color: isSelected
-                          ? const Color(0xFF071B12)
-                          : AppColors.primary,
+                          ? AppColors.primary
+                          : AppColors.foreground,
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -204,11 +204,11 @@ class BlockModeSelectionSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(pomodoroSettingsProvider);
-    final isMedium = settings.blockMode == BlockMode.MEDIUM;
+    final isMedium = settings.blockMode == BlockMode.medium;
 
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFFF6F6F6),
+        color: AppColors.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
@@ -244,7 +244,7 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                         ref
                             .read(pomodoroSettingsProvider.notifier)
                             .updateSettings(
-                              settings.copyWith(blockMode: BlockMode.MEDIUM),
+                              settings.copyWith(blockMode: BlockMode.medium),
                             );
                       },
                     ),
@@ -257,7 +257,7 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                         ref
                             .read(pomodoroSettingsProvider.notifier)
                             .updateSettings(
-                              settings.copyWith(blockMode: BlockMode.STRICT),
+                              settings.copyWith(blockMode: BlockMode.strict),
                             );
                       },
                     ),

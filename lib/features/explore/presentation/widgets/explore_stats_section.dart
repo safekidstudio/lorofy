@@ -228,16 +228,16 @@ class ExploreStatsSection extends ConsumerWidget {
                             'Today Kill',
                             style: TextStyle(
                               fontFamily: AppTextStyles.fontFamily,
-                              color: AppColors.primary.withValues(alpha: 0.6),
+                              color: AppColors.foreground.withValues(alpha: 0.6),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
                             todayKillCount.toString(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: AppTextStyles.titleFontFamily,
-                              color: AppColors.success,
+                              color: CupertinoColors.activeGreen,
                               fontSize: 20,
                             ),
                           ),
@@ -247,7 +247,7 @@ class ExploreStatsSection extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Container(
                           height: 1,
-                          color: AppColors.secondary.withValues(alpha: 0.1),
+                          color: AppColors.mutedForeground.withValues(alpha: 0.1),
                         ),
                       ),
                       Row(
@@ -257,16 +257,16 @@ class ExploreStatsSection extends ConsumerWidget {
                             'All Kill',
                             style: TextStyle(
                               fontFamily: AppTextStyles.fontFamily,
-                              color: AppColors.primary.withValues(alpha: 0.6),
+                              color: AppColors.foreground.withValues(alpha: 0.6),
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
                             allKillCount.toString(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: AppTextStyles.titleFontFamily,
-                              color: AppColors.success,
+                              color: CupertinoColors.activeGreen,
                               fontSize: 20,
                             ),
                           ),
@@ -298,7 +298,7 @@ class ExploreStatsSection extends ConsumerWidget {
                                 'Average\nFocus time',
                                 style: TextStyle(
                                   fontFamily: AppTextStyles.fontFamily,
-                                  color: AppColors.primary.withValues(alpha: 0.6),
+                                  color: AppColors.foreground.withValues(alpha: 0.6),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -312,16 +312,16 @@ class ExploreStatsSection extends ConsumerWidget {
                                   'min',
                                   style: TextStyle(
                                     fontFamily: AppTextStyles.fontFamily,
-                                    color: AppColors.secondary.withValues(alpha: 0.6),
+                                    color: AppColors.mutedForeground.withValues(alpha: 0.6),
                                     fontSize: 10,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 Text(
                                   avgFocusMinutes.toString(),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontFamily: AppTextStyles.titleFontFamily,
-                                    color: AppColors.primary,
+                                    color: AppColors.foreground,
                                     fontSize: 32,
                                   ),
                                 ),
@@ -352,7 +352,7 @@ class ExploreStatsSection extends ConsumerWidget {
                                   fontFamily: AppTextStyles.fontFamily,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.primary.withValues(alpha: 0.6),
+                                  color: AppColors.foreground.withValues(alpha: 0.6),
                                 ),
                               ),
                             ),
@@ -364,15 +364,15 @@ class ExploreStatsSection extends ConsumerWidget {
                                   'min',
                                   style: TextStyle(
                                     fontFamily: AppTextStyles.fontFamily,
-                                    color: AppColors.secondary.withValues(alpha: 0.6),
+                                    color: AppColors.mutedForeground.withValues(alpha: 0.6),
                                     fontSize: 10,
                                   ),
                                 ),
                                 Text(
                                   avgKillMinutes.toString(),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontFamily: AppTextStyles.titleFontFamily,
-                                    color: AppColors.primary,
+                                    color: AppColors.foreground,
                                     fontSize: 32,
                                   ),
                                 ),

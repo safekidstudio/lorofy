@@ -28,7 +28,7 @@ class DeepFocusSection extends ConsumerWidget {
                 fontFamily: AppTextStyles.fontFamily,
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
-                color: AppColors.primary,
+                color: AppColors.foreground,
               ),
             ),
             AppSwitch(
@@ -56,7 +56,7 @@ class DeepFocusSection extends ConsumerWidget {
                       fontFamily: AppTextStyles.fontFamily,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.secondary,
+                      color: AppColors.mutedForeground,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -73,7 +73,7 @@ class DeepFocusSection extends ConsumerWidget {
                                 topRight: Radius.circular(24),
                                 // ...
                               ),
-                              color: Color(0xFFF6F6F6),
+                              color: AppColors.background,
                             ),
                             child: EditBreaksAndRoundsSheet(),
                           ),
@@ -83,14 +83,14 @@ class DeepFocusSection extends ConsumerWidget {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFE4E4E6),
+                        color: AppColors.secondary,
                         shape: BoxShape.circle,
                       ),
                       child: const SVG(
                         "assets/icons/setting.svg",
                         width: 12,
                         height: 12,
-                        color: AppColors.primary,
+                        color: AppColors.foreground,
                       ),
                     ),
                   ),

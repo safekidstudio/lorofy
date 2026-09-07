@@ -10,20 +10,20 @@ enum MascotStage {
       case MascotType.chicken:
         switch (this) {
           case MascotStage.level1:
-            return 'Trứng Gà';
+            return 'Egg';
           case MascotStage.level2:
-            return 'Gà Con';
+            return 'Chick';
           case MascotStage.level3:
-            return 'Gà Trưởng Thành';
+            return 'Adult Chick';
         }
       case MascotType.tree:
         switch (this) {
           case MascotStage.level1:
-            return 'Hạt Giống';
+            return 'Seed';
           case MascotStage.level2:
-            return 'Mầm Cây';
+            return 'Sprout';
           case MascotStage.level3:
-            return 'Cây Trưởng Thành';
+            return 'Adult Tree';
         }
     }
   }

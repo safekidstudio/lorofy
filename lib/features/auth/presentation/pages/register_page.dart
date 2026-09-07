@@ -40,7 +40,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     await ref.read(registerControllerProvider.notifier).sendOtp(email: email);
 
-    // Chỉ navigate nếu không có lỗi
+    // Only navigate if no error occurred
     final state = ref.read(registerControllerProvider);
     if (state.hasError) return;
 
@@ -68,13 +68,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             const Spacer(),
 
             // 2. Title "What's your email?"
-            Text(
+            const Text(
               "What's your email?",
               style: TextStyle(
                 fontFamily: AppTextStyles.titleFontFamily,
                 fontSize: 32,
                 fontWeight: FontWeight.w900,
-                color: const Color(0xFF232321),
+                color: AppColors.foreground,
               ),
               textAlign: TextAlign.center,
             ),

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart'; // For some material progress indicator styles if needed, or we can build our own
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';

@@ -52,7 +52,7 @@ class AdvancedModeSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(pomodoroSettingsProvider);
-    final isStrict = settings.blockMode == BlockMode.STRICT;
+    final isStrict = settings.blockMode == BlockMode.strict;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

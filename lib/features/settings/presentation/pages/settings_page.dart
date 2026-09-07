@@ -25,7 +25,7 @@ class SettingsPage extends ConsumerWidget {
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            color: Color(0xFFF6F6F6),
+            color: AppColors.background,
           ),
           child: EditBreaksAndRoundsSheet(),
         ),
@@ -44,7 +44,7 @@ class SettingsPage extends ConsumerWidget {
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            color: Color(0xFFF6F6F6),
+            color: AppColors.background,
           ),
           child: BlockModeSelectionSheet(),
         ),
@@ -86,7 +86,7 @@ class SettingsPage extends ConsumerWidget {
           fontFamily: AppTextStyles.fontFamily,
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: Color(0xFF8E8E93),
+          color: AppColors.mutedForeground,
         ),
       ),
     );
@@ -113,7 +113,7 @@ class SettingsPage extends ConsumerWidget {
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: titleColor ?? AppColors.primary,
+                  color: titleColor ?? AppColors.foreground,
                 ),
               ),
             ),
@@ -123,7 +123,7 @@ class SettingsPage extends ConsumerWidget {
                 style: const TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 14,
-                  color: Color(0xFF8E8E93),
+                  color: AppColors.mutedForeground,
                 ),
               ),
               const SizedBox(width: 6),
@@ -134,7 +134,7 @@ class SettingsPage extends ConsumerWidget {
               const Icon(
                 CupertinoIcons.chevron_right,
                 size: 16,
-                color: Color(0xFFC7C7CC),
+                color: AppColors.mutedForeground,
               ),
           ],
         ),
@@ -145,10 +145,10 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(pomodoroSettingsProvider);
-    final blockModeStr = settings.blockMode == BlockMode.STRICT ? 'Strict' : 'Medium';
+    final blockModeStr = settings.blockMode == BlockMode.strict ? 'Strict' : 'Medium';
 
     return CupertinoPageScaffold(
-      backgroundColor: const Color(0xFFF6F6F6),
+      backgroundColor: AppColors.background,
       child: SafeArea(
         child: Material(
           color: Colors.transparent,
@@ -182,7 +182,7 @@ class SettingsPage extends ConsumerWidget {
                             ),
                             const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Divider(height: 1, color: Color(0xFFE5E5EA)),
+                              child: Divider(height: 1, color: AppColors.border),
                             ),
                             _buildRow(
                               title: 'App Blocker Rules',
@@ -216,7 +216,7 @@ class SettingsPage extends ConsumerWidget {
                             ),
                             const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Divider(height: 1, color: Color(0xFFE5E5EA)),
+                              child: Divider(height: 1, color: AppColors.border),
                             ),
                             _buildRow(
                               title: 'Background Process',
@@ -243,7 +243,7 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         child: _buildRow(
                           title: 'Deactivate Account',
-                          titleColor: const Color(0xFFD93B2B),
+                          titleColor: AppColors.destructive,
                           onTap: () => _confirmDeactivate(context),
                         ),
                       ),

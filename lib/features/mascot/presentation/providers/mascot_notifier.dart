@@ -42,7 +42,7 @@ class MascotNotifier extends _$MascotNotifier {
   MascotState build() {
     final defaultTree = Mascot(
       id: 'default_tree',
-      name: 'Cây Sồi Vui Vẻ',
+      name: 'Joyful Oak',
       type: MascotType.tree,
       currentPoints: 20,
       isUnlocked: true,
@@ -51,7 +51,7 @@ class MascotNotifier extends _$MascotNotifier {
 
     final chickenMascot = Mascot(
       id: 'golden_chicken',
-      name: 'Gà Con Vàng',
+      name: 'Golden Chick',
       type: MascotType.chicken,
       currentPoints: 0,
       isUnlocked: false,

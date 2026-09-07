@@ -10,7 +10,7 @@ class CreatePasswordController extends _$CreatePasswordController {
     return null;
   }
 
-  // Step 3: Tạo tài khoản → auto login
+  // Step 3: Create account -> auto login
   Future<void> createAccount({
     required String signupToken,
     required String password,

@@ -67,13 +67,13 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
             const Spacer(),
 
             // 2. Title
-            Text(
+            const Text(
               'Create your\npassword',
               style: TextStyle(
                 fontFamily: AppTextStyles.titleFontFamily,
                 fontSize: 32,
                 fontWeight: FontWeight.w900,
-                color: const Color(0xFF232321),
+                color: AppColors.foreground,
                 height: 1.15,
               ),
               textAlign: TextAlign.center,
@@ -83,7 +83,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
             Text(
               'Password must be at least 8 characters',
               style: AppTextStyles.body.copyWith(
-                color: AppColors.secondary,
+                color: AppColors.mutedForeground,
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -150,7 +150,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
                   TextSpan(
                     text: 'Terms of Service',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.primary,
+                      color: AppColors.foreground,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -158,7 +158,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
                   TextSpan(
                     text: 'Privacy Policy',
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.primary,
+                      color: AppColors.foreground,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

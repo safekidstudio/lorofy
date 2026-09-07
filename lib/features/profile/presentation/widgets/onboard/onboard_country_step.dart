@@ -29,7 +29,7 @@ class OnboardCountryStep extends ConsumerWidget {
         Text(
           'Choose the country you are currently living in',
           style: AppTextStyles.body.copyWith(
-            color: AppColors.secondary,
+            color: AppColors.mutedForeground,
             fontSize: 14,
           ),
           textAlign: TextAlign.center,
@@ -40,7 +40,7 @@ class OnboardCountryStep extends ConsumerWidget {
           error: (e, _) => Center(
             child: Text(
               'Could not load countries',
-              style: AppTextStyles.body.copyWith(color: AppColors.secondary),
+              style: AppTextStyles.body.copyWith(color: AppColors.mutedForeground),
             ),
           ),
           data: (countries) {
@@ -70,15 +70,15 @@ class OnboardCountryStep extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSelected
-                            ? const Color(0xFF232321)
+                            ? AppColors.foreground
                             : CupertinoColors.transparent,
                         width: 2.0,
                       ),
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
-                          color: Color(0x05000000),
+                          color: CupertinoColors.black.withValues(alpha: 0.02),
                           blurRadius: 8,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -127,7 +127,7 @@ class OnboardCountryStep extends ConsumerWidget {
                                   fontFamily: AppTextStyles.fontFamily,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF232321),
+                                  color: AppColors.foreground,
                                 ),
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
@@ -143,7 +143,7 @@ class OnboardCountryStep extends ConsumerWidget {
                             child: Container(
                               padding: const EdgeInsets.all(2),
                               decoration: const BoxDecoration(
-                                color: Color(0xFF071B12),
+                                color: AppColors.primary,
                                 shape: BoxShape.circle,
                               ),
                               child: const SVG(
@@ -185,11 +185,11 @@ class _OnboardCountrySkeleton extends StatelessWidget {
           decoration: BoxDecoration(
             color: CupertinoColors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Color(0x05000000),
+                color: CupertinoColors.black.withValues(alpha: 0.02),
                 blurRadius: 8,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),

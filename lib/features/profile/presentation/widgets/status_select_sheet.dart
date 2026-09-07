@@ -27,10 +27,10 @@ class StatusSelectSheet extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF071B12) : CupertinoColors.white,
+          color: isSelected ? AppColors.primary : CupertinoColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? const Color(0xFF071B12) : const Color(0xFFE5E5EA),
+            color: isSelected ? AppColors.primary : AppColors.border,
             width: 1.5,
           ),
         ),
@@ -43,7 +43,7 @@ class StatusSelectSheet extends StatelessWidget {
                 fontFamily: AppTextStyles.fontFamily,
                 fontSize: 16,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? CupertinoColors.white : AppColors.primary,
+                color: isSelected ? CupertinoColors.white : AppColors.foreground,
               ),
             ),
             if (isSelected)
@@ -63,7 +63,7 @@ class StatusSelectSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFFF6F6F6),
+        color: AppColors.background,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -79,7 +79,7 @@ class StatusSelectSheet extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE4E4E6),
+                  color: AppColors.secondary,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -93,7 +93,7 @@ class StatusSelectSheet extends StatelessWidget {
                 fontFamily: AppTextStyles.titleFontFamily,
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF232321),
+                color: AppColors.foreground,
                 letterSpacing: -0.5,
                 decoration: TextDecoration.none,
               ),

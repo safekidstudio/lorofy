@@ -114,9 +114,9 @@ class AuthRemoteDataSource {
     final response = await _dio.patch(
       '/profiles/update',
       data: {
-        if (displayName != null) 'displayName': displayName,
-        if (timezone != null) 'timezone': timezone,
-        if (avatarAssetId != null) 'avatarAssetId': avatarAssetId,
+        'displayName': ?displayName,
+        'timezone': ?timezone,
+        'avatarAssetId': ?avatarAssetId,
       },
       options: ApiOptions.protected,
     );

@@ -1,3 +1,5 @@
+import 'package:lorofy/core/utils/logger.dart';
+
 class AppConfig {
   static const String appEnv = String.fromEnvironment(
     'APP_ENV',
@@ -30,12 +32,12 @@ class AppConfig {
 
   static void logConfig() {
     if (isDev) {
-      print('=== APP CONFIGURATION ===');
-      print('Environment: $appEnv');
-      print('API Base URL: $apiBaseUrl');
-      print('Connect Timeout: ${connectTimeoutMs}ms');
-      print('Receive Timeout: ${receiveTimeoutMs}ms');
-      print('=========================');
+      AppLogger.debug('=== APP CONFIGURATION ===', tag: 'AppConfig');
+      AppLogger.debug('Environment: $appEnv', tag: 'AppConfig');
+      AppLogger.debug('API Base URL: $apiBaseUrl', tag: 'AppConfig');
+      AppLogger.debug('Connect Timeout: ${connectTimeoutMs}ms', tag: 'AppConfig');
+      AppLogger.debug('Receive Timeout: ${receiveTimeoutMs}ms', tag: 'AppConfig');
+      AppLogger.debug('=========================');
     }
   }
 }

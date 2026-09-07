@@ -12,7 +12,7 @@ class ErrorInterceptor extends Interceptor {
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.connectionError:
         appException = NetworkException(
-          "Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.",
+          "Unable to connect to server. Please check your network connection.",
           "NETWORK_ERROR",
         );
         break;
@@ -21,38 +21,38 @@ class ErrorInterceptor extends Interceptor {
         final statusCode = err.response?.statusCode;
         final data = err.response?.data;
 
-        // Đọc thông báo lỗi tùy biến từ Spring Boot API trả về nếu có
+        // Parse custom server error message returned from Spring Boot API if present
         final serverMessage = (data is Map) ? data['message'] : null;
         final codeString = statusCode?.toString();
 
         if (statusCode == 401) {
           appException = UnauthorizedException(
-            serverMessage ?? "Phiên đăng nhập đã hết hạn.",
+            serverMessage ?? "Session has expired. Please log in again.",
             codeString,
           );
         } else if (statusCode == 400) {
           appException = BadRequestException(
-            serverMessage ?? "Dữ liệu yêu cầu không hợp lệ.",
+            serverMessage ?? "Invalid request data provided.",
             codeString,
           );
         } else if (statusCode != null && statusCode >= 500) {
           appException = ServerException(
-            serverMessage ?? "Máy chủ đang gặp sự cố. Thử lại sau.",
+            serverMessage ?? "Server error occurred. Please try again later.",
             codeString,
           );
         } else {
           appException = AppException(
-            serverMessage ?? "Đã xảy ra lỗi không mong muốn.",
+            serverMessage ?? "An unexpected error occurred.",
             codeString,
           );
         }
         break;
 
       default:
-        appException = AppException("Đã xảy ra lỗi kết nối.");
+        appException = AppException("Connection error occurred.");
     }
 
-    // Ném appException vào error handler của dio để tầng trên (Repository) catch được trực tiếp
+    // Attach appException to dio error handler so Repositories can catch it directly
     return handler.next(err.copyWith(error: appException));
   }
 }

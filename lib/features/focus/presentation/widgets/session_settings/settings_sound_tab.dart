@@ -92,11 +92,11 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
         builder: (context) => CupertinoAlertDialog(
           title: const Text('Spotify Integration'),
           content: const Text(
-            'Tính năng kết nối Spotify đang được phát triển. Bạn sẽ có nghe nhạc trực tiếp từ tài khoản Spotify của mình trong bản cập nhật tới!',
+            'Spotify integration is currently under development. You will be able to stream music directly from your Spotify account in an upcoming update!',
           ),
           actions: [
             CupertinoDialogAction(
-              child: const Text('Trải nghiệm thử'),
+              child: const Text('Try Demo'),
               onPressed: () {
                 Navigator.pop(context);
                 setState(() {
@@ -110,7 +110,7 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
             ),
             CupertinoDialogAction(
               isDestructiveAction: true,
-              child: const Text('Đóng'),
+              child: const Text('Close'),
               onPressed: () => Navigator.pop(context),
             ),
           ],
@@ -266,7 +266,7 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
             height: 180,
             child: Center(
               child: Text(
-                'Lỗi khi tải danh sách nhạc',
+                'Error loading playlist',
                 style: TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
                   color: CupertinoColors.destructiveRed,

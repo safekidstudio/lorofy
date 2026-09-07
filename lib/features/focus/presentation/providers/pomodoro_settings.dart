@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:lorofy/core/storage/settings_storage.dart';
+import 'package:lorofy/core/utils/logger.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:lorofy/features/focus/domain/models/ambient_sound.dart';
 import 'package:lorofy/features/focus/domain/models/pomodoro_settings.dart';
@@ -13,20 +14,20 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
   PomodoroSettings build() {
     final storage = ref.read(settingsStorageProvider);
     final jsonStr = storage.getSettings();
-    print('POMODORO_SETTINGS: Loaded json string from SharedPreferences: $jsonStr');
+    AppLogger.debug('Loaded json string from SharedPreferences: $jsonStr', tag: 'PomodoroSettings');
     if (jsonStr != null) {
       try {
         final Map<String, dynamic> json = jsonDecode(jsonStr);
         final loaded = PomodoroSettings.fromJson(json).copyWith(isLoaded: true);
-        print('POMODORO_SETTINGS: Successfully parsed settings. focusMinutes = ${loaded.focusMinutes}');
+        AppLogger.debug('Successfully parsed settings. focusMinutes = ${loaded.focusMinutes}', tag: 'PomodoroSettings');
         return loaded;
       } catch (e, stack) {
-        print('POMODORO_SETTINGS_LOAD_ERROR: $e\n$stack');
+        AppLogger.error('Failed to load settings from storage', error: e, stackTrace: stack, tag: 'PomodoroSettings');
         // Fallback to default on decoding/schema errors
       }
     }
 
-    print('POMODORO_SETTINGS: No saved settings found. Loading defaults.');
+    AppLogger.debug('No saved settings found. Loading defaults.', tag: 'PomodoroSettings');
     return const PomodoroSettings(
       focusMinutes: 25,
       breakMinutes: 5,
@@ -36,7 +37,7 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
       selectedCategory: null,
       timedReminder: true,
       isDeepFocusMode: true,
-      blockMode: BlockMode.MEDIUM,
+      blockMode: BlockMode.medium,
       blockedCategories: {'Social Media'},
       autoStartBreak: true,
       autoStartFocus: true,
@@ -48,7 +49,7 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
 
   void updateSettings(PomodoroSettings newSettings) {
     state = newSettings.copyWith(isLoaded: true);
-    print('POMODORO_SETTINGS: updateSettings - saving: focusMinutes = ${state.focusMinutes}, ambientSound = ${state.ambientSound}');
+    AppLogger.debug('updateSettings - saving: focusMinutes = ${state.focusMinutes}, ambientSound = ${state.ambientSound}', tag: 'PomodoroSettings');
     saveToStorage();
   }
 
@@ -57,12 +58,12 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
   }
 
   void saveToStorage() {
-    print('POMODORO_SETTINGS: saveToStorage - committing to disk: focusMinutes = ${state.focusMinutes}, ambientSound = ${state.ambientSound}');
+    AppLogger.debug('saveToStorage - committing to disk: focusMinutes = ${state.focusMinutes}, ambientSound = ${state.ambientSound}', tag: 'PomodoroSettings');
     try {
       final jsonStr = jsonEncode(state.toJson());
       ref.read(settingsStorageProvider).saveSettings(jsonStr);
-    } catch (e) {
-      print('POMODORO_SETTINGS_SAVE_ERROR: $e');
+    } catch (e, stack) {
+      AppLogger.error('saveToStorage failed', error: e, stackTrace: stack, tag: 'PomodoroSettings');
     }
   }
 }

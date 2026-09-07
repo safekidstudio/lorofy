@@ -5,9 +5,9 @@ enum MascotType {
   String get displayName {
     switch (this) {
       case MascotType.chicken:
-        return 'Gà Con';
+        return 'Chick';
       case MascotType.tree:
-        return 'Cây Xanh';
+        return 'Tree';
     }
   }
 

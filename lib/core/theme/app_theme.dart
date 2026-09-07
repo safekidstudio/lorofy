@@ -1,53 +1,82 @@
 import 'package:flutter/cupertino.dart';
 
 class AppColors {
-  // Background Color
+  // Canvas & Main Text (shadcn tokens)
   static const CupertinoDynamicColor background =
       CupertinoDynamicColor.withBrightness(
         color: Color(0xFFF6F6F6),
-        darkColor: Color(0xFFF6F6F6),
+        darkColor: Color(0xFF1C1C1E),
       );
 
-  // Card Color
+  static const CupertinoDynamicColor foreground =
+      CupertinoDynamicColor.withBrightness(
+        color: Color(0xFF232321),
+        darkColor: Color(0xFFF2F2F7),
+      );
+
+  // Cards & Panels
   static const CupertinoDynamicColor card =
       CupertinoDynamicColor.withBrightness(
         color: CupertinoColors.white,
-        darkColor: Color(0xff1c1c1e),
+        darkColor: Color(0xFF1C1C1E),
       );
 
-  // Primary Color
+  static const CupertinoDynamicColor cardForeground =
+      CupertinoDynamicColor.withBrightness(
+        color: Color(0xFF232321),
+        darkColor: Color(0xFFF2F2F7),
+      );
+
+  // Primary Action & Brand
   static const CupertinoDynamicColor primary =
       CupertinoDynamicColor.withBrightness(
-        color: Color(0xff111111),
-        darkColor: Color(0xfff2f2f7),
+        color: Color(0xFF071B12),
+        darkColor: Color(0xFFF2F2F7),
       );
 
-  // Secondary Color
+  static const Color primaryForeground = CupertinoColors.white;
+
+  // Secondary Container & Elements
   static const CupertinoDynamicColor secondary =
       CupertinoDynamicColor.withBrightness(
-        color: Color(0xff8e8e93),
-        darkColor: Color(0xff8e8e93),
+        color: Color(0xFFE4E4E6),
+        darkColor: Color(0xFF2C2C2E),
       );
 
-  // Border Color
+  static const CupertinoDynamicColor secondaryForeground =
+      CupertinoDynamicColor.withBrightness(
+        color: Color(0xFF232321),
+        darkColor: Color(0xFFF2F2F7),
+      );
+
+  // Muted Background & Subtle Text
+  static const CupertinoDynamicColor muted =
+      CupertinoDynamicColor.withBrightness(
+        color: Color(0xFFF2F4F7),
+        darkColor: Color(0xFF2C2C2E),
+      );
+
+  static const CupertinoDynamicColor mutedForeground =
+      CupertinoDynamicColor.withBrightness(
+        color: Color(0xFF8E8E93),
+        darkColor: Color(0xFF8E8E93),
+      );
+
+  // Borders & Inputs
   static const CupertinoDynamicColor border =
       CupertinoDynamicColor.withBrightness(
-        color: Color(0xffe5e5ea),
-        darkColor: Color(0xff3a3a3c),
+        color: Color(0xFFECECED),
+        darkColor: Color(0xFF3A3A3C),
       );
 
-  // Input Background Color
-  static const CupertinoDynamicColor inputBg =
+  static const CupertinoDynamicColor input =
       CupertinoDynamicColor.withBrightness(
-        color: Color(0xffe2e2e2),
-        darkColor: Color(0xff2c2c2e),
+        color: Color(0xFFE2E2E2),
+        darkColor: Color(0xFF2C2C2E),
       );
 
-  // Destructive Color
+  // Actions & Destructive
   static const Color destructive = CupertinoColors.destructiveRed;
-
-  // Success Color
-  static const Color success = CupertinoColors.activeGreen;
 }
 
 class AppRadius {
@@ -84,74 +113,74 @@ class AppPadding {
 }
 
 class AppTextStyles {
-  // Định nghĩa Font Family trùng tên với khai báo trong pubspec.yaml
+  // Font Family definitions
   static const String fontFamily = 'Fredoka';
   static const String titleFontFamily = 'NerkoOne';
 
-  // 1. Tiêu đề lớn màn hình (Welcome back, Create your own account)
+  // 1. Title Large
   static const TextStyle titleLarge = TextStyle(
     fontFamily: titleFontFamily,
     fontSize: 28,
     fontWeight: FontWeight.w700,
-    color: AppColors.primary,
+    color: AppColors.foreground,
     letterSpacing: -0.5,
     height: 1.25,
   );
 
-  // Tiêu đề phụ
+  // Title Medium
   static const TextStyle titleMedium = TextStyle(
     fontFamily: titleFontFamily,
     fontSize: 20,
     fontWeight: FontWeight.w600,
-    color: AppColors.primary,
+    color: AppColors.foreground,
     letterSpacing: -0.3,
   );
 
-  // 2. Nhãn (Label) phía trên ô nhập liệu
+  // 2. Input Label
   static const TextStyle label = TextStyle(
     fontFamily: fontFamily,
     fontSize: 13,
     fontWeight: FontWeight.w600,
-    color: AppColors.primary,
+    color: AppColors.foreground,
     letterSpacing: -0.1,
   );
 
-  // 3. Văn bản chính (Chữ gõ vào ô nhập)
+  // 3. Body Text
   static const TextStyle body = TextStyle(
     fontFamily: fontFamily,
     fontSize: 15,
     fontWeight: FontWeight.w400,
-    color: AppColors.primary,
+    color: AppColors.foreground,
     height: 1.35,
   );
 
-  // Chữ gợi ý (Placeholder)
+  // Placeholder
   static const TextStyle placeholder = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w400,
-    color: AppColors.secondary,
+    color: AppColors.mutedForeground,
   );
 
-  // 4. Chú thích nhỏ (Terms / Disclaimer)
+  // 4. Caption / Disclaimer
   static const TextStyle caption = TextStyle(
     fontFamily: fontFamily,
     fontSize: 11,
     fontWeight: FontWeight.w400,
-    color: AppColors.secondary,
+    color: AppColors.mutedForeground,
     height: 1.3,
   );
 
-  // Link gạch chân
+  // Link
   static const TextStyle link = TextStyle(
     fontFamily: fontFamily,
     fontSize: 11,
     fontWeight: FontWeight.w600,
-    color: AppColors.primary,
+    color: AppColors.foreground,
     decoration: TextDecoration.underline,
   );
 
-  // 5. Chữ hiển thị trên Nút bấm chính
+  // 5. Button Text
   static const TextStyle buttonText = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,

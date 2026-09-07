@@ -7,7 +7,7 @@ part 'onboard_controller.g.dart';
 class OnboardController extends _$OnboardController {
   @override
   FutureOr<void> build() {
-    // Trạng thái ban đầu là AsyncData(null)
+    // Initial state is AsyncData(null)
     return null;
   }
 

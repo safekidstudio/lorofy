@@ -82,13 +82,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             const Spacer(),
 
             // 2. Title "Login your account"
-            Text(
+            const Text(
               'Login your account',
               style: TextStyle(
                 fontFamily: AppTextStyles.titleFontFamily,
                 fontSize: 32,
                 fontWeight: FontWeight.w900,
-                color: const Color(0xFF232321),
+                color: AppColors.foreground,
               ),
               textAlign: TextAlign.center,
             ),

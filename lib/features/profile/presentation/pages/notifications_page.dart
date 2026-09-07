@@ -46,7 +46,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: const BoxDecoration(
-                    color: Color(0xFFE4E4E6),
+                    color: AppColors.secondary,
                     shape: BoxShape.circle,
                   ),
                   child: const SVG(
@@ -67,7 +67,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                     'assets/icons/checks.svg',
                     width: 24,
                     height: 24,
-                    color: Color(0xFF232321),
+                    color: AppColors.foreground,
                   ),
                 ),
               ),
@@ -86,7 +86,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                     'Failed to load notifications: ${error.toString()}',
                     style: const TextStyle(
                       fontFamily: AppTextStyles.fontFamily,
-                      color: Color(0xFF8E8E93),
+                      color: AppColors.mutedForeground,
                     ),
                   ),
                 ),
@@ -97,7 +97,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                         'No notifications found',
                         style: TextStyle(
                           fontFamily: AppTextStyles.fontFamily,
-                          color: Color(0xFF8E8E93),
+                          color: AppColors.mutedForeground,
                         ),
                       ),
                     );

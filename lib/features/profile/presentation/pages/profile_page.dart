@@ -66,7 +66,7 @@ class ProfilePage extends ConsumerWidget {
                           fontFamily: AppTextStyles.fontFamily,
                           fontSize: 24,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.primary,
+                          color: AppColors.foreground,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -78,7 +78,7 @@ class ProfilePage extends ConsumerWidget {
                             'assets/icons/at-symbol.svg',
                             width: 16,
                             height: 16,
-                            color: AppColors.secondary,
+                            color: AppColors.mutedForeground,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -86,7 +86,7 @@ class ProfilePage extends ConsumerWidget {
                             style: const TextStyle(
                               fontFamily: AppTextStyles.fontFamily,
                               fontSize: 16,
-                              color: AppColors.secondary,
+                              color: AppColors.mutedForeground,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -98,10 +98,10 @@ class ProfilePage extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF2E2E).withValues(alpha: 0.1),
+                            color: CupertinoColors.systemRed.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: const Color(0xFFFF2E2E).withValues(alpha: 0.25),
+                              color: CupertinoColors.systemRed.withValues(alpha: 0.25),
                               width: 1,
                             ),
                           ),
@@ -120,7 +120,7 @@ class ProfilePage extends ConsumerWidget {
                                   fontFamily: AppTextStyles.fontFamily,
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFFFF2E2E),
+                                  color: CupertinoColors.systemRed,
                                 ),
                               ),
                             ],
@@ -204,7 +204,7 @@ class ProfilePage extends ConsumerWidget {
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            color: Color(0xFFF6F6F6),
+            color: AppColors.background,
           ),
           child: LogoutConfirmSheet(
             onConfirm: () {
@@ -233,11 +233,11 @@ class ProfilePage extends ConsumerWidget {
   }) {
     final Color textColor = isDestructive
         ? AppColors.destructive
-        : AppColors.primary;
+        : AppColors.foreground;
 
     final Color iconColor = isDestructive
         ? AppColors.destructive
-        : AppColors.secondary;
+        : AppColors.mutedForeground;
 
     return CardActionArea(
       onTap: onTap,
