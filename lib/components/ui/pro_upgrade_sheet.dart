@@ -281,7 +281,7 @@ class _ProUpgradeSheetState extends State<ProUpgradeSheet> {
                     builder: (context) => CupertinoAlertDialog(
                       title: const Text('Thank you!'),
                       content: Text(
-                        'Cảm ơn bạn đã nâng cấp gói ${_plans[_selectedPlanIndex].name}! Giao dịch demo thành công.',
+                        'Thank you for upgrading to the ${_plans[_selectedPlanIndex].name} plan! Demo transaction completed successfully.',
                       ),
                       actions: [
                         CupertinoDialogAction(

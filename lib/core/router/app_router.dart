@@ -25,24 +25,24 @@ part 'app_router.g.dart';
 @riverpod
 GoRouter appRouter(Ref ref) {
   return GoRouter(
-    initialLocation: '/splash', // Bắt đầu chạy từ màn hình Splash
+    initialLocation: '/splash', // Initial route starting at Splash screen
     refreshListenable: GoRouterRefreshNotifier(ref),
     routes: [
-      // 1. Màn hình Splash
+      // 1. Splash screen
       GoRoute(path: '/splash', builder: (context, state) => const SplashPage()),
-      // 2. Màn hình Landing/Overview
+      // 2. Landing/Overview screen
       GoRoute(
         path: '/overview',
         builder: (context, state) => const OverviewPage(),
       ),
-      // 3. Màn hình Login
+      // 3. Login screen
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
-      // 4. Màn hình Đăng ký (Nhập Email)
+      // 4. Register screen (Enter Email)
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterPage(),
       ),
-      // 5. Màn hình Nhập OTP Đăng ký
+      // 5. Verify OTP screen
       GoRoute(
         path: '/register/verify-otp',
         builder: (context, state) {
@@ -50,7 +50,7 @@ GoRouter appRouter(Ref ref) {
           return VerifyOtpPage(email: email);
         },
       ),
-      // 6. Màn hình Tạo mật khẩu
+      // 6. Create Password screen
       GoRoute(
         path: '/register/create-password',
         builder: (context, state) {
@@ -59,9 +59,9 @@ GoRouter appRouter(Ref ref) {
           return CreatePasswordPage(signupToken: signupToken, email: email);
         },
       ),
-      // 7. Màn hình chính (Home)
+      // 7. Home screen
       GoRoute(path: '/', builder: (context, state) => const HomePage()),
-      // 7a. Màn hình Explore (Trượt từ dưới lên)
+      // 7a. Explore screen (Slide up transition)
       GoRoute(
         path: '/explore',
         pageBuilder: (context, state) {
@@ -100,49 +100,49 @@ GoRouter appRouter(Ref ref) {
         },
       ),
 
-      // 8. Màn hình Onboard
+      // 8. Onboard screen
       GoRoute(
         path: '/onboard',
         builder: (context, state) => const OnboardPage(),
       ),
-      // 8a. Màn hình My Profile
+      // 8a. My Profile screen
       GoRoute(
         path: '/my-profile',
         builder: (context, state) => const MyProfilePage(),
       ),
-      // 8b. Màn hình My Activities
+      // 8b. My Activities screen
       GoRoute(
         path: '/my-activities',
         builder: (context, state) => const MyActivitiesPage(),
       ),
-      // 8c. Màn hình Notifications
+      // 8c. Notifications screen
       GoRoute(
         path: '/notifications',
         builder: (context, state) => const NotificationsPage(),
       ),
-      // 8d. Màn hình My Points
+      // 8d. My Points screen
       GoRoute(
         path: '/my-points',
         builder: (context, state) => const MyPointsPage(),
       ),
-      // 9. Màn hình Cài đặt
+      // 9. Settings screen
       GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsPage(),
       ),
-      // 9a. Màn hình Focus Settings
+      // 9a. Focus Settings screen
       GoRoute(
         path: '/session-settings',
         builder: (context, state) => const SessionSettingsPage(),
       ),
-      // 9b. Màn hình Cài đặt Sound
+      // 9b. Sound Settings screen
       GoRoute(
         path: '/sound-settings',
         builder: (context, state) => const SoundSettingsPage(),
       ),
     ],
 
-    // --- XỬ LÝ ĐIỀU HƯỚNG TỰ ĐỘNG (REDIRECT LOGIC) ---
+    // --- AUTOMATIC REDIRECT LOGIC ---
     redirect: (context, state) {
       final authStatus = ref.read(authProvider);
       final isLoggedIn = authStatus.state == AuthState.authenticated;
@@ -178,7 +178,7 @@ GoRouter appRouter(Ref ref) {
 class GoRouterRefreshNotifier extends ChangeNotifier {
   GoRouterRefreshNotifier(Ref ref) {
     ref.listen(authProvider, (previous, next) {
-      notifyListeners(); // Kích hoạt chạy lại redirect khi auth status thay đổi
+      notifyListeners(); // Re-trigger router redirect evaluation when auth status changes
     });
   }
 }
