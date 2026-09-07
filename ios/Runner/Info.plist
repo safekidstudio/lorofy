@@ -70,5 +70,16 @@
 	<string>We need photo library access to let you select and upload custom profile photos.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>We need camera access to let you capture and upload custom profile photos.</string>
+		<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.619075198415-3t6pl0vqvq9ibrq795icfinbnjor8nk8</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

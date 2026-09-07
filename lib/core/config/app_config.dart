@@ -6,7 +6,12 @@ class AppConfig {
 
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.15.103:8080/api/v1',
+    defaultValue: 'https://api.lorofy.space/api/v1',
+  );
+
+  static const String googleWebClientId = String.fromEnvironment(
+    'GOOGLE_WEB_CLIENT_ID',
+    defaultValue: '',
   );
 
   static const int connectTimeoutMs = int.fromEnvironment(

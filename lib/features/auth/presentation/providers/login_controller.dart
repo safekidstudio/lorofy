@@ -1,4 +1,5 @@
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:lorofy/core/config/app_config.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -21,7 +22,11 @@ class LoginController extends _$LoginController {
   Future<void> loginWithGoogle() async {
     state = const AsyncLoading();
     try {
-      final googleSignIn = GoogleSignIn();
+      final googleSignIn = GoogleSignIn(
+        serverClientId: AppConfig.googleWebClientId.isNotEmpty
+            ? AppConfig.googleWebClientId
+            : null,
+      );
       final googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
