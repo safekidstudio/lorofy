@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lorofy/core/config/app_config.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
@@ -7,8 +8,35 @@ part 'login_controller.g.dart';
 
 @riverpod
 class LoginController extends _$LoginController {
+  late final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: kIsWeb && AppConfig.googleWebClientId.isNotEmpty
+        ? AppConfig.googleWebClientId
+        : null,
+    serverClientId: !kIsWeb && AppConfig.googleWebClientId.isNotEmpty
+        ? AppConfig.googleWebClientId
+        : null,
+  );
+
   @override
   FutureOr<void> build() {
+    if (kIsWeb) {
+      _googleSignIn.onCurrentUserChanged.listen((googleUser) async {
+        if (googleUser != null) {
+          final googleAuth = await googleUser.authentication;
+          final token = googleAuth.idToken ?? googleAuth.accessToken;
+          if (token != null && token.isNotEmpty) {
+            state = const AsyncLoading();
+            state = await AsyncValue.guard(() async {
+              await ref.read(authRepositoryProvider).loginWithOAuth(
+                    provider: 'GOOGLE',
+                    token: token,
+                    fullName: googleUser.displayName,
+                  );
+            });
+          }
+        }
+      });
+    }
     return null;
   }
 
@@ -22,12 +50,7 @@ class LoginController extends _$LoginController {
   Future<void> loginWithGoogle() async {
     state = const AsyncLoading();
     try {
-      final googleSignIn = GoogleSignIn(
-        serverClientId: AppConfig.googleWebClientId.isNotEmpty
-            ? AppConfig.googleWebClientId
-            : null,
-      );
-      final googleUser = await googleSignIn.signIn();
+      final googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
         // User canceled sign-in
@@ -36,11 +59,15 @@ class LoginController extends _$LoginController {
       }
 
       final googleAuth = await googleUser.authentication;
-      final idToken = googleAuth.idToken;
+      final token = googleAuth.idToken ?? googleAuth.accessToken;
 
-      if (idToken == null) {
+      print('=== GOOGLE AUTH DEBUG ===');
+      print('idToken: ${googleAuth.idToken}');
+      print('accessToken: ${googleAuth.accessToken}');
+
+      if (token == null || token.isEmpty) {
         state = AsyncValue.error(
-          'Failed to retrieve Google Auth ID Token',
+          'Failed to retrieve Google Auth Token',
           StackTrace.current,
         );
         return;
@@ -49,7 +76,7 @@ class LoginController extends _$LoginController {
       state = await AsyncValue.guard(() async {
         await ref.read(authRepositoryProvider).loginWithOAuth(
               provider: 'GOOGLE',
-              token: idToken,
+              token: token,
               fullName: googleUser.displayName,
             );
       });
