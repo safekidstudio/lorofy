@@ -45,7 +45,7 @@ app.*.map.json
 /android/app/release
 
 # Environment configuration files
-configs/env.json
-configs/env.dev.json
-!configs/env.example.json
+/configs/env.json
+/configs/env.dev.json
+!/configs/env.example.json
 
