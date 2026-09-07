@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:lorofy/core/config/app_config.dart';
+import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/core/network/sse/sse_client.dart';
 import 'package:lorofy/features/explore/data/datasources/explore_remote_data_source.dart';
 import 'package:lorofy/features/explore/domain/models/focus_stats.dart';
@@ -17,20 +18,28 @@ class ExploreRepositoryImpl implements ExploreRepository {
 
   @override
   Future<FocusStats> getFocusStats() async {
-    return await _remoteDataSource.getFocusStats();
+    try {
+      return await _remoteDataSource.getFocusStats();
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   @override
   Future<List<FocusSession>> getTodayActivities() async {
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day);
-    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+    try {
+      final now = DateTime.now();
+      final todayStart = DateTime(now.year, now.month, now.day);
+      final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
 
-    final pageResponse = await _remoteDataSource.getActivities(
-      startDate: todayStart.toUtc().toIso8601String(),
-      endDate: todayEnd.toUtc().toIso8601String(),
-    );
-    return pageResponse.content;
+      final pageResponse = await _remoteDataSource.getActivities(
+        startDate: todayStart.toUtc().toIso8601String(),
+        endDate: todayEnd.toUtc().toIso8601String(),
+      );
+      return pageResponse.content;
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   @override
@@ -41,29 +50,37 @@ class ExploreRepositoryImpl implements ExploreRepository {
     int? page,
     int? size,
   }) async {
-    final pageResponse = await _remoteDataSource.getActivities(
-      status: status,
-      startDate: startDate,
-      endDate: endDate,
-      page: page,
-      size: size,
-    );
-    return pageResponse.content;
+    try {
+      final pageResponse = await _remoteDataSource.getActivities(
+        status: status,
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        size: size,
+      );
+      return pageResponse.content;
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   @override
   Future<List<FocusSession>> getMonthActivities() async {
-    final now = DateTime.now();
-    final startDate = now.subtract(const Duration(days: 30));
-    final monthStart = DateTime(startDate.year, startDate.month, startDate.day);
-    final monthEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+    try {
+      final now = DateTime.now();
+      final startDate = now.subtract(const Duration(days: 30));
+      final monthStart = DateTime(startDate.year, startDate.month, startDate.day);
+      final monthEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
 
-    final pageResponse = await _remoteDataSource.getActivities(
-      startDate: monthStart.toUtc().toIso8601String(),
-      endDate: monthEnd.toUtc().toIso8601String(),
-      size: 200,
-    );
-    return pageResponse.content;
+      final pageResponse = await _remoteDataSource.getActivities(
+        startDate: monthStart.toUtc().toIso8601String(),
+        endDate: monthEnd.toUtc().toIso8601String(),
+        size: 200,
+      );
+      return pageResponse.content;
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   @override
@@ -73,12 +90,16 @@ class ExploreRepositoryImpl implements ExploreRepository {
     int page = 0,
     int size = 20,
   }) async {
-    return await _remoteDataSource.getLeaderboard(
-      timeframe: timeframe,
-      countryCode: countryCode,
-      page: page,
-      size: size,
-    );
+    try {
+      return await _remoteDataSource.getLeaderboard(
+        timeframe: timeframe,
+        countryCode: countryCode,
+        page: page,
+        size: size,
+      );
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   @override

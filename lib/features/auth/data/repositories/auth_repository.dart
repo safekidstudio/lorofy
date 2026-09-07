@@ -1,3 +1,4 @@
+import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/core/storage/auth_storage.dart';
 import 'package:lorofy/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:lorofy/features/auth/data/models/user_profile.dart';
@@ -13,28 +14,32 @@ class AuthRepository {
   AuthRepository(this._remoteDataSource, this._ref);
 
   Future<void> login(String email, String password) async {
-    final authResponse = await _remoteDataSource.login(email, password);
+    try {
+      final authResponse = await _remoteDataSource.login(email, password);
 
-    await _ref
-        .read(authStorageProvider)
-        .saveTokens(
-          accessToken: authResponse.accessToken,
-          refreshToken: authResponse.refreshToken,
-        );
+      await _ref
+          .read(authStorageProvider)
+          .saveTokens(
+            accessToken: authResponse.accessToken,
+            refreshToken: authResponse.refreshToken,
+          );
 
-    final profile = await _remoteDataSource.getMyProfile();
+      final profile = await _remoteDataSource.getMyProfile();
 
-    await _ref
-        .read(authProvider.notifier)
-        .loginSuccess(
-          accessToken: authResponse.accessToken,
-          refreshToken: authResponse.refreshToken,
-          isOnboarded: profile.isOnboarded,
-          displayName: profile.displayName,
-          avatarUrl: profile.avatarUrl,
-          username: profile.username,
-          rankPoints: profile.rankPoints,
-        );
+      await _ref
+          .read(authProvider.notifier)
+          .loginSuccess(
+            accessToken: authResponse.accessToken,
+            refreshToken: authResponse.refreshToken,
+            isOnboarded: profile.isOnboarded,
+            displayName: profile.displayName,
+            avatarUrl: profile.avatarUrl,
+            username: profile.username,
+            rankPoints: profile.rankPoints,
+          );
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   Future<void> loginWithOAuth({
@@ -42,42 +47,54 @@ class AuthRepository {
     required String token,
     String? fullName,
   }) async {
-    final authResponse = await _remoteDataSource.loginWithOAuth(
-      provider: provider,
-      token: token,
-      fullName: fullName,
-    );
+    try {
+      final authResponse = await _remoteDataSource.loginWithOAuth(
+        provider: provider,
+        token: token,
+        fullName: fullName,
+      );
 
-    await _ref
-        .read(authStorageProvider)
-        .saveTokens(
-          accessToken: authResponse.accessToken,
-          refreshToken: authResponse.refreshToken,
-        );
+      await _ref
+          .read(authStorageProvider)
+          .saveTokens(
+            accessToken: authResponse.accessToken,
+            refreshToken: authResponse.refreshToken,
+          );
 
-    final profile = await _remoteDataSource.getMyProfile();
+      final profile = await _remoteDataSource.getMyProfile();
 
-    await _ref
-        .read(authProvider.notifier)
-        .loginSuccess(
-          accessToken: authResponse.accessToken,
-          refreshToken: authResponse.refreshToken,
-          isOnboarded: profile.isOnboarded,
-          displayName: profile.displayName,
-          avatarUrl: profile.avatarUrl,
-          username: profile.username,
-          rankPoints: profile.rankPoints,
-        );
+      await _ref
+          .read(authProvider.notifier)
+          .loginSuccess(
+            accessToken: authResponse.accessToken,
+            refreshToken: authResponse.refreshToken,
+            isOnboarded: profile.isOnboarded,
+            displayName: profile.displayName,
+            avatarUrl: profile.avatarUrl,
+            username: profile.username,
+            rankPoints: profile.rankPoints,
+          );
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   // STEP 1: Send OTP to email
   Future<void> sendOtp(String email) async {
-    await _remoteDataSource.sendOtp(email);
+    try {
+      await _remoteDataSource.sendOtp(email);
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   // STEP 2: Verify OTP -> returns signupToken
   Future<String> verifyOtp(String email, String otpCode) async {
-    return await _remoteDataSource.verifyOtp(email, otpCode);
+    try {
+      return await _remoteDataSource.verifyOtp(email, otpCode);
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   // STEP 3: Create account using signupToken + password, then auto-login
@@ -86,13 +103,21 @@ class AuthRepository {
     required String password,
     required String email,
   }) async {
-    await _remoteDataSource.register(signupToken, password);
-    // Auto-login after successful registration
-    await login(email, password);
+    try {
+      await _remoteDataSource.register(signupToken, password);
+      // Auto-login after successful registration
+      await login(email, password);
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   Future<UserProfile> getMe() async {
-    return await _remoteDataSource.getMyProfile();
+    try {
+      return await _remoteDataSource.getMyProfile();
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   Future<UserProfile> onboardProfile({
@@ -101,13 +126,17 @@ class AuthRepository {
     required String timezone,
     String? avatarAssetId,
   }) async {
-    final profile = await _remoteDataSource.onboardProfile(
-      displayName: displayName,
-      countryCode: countryCode,
-      timezone: timezone,
-      avatarAssetId: avatarAssetId,
-    );
-    return profile;
+    try {
+      final profile = await _remoteDataSource.onboardProfile(
+        displayName: displayName,
+        countryCode: countryCode,
+        timezone: timezone,
+        avatarAssetId: avatarAssetId,
+      );
+      return profile;
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   Future<UserProfile> updateProfile({
@@ -115,24 +144,34 @@ class AuthRepository {
     String? timezone,
     String? avatarAssetId,
   }) async {
-    final profile = await _remoteDataSource.updateProfile(
-      displayName: displayName,
-      timezone: timezone,
-      avatarAssetId: avatarAssetId,
-    );
+    try {
+      final profile = await _remoteDataSource.updateProfile(
+        displayName: displayName,
+        timezone: timezone,
+        avatarAssetId: avatarAssetId,
+      );
 
-    await _ref.read(authProvider.notifier).updateProfileState(
-      displayName: profile.displayName ?? '',
-      avatarUrl: profile.avatarUrl,
-      username: profile.username,
-    );
+      await _ref.read(authProvider.notifier).updateProfileState(
+        displayName: profile.displayName ?? '',
+        avatarUrl: profile.avatarUrl,
+        username: profile.username,
+      );
 
-    return profile;
+      return profile;
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   Future<void> logout() async {
-    await _remoteDataSource.logout();
-    _ref.read(authProvider.notifier).logout();
+    try {
+      await _remoteDataSource.logout();
+      _ref.read(authProvider.notifier).logout();
+    } catch (e) {
+      // Clean local storage even if remote logout fails
+      _ref.read(authProvider.notifier).logout();
+      throw e.toFailure();
+    }
   }
 }
 

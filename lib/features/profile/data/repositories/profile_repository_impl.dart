@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/core/network/dio_client.dart';
 import 'package:lorofy/features/profile/domain/models/country_model.dart';
 import 'package:lorofy/features/profile/domain/repositories/profile_repository.dart';
@@ -15,30 +16,34 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<({String id, String url})> uploadAvatar(List<int> bytes, String filename) async {
-    final formData = FormData.fromMap({
-      'file': MultipartFile.fromBytes(bytes, filename: filename),
-    });
+    try {
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(bytes, filename: filename),
+      });
 
-    final response = await _dio.post(
-      '/media/upload',
-      data: formData,
-      options: Options(
-        extra: {'requiresAuth': true},
-        contentType: 'multipart/form-data',
-      ),
-    );
+      final response = await _dio.post(
+        '/media/upload',
+        data: formData,
+        options: Options(
+          extra: {'requiresAuth': true},
+          contentType: 'multipart/form-data',
+        ),
+      );
 
-    final responseData = response.data;
-    if (responseData != null) {
-      final dataField = responseData['data'];
-      if (dataField != null) {
-        return (
-          id: dataField['id'] as String,
-          url: dataField['url'] as String,
-        );
+      final responseData = response.data;
+      if (responseData != null) {
+        final dataField = responseData['data'];
+        if (dataField != null) {
+          return (
+            id: dataField['id'] as String,
+            url: dataField['url'] as String,
+          );
+        }
       }
+      throw Exception('Failed to upload avatar: invalid response data');
+    } catch (e) {
+      throw e.toFailure();
     }
-    throw Exception('Failed to upload avatar: invalid response data');
   }
 
   @override
@@ -59,21 +64,25 @@ class ProfileRepositoryImpl implements ProfileRepository {
       }
     } catch (_) {}
 
-    // Fallback to direct network call if cache is empty
-    final response = await _dio.get(
-      '/profiles/countries',
-      options: ApiOptions.protected,
-    );
-    final data = response.data['data'] as List<dynamic>;
+    try {
+      // Fallback to direct network call if cache is empty
+      final response = await _dio.get(
+        '/profiles/countries',
+        options: ApiOptions.protected,
+      );
+      final data = response.data['data'] as List<dynamic>;
 
-    // Save to cache asynchronously
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.setString('cached_countries', jsonEncode(data));
-    }).catchError((_) {});
+      // Save to cache asynchronously
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setString('cached_countries', jsonEncode(data));
+      }).catchError((_) {});
 
-    return data
-        .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+      return data
+          .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   Future<void> _fetchAndCacheCountries(SharedPreferences prefs) async {

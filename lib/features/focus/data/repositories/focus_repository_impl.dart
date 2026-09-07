@@ -1,3 +1,4 @@
+import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/features/focus/data/datasources/focus_remote_data_source.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:lorofy/features/focus/domain/models/focus_category.dart';
@@ -18,16 +19,24 @@ class FocusRepositoryImpl implements FocusRepository {
     required BlockMode blockMode,
     required int plannedMinutes,
   }) async {
-    return await _remoteDataSource.startSession(
-      categoryId: categoryId,
-      blockMode: blockMode,
-      plannedMinutes: plannedMinutes,
-    );
+    try {
+      return await _remoteDataSource.startSession(
+        categoryId: categoryId,
+        blockMode: blockMode,
+        plannedMinutes: plannedMinutes,
+      );
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   @override
   Future<FocusSession> pauseSession(String sessionId) async {
-    return await _remoteDataSource.pauseSession(sessionId);
+    try {
+      return await _remoteDataSource.pauseSession(sessionId);
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   @override
@@ -35,7 +44,11 @@ class FocusRepositoryImpl implements FocusRepository {
     String sessionId,
     int actualMinutes,
   ) async {
-    return await _remoteDataSource.completeSession(sessionId, actualMinutes);
+    try {
+      return await _remoteDataSource.completeSession(sessionId, actualMinutes);
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   @override
@@ -44,16 +57,24 @@ class FocusRepositoryImpl implements FocusRepository {
     required int actualMinutes,
     String? failureReason,
   }) async {
-    return await _remoteDataSource.failSession(
-      sessionId: sessionId,
-      actualMinutes: actualMinutes,
-      failureReason: failureReason,
-    );
+    try {
+      return await _remoteDataSource.failSession(
+        sessionId: sessionId,
+        actualMinutes: actualMinutes,
+        failureReason: failureReason,
+      );
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 
   @override
   Future<List<FocusCategory>> getCategories() async {
-    return await _remoteDataSource.getCategories();
+    try {
+      return await _remoteDataSource.getCategories();
+    } catch (e) {
+      throw e.toFailure();
+    }
   }
 }
 
