@@ -8,14 +8,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lorofy/core/storage/settings_storage.dart';
 import 'package:lorofy/components/ui/global_loading_overlay.dart';
 
+import 'package:lorofy/core/services/feedback/feedback_provider.dart';
+import 'package:lorofy/core/services/feedback/ui_feedback_service_impl.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+  
+  // Pre-initialize UI sound and haptic feedback
+  final feedbackService = UIFeedbackServiceImpl();
+  await feedbackService.init();
 
   runApp(
     ProviderScope(
       overrides: [
         settingsStorageProvider.overrideWithValue(SettingsStorage(prefs)),
+        feedbackServiceProvider.overrideWithValue(feedbackService),
       ],
       child: const MyApp(),
     ),

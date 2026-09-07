@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/loader.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/core/services/feedback/feedback_provider.dart';
 
 enum ButtonVariant { primary, secondary, ghost, link, destructive }
 
-class Button extends StatelessWidget {
+class Button extends ConsumerWidget {
   final String text;
   final VoidCallback? onPressed;
   final ButtonVariant variant;
@@ -149,7 +150,7 @@ class Button extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Kiểm tra trạng thái vô hiệu hóa (Khi đang load hoặc dev chủ động disable)
     final bool isButtonDisabled = disabled || isLoading || onPressed == null;
 
@@ -251,13 +252,12 @@ class Button extends StatelessWidget {
       opacity: isButtonDisabled ? 0.5 : 1.0,
       child: CupertinoButton(
         padding: EdgeInsets.zero, // Triệt tiêu padding mặc định của Cupertino
-        onPressed: isButtonDisabled ? null : () {
-          if (playClickSound) {
-            print('BUTTON_CLICK: Playing SystemSoundType.click for button "$text"');
-            SystemSound.play(SystemSoundType.click);
-          }
-          onPressed?.call();
-        },
+        onPressed: isButtonDisabled
+            ? null
+            : () {
+                ref.read(feedbackServiceProvider).playClick(sound: playClickSound);
+                onPressed?.call();
+              },
         minimumSize: const Size(
           0,
           0,
