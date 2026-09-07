@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in_web/web_only.dart' as web;
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/input.dart';
 import 'package:lorofy/components/shared/wavy_divider.dart';
@@ -146,31 +144,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
                 const SizedBox(width: 20),
-                if (kIsWeb)
-                  SizedBox(
-                    width: 52,
-                    height: 52,
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: web.renderButton(
-                        configuration: web.GSIButtonConfiguration(
-                          type: web.GSIButtonType.icon,
-                          shape: web.GSIButtonShape.values.last,
-                          size: web.GSIButtonSize.large,
-                          theme: web.GSIButtonTheme.filledBlack,
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  SocialIconButton(
-                    svgPath: 'assets/icons/google-drawing.svg',
-                    onPressed: loginState.isLoading
-                        ? null
-                        : () => ref
-                              .read(loginControllerProvider.notifier)
-                              .loginWithGoogle(),
-                  ),
+                SocialIconButton(
+                  svgPath: 'assets/icons/google-drawing.svg',
+                  onPressed: loginState.isLoading
+                      ? null
+                      : () => ref
+                            .read(loginControllerProvider.notifier)
+                            .loginWithGoogle(),
+                ),
               ],
             ),
             const Spacer(),
