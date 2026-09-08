@@ -31,10 +31,10 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
 
   @override
   void deactivate() {
-    // Only pause preview when there is no active focus session.
+    // Only pause preview when there is no active focus/break session.
     // If session is running, let the sound keep playing after user backs out.
     final phase = ref.read(pomodoroTimerProvider).phase;
-    if (phase != PomodoroState.focus) {
+    if (phase != PomodoroState.focus && phase != PomodoroState.breakTime) {
       ref.read(musicPlayerProvider.notifier).pause();
     }
     super.deactivate();
