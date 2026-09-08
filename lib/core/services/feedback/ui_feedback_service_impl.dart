@@ -5,7 +5,6 @@ import 'feedback_service.dart';
 
 /// Infrastructure/Data implementation of [FeedbackService] using [AudioPlayer] and [HapticFeedback].
 class UIFeedbackServiceImpl implements FeedbackService {
-  AudioPlayer? _clickPlayer;
   bool _isPreloaded = false;
   bool _audioEnabled = true;
   bool _hapticsEnabled = true;
@@ -16,10 +15,9 @@ class UIFeedbackServiceImpl implements FeedbackService {
   Future<void> init() async {
     if (_isPreloaded) return;
     try {
-      _clickPlayer = AudioPlayer(playerId: 'lorofy_ui_click_player');
-      await _clickPlayer!.setVolume(soundVolume);
-      await _clickPlayer!.setReleaseMode(ReleaseMode.stop);
-      await _clickPlayer!.setSource(AssetSource('sounds/click.wav'));
+      final tempPlayer = AudioPlayer();
+      await tempPlayer.setSource(AssetSource('sounds/click.wav'));
+      await tempPlayer.dispose();
       _isPreloaded = true;
     } catch (e) {
       if (kDebugMode) {
@@ -47,12 +45,19 @@ class UIFeedbackServiceImpl implements FeedbackService {
 
   void _playClickSound() {
     try {
-      if (_clickPlayer != null && _isPreloaded) {
-        _clickPlayer!.seek(Duration.zero);
-        _clickPlayer!.resume();
-      } else {
+      final player = AudioPlayer();
+      player.setPlayerMode(PlayerMode.lowLatency).catchError((_) {});
+      player.setVolume(soundVolume).catchError((_) {});
+      player.play(AssetSource('sounds/click.wav')).then((_) {
+        player.onPlayerComplete.first.then((_) {
+          player.dispose();
+        }).catchError((_) {
+          player.dispose();
+        });
+      }).catchError((_) {
+        player.dispose();
         SystemSound.play(SystemSoundType.click);
-      }
+      });
     } catch (_) {
       try {
         SystemSound.play(SystemSoundType.click);
@@ -70,3 +75,5 @@ class UIFeedbackServiceImpl implements FeedbackService {
     _hapticsEnabled = enabled;
   }
 }
+
+

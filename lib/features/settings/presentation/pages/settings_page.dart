@@ -3,7 +3,7 @@ import 'package:flutter/material.dart' show Divider, Colors, Material;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/layout/app_header.dart';
-import 'package:lorofy/components/ui/app_switch.dart';
+// import 'package:lorofy/components/ui/app_switch.dart';
 import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
@@ -52,6 +52,7 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
+  /*
   void _confirmDeactivate(BuildContext context) {
     showCupertinoDialog(
       context: context,
@@ -76,6 +77,7 @@ class SettingsPage extends ConsumerWidget {
       ),
     );
   }
+  */
 
   Widget _buildSectionHeader(String title) {
     return Padding(
@@ -193,7 +195,8 @@ class SettingsPage extends ConsumerWidget {
                         ),
                       ),
 
-                      // Section 2: GENERAL SETTINGS
+                      // Section 2: GENERAL SETTINGS (Temporarily commented out until API integration)
+                      /*
                       _buildSectionHeader('GENERAL SETTINGS'),
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -247,6 +250,7 @@ class SettingsPage extends ConsumerWidget {
                           onTap: () => _confirmDeactivate(context),
                         ),
                       ),
+                      */
                       const SizedBox(height: 40),
                     ],
                   ),

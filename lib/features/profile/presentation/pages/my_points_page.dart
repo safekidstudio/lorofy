@@ -155,7 +155,7 @@ class _MyPointsPageState extends ConsumerState<MyPointsPage> {
               fontFamily: AppTextStyles.fontFamily,
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.secondary,
+              color: AppColors.mutedForeground,
             ),
           ),
           const SizedBox(height: 4),
@@ -235,7 +235,7 @@ class _MyPointsPageState extends ConsumerState<MyPointsPage> {
                   style: const TextStyle(
                     fontFamily: AppTextStyles.fontFamily,
                     fontSize: 12,
-                    color: AppColors.secondary,
+                    color: AppColors.mutedForeground,
                   ),
                 ),
               ],
@@ -261,7 +261,7 @@ class _MyPointsPageState extends ConsumerState<MyPointsPage> {
                 style: TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 12,
-                  color: AppColors.secondary.withValues(alpha: 0.6),
+                  color: AppColors.mutedForeground,
                 ),
               ),
             ],

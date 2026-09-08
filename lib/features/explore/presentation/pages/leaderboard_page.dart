@@ -182,7 +182,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                     style: TextStyle(
                                       fontFamily: AppTextStyles.fontFamily,
                                       fontSize: 14,
-                                      color: AppColors.secondary,
+                                      color: AppColors.mutedForeground,
                                     ),
                                   ),
                                 ),
@@ -438,7 +438,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
               style: const TextStyle(
                 fontFamily: AppTextStyles.fontFamily,
                 fontSize: 12,
-                color: AppColors.secondary,
+                color: AppColors.mutedForeground,
                 fontWeight: FontWeight.w500,
               ),
             ),

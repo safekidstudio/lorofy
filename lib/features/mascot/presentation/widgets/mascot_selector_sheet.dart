@@ -179,7 +179,7 @@ class MascotSelectorSheet extends ConsumerWidget {
                   style: const TextStyle(
                     fontFamily: AppTextStyles.fontFamily,
                     fontSize: 13,
-                    color: AppColors.secondary,
+                    color: AppColors.mutedForeground,
                   ),
                 ),
                 if (mascot.isUnlocked) ...[
@@ -215,7 +215,7 @@ class MascotSelectorSheet extends ConsumerWidget {
                         style: const TextStyle(
                           fontFamily: AppTextStyles.fontFamily,
                           fontSize: 11,
-                          color: AppColors.secondary,
+                          color: AppColors.mutedForeground,
                         ),
                       ),
                       if (stage != MascotStage.level3)
@@ -224,7 +224,7 @@ class MascotSelectorSheet extends ConsumerWidget {
                           style: const TextStyle(
                             fontFamily: AppTextStyles.fontFamily,
                             fontSize: 11,
-                            color: AppColors.secondary,
+                            color: AppColors.mutedForeground,
                           ),
                         ),
                     ],

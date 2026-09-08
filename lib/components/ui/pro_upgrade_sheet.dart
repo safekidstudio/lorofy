@@ -127,7 +127,7 @@ class _ProUpgradeSheetState extends State<ProUpgradeSheet> {
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.secondary,
+                  color: AppColors.mutedForeground,
                   decoration: TextDecoration.none,
                 ),
                 textAlign: TextAlign.center,
@@ -254,7 +254,7 @@ class _ProUpgradeSheetState extends State<ProUpgradeSheet> {
                                 style: const TextStyle(
                                   fontFamily: AppTextStyles.fontFamily,
                                   fontSize: 11,
-                                  color: AppColors.secondary,
+                                  color: AppColors.mutedForeground,
                                   decoration: TextDecoration.none,
                                 ),
                               ),
@@ -273,15 +273,12 @@ class _ProUpgradeSheetState extends State<ProUpgradeSheet> {
                 text: 'Upgrade Now',
                 onPressed: () {
                   Navigator.pop(context);
-                  if (widget.onUpgradeSuccess != null) {
-                    widget.onUpgradeSuccess!();
-                  }
                   showCupertinoDialog(
                     context: context,
                     builder: (context) => CupertinoAlertDialog(
-                      title: const Text('Thank you!'),
-                      content: Text(
-                        'Thank you for upgrading to the ${_plans[_selectedPlanIndex].name} plan! Demo transaction completed successfully.',
+                      title: const Text('Coming Soon'),
+                      content: const Text(
+                        'Pro subscription and payment features are currently under development. Stay tuned for upcoming updates!',
                       ),
                       actions: [
                         CupertinoDialogAction(

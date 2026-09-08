@@ -105,7 +105,7 @@ class AppConfirmDialog extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 14,
-                  color: AppColors.secondary,
+                  color: AppColors.mutedForeground,
                   fontWeight: FontWeight.w500,
                   decoration: TextDecoration.none,
                 ),

@@ -62,7 +62,7 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
                           style: TextStyle(
                             fontFamily: AppTextStyles.fontFamily,
                             fontSize: 16,
-                            color: AppColors.secondary,
+                            color: AppColors.mutedForeground,
                           ),
                         ),
                       ),
@@ -138,7 +138,7 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
               fontFamily: AppTextStyles.fontFamily,
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.secondary,
+              color: AppColors.mutedForeground,
             ),
             children: [
               TextSpan(text: '$title: '),
@@ -224,7 +224,7 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
               fontFamily: AppTextStyles.fontFamily,
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.secondary,
+              color: AppColors.mutedForeground,
             ),
             children: [
               const TextSpan(text: 'Target rounds: '),

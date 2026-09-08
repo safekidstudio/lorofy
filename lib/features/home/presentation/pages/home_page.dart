@@ -16,10 +16,10 @@ class _HomePageState extends ConsumerState<HomePage>
     with TickerProviderStateMixin {
   late final AnimationController _bounceController;
   late final Animation<Offset> _slideAnimation;
-  
+
   // Animation controller for drag feedback
   late final AnimationController _dragController;
-  
+
   bool _isFocusLocked = false;
   double _dragStartY = 0.0;
   bool _isDragging = false;
@@ -109,17 +109,15 @@ class _HomePageState extends ConsumerState<HomePage>
               animation: _dragController,
               builder: (context, child) {
                 final double scale = 1.0 - _dragController.value * 0.04;
-                final double opacity = (1.0 - _dragController.value * 0.5).clamp(0.0, 1.0);
+                final double opacity = (1.0 - _dragController.value * 0.5)
+                    .clamp(0.0, 1.0);
                 final double translationY = _dragController.value * -30.0;
 
                 return Transform.translate(
                   offset: Offset(0, translationY),
                   child: Transform.scale(
                     scale: scale,
-                    child: Opacity(
-                      opacity: opacity,
-                      child: child,
-                    ),
+                    child: Opacity(opacity: opacity, child: child),
                   ),
                 );
               },
@@ -141,14 +139,14 @@ class _HomePageState extends ConsumerState<HomePage>
                   animation: _dragController,
                   builder: (context, child) {
                     final double translationY = _dragController.value * -100.0;
-                    final double opacity = (1.0 - _dragController.value).clamp(0.0, 1.0);
+                    final double opacity = (1.0 - _dragController.value).clamp(
+                      0.0,
+                      1.0,
+                    );
 
                     return Transform.translate(
                       offset: Offset(0, translationY),
-                      child: Opacity(
-                        opacity: opacity,
-                        child: child,
-                      ),
+                      child: Opacity(opacity: opacity, child: child),
                     );
                   },
                   child: GestureDetector(
@@ -160,7 +158,9 @@ class _HomePageState extends ConsumerState<HomePage>
                       position: _slideAnimation,
                       child: const RepaintBoundary(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20), // Enlarged hit area
+                          padding: EdgeInsets.symmetric(
+                            vertical: 20,
+                          ), // Enlarged hit area
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -169,6 +169,7 @@ class _HomePageState extends ConsumerState<HomePage>
                                 'assets/icons/arrows-up.svg',
                                 width: 20,
                                 height: 20,
+                                color: AppColors.mutedForeground,
                               ),
                               SizedBox(width: 6),
                               Text(
@@ -176,7 +177,7 @@ class _HomePageState extends ConsumerState<HomePage>
                                 style: TextStyle(
                                   fontFamily: AppTextStyles.titleFontFamily,
                                   fontSize: 16,
-                                  color: AppColors.secondary,
+                                  color: AppColors.mutedForeground,
                                 ),
                               ),
                             ],

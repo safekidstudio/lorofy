@@ -21,7 +21,7 @@ class OnboardNameStep extends StatelessWidget {
         Text(
           'Choose a unique display name for your profile',
           style: AppTextStyles.body.copyWith(
-            color: AppColors.secondary,
+            color: AppColors.mutedForeground,
             fontSize: 14,
           ),
           textAlign: TextAlign.center,

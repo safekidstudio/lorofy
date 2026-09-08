@@ -117,7 +117,7 @@ class PlaylistDetailPage extends ConsumerWidget {
                                       style: const TextStyle(
                                         fontFamily: AppTextStyles.fontFamily,
                                         fontSize: 12,
-                                        color: AppColors.secondary,
+                                        color: AppColors.mutedForeground,
                                         decoration: TextDecoration.none,
                                       ),
                                     ),
@@ -129,7 +129,7 @@ class PlaylistDetailPage extends ConsumerWidget {
                                   Icon(
                                     CupertinoIcons.heart,
                                     size: 18,
-                                    color: AppColors.secondary.withValues(alpha: 0.8),
+                                    color: AppColors.mutedForeground,
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
@@ -137,7 +137,7 @@ class PlaylistDetailPage extends ConsumerWidget {
                                     style: const TextStyle(
                                       fontFamily: AppTextStyles.fontFamily,
                                       fontSize: 13,
-                                      color: AppColors.secondary,
+                                      color: AppColors.mutedForeground,
                                       decoration: TextDecoration.none,
                                     ),
                                   ),

@@ -116,7 +116,7 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
                       text: 'Daily Average ',
                       style: TextStyle(
                         fontFamily: AppTextStyles.fontFamily,
-                        color: AppColors.secondary,
+                        color: AppColors.mutedForeground,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -289,7 +289,7 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: AppTextStyles.fontFamily,
-                        color: AppColors.secondary,
+                        color: AppColors.mutedForeground,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),

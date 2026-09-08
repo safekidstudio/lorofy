@@ -123,7 +123,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
             'No focus records today',
             style: TextStyle(
               fontFamily: AppTextStyles.fontFamily,
-              color: AppColors.secondary,
+              color: AppColors.mutedForeground,
               fontSize: 14,
             ),
           ),
@@ -151,9 +151,9 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
 
         final Color numberColor = isHighlight
             ? AppColors.primary
-            : AppColors.secondary;
-        final Color labelColor = AppColors.secondary.withValues(alpha: 0.6);
-        final Color durationColor = AppColors.secondary.withValues(alpha: 0.6);
+            : AppColors.mutedForeground;
+        final Color labelColor = AppColors.mutedForeground;
+        final Color durationColor = AppColors.mutedForeground;
 
         return Column(
           children: [
@@ -248,7 +248,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
             'No focus records in the last 30 days',
             style: TextStyle(
               fontFamily: AppTextStyles.fontFamily,
-              color: AppColors.secondary,
+              color: AppColors.mutedForeground,
               fontSize: 14,
             ),
           ),
@@ -278,8 +278,8 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
         final bool isHighlight = isToday || index == 0;
         final Color numberColor = isHighlight
             ? AppColors.primary
-            : AppColors.secondary;
-        final Color labelColor = AppColors.secondary.withValues(alpha: 0.6);
+            : AppColors.mutedForeground;
+        final Color labelColor = AppColors.mutedForeground;
 
         return Column(
           children: [

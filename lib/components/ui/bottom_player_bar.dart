@@ -100,7 +100,7 @@ class BottomPlayerBar extends ConsumerWidget {
                       style: const TextStyle(
                         fontFamily: AppTextStyles.fontFamily,
                         fontSize: 12,
-                        color: AppColors.secondary,
+                        color: AppColors.mutedForeground,
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -132,7 +132,7 @@ class BottomPlayerBar extends ConsumerWidget {
                           : CupertinoIcons.heart,
                       color: playerState.isFavorited
                           ? CupertinoColors.systemRed
-                          : AppColors.secondary,
+                          : AppColors.mutedForeground,
                       size: 22,
                     ),
                   ),

@@ -61,6 +61,7 @@ class LoginController extends _$LoginController {
             );
       });
     } catch (e, st) {
+      AppLogger.error('Google Sign-In Error: $e', tag: 'GoogleAuth');
       state = AsyncValue.error(e, st);
     }
   }

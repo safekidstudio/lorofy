@@ -4,12 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/app_avatar.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
-import 'package:lorofy/components/ui/toast.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
+// import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
-import 'package:lorofy/features/profile/presentation/widgets/logout_confirm_sheet.dart';
 import 'package:lorofy/features/profile/presentation/pages/my_profile_page.dart';
 
 class ProfilePage extends ConsumerWidget {
@@ -30,7 +28,9 @@ class ProfilePage extends ConsumerWidget {
           children: [
             // Header
             AppHeader(
-              leftActions: AppBackButton(onPressed: () => Navigator.pop(context)),
+              leftActions: AppBackButton(
+                onPressed: () => Navigator.pop(context),
+              ),
               title: 'Profile',
               rightActions: CupertinoButton(
                 padding: EdgeInsets.zero,
@@ -96,12 +96,19 @@ class ProfilePage extends ConsumerWidget {
                       CardActionArea(
                         onTap: () => context.push('/my-points'),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
-                            color: CupertinoColors.systemRed.withValues(alpha: 0.1),
+                            color: CupertinoColors.systemRed.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: CupertinoColors.systemRed.withValues(alpha: 0.25),
+                              color: CupertinoColors.systemRed.withValues(
+                                alpha: 0.25,
+                              ),
                               width: 1,
                             ),
                           ),
@@ -140,6 +147,7 @@ class ProfilePage extends ConsumerWidget {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     context: context,
@@ -152,6 +160,7 @@ class ProfilePage extends ConsumerWidget {
                     title: 'Activities',
                     onTap: () => context.push('/my-activities'),
                   ),
+                  /*
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     context: context,
@@ -176,6 +185,7 @@ class ProfilePage extends ConsumerWidget {
                     title: 'Report',
                     onTap: () => _showComingSoon(context, 'Report'),
                   ),
+                  */
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     context: context,
@@ -194,29 +204,30 @@ class ProfilePage extends ConsumerWidget {
   }
 
   void _showLogoutConfirmationDialog(BuildContext context, WidgetRef ref) {
-    Navigator.push(
-      context,
-      CupertinoModalSheetRoute(
-        builder: (context) => Sheet(
-          decoration: const MaterialSheetDecoration(
-            size: SheetSize.fit,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-            color: AppColors.background,
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
           ),
-          child: LogoutConfirmSheet(
-            onConfirm: () {
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: const Text('Logout'),
+            onPressed: () {
+              Navigator.pop(context);
               ref.read(authProvider.notifier).logout();
-              Navigator.pop(context); // Pop profile page after logout
             },
           ),
-        ),
+        ],
       ),
     );
   }
 
+  /*
   void _showComingSoon(BuildContext context, String featureName) {
     AppToast.show(
       context,
@@ -224,6 +235,7 @@ class ProfilePage extends ConsumerWidget {
       type: ToastType.info,
     );
   }
+  */
 
   Widget _buildMenuItem({
     required BuildContext context,

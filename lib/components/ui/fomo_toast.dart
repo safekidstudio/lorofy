@@ -180,7 +180,7 @@ class _FomoToastWidgetState extends State<_FomoToastWidget>
                                 'just finished focusing!',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: AppColors.secondary,
+                                  color: AppColors.mutedForeground,
                                 ),
                               ),
                             ],

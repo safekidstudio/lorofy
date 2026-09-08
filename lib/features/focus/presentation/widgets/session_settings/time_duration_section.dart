@@ -19,7 +19,7 @@ class TimeDurationSection extends ConsumerWidget {
               fontFamily: AppTextStyles.fontFamily,
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.secondary,
+              color: AppColors.mutedForeground,
             ),
             children: [
               const TextSpan(text: 'Time durations: '),

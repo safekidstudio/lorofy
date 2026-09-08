@@ -23,7 +23,7 @@ class SlidingSegmentedControl extends StatelessWidget {
     this.backgroundColor = const Color(0xFFEDEEEF),
     this.activeColor = const Color(0xFF072013),
     this.activeTextColor = CupertinoColors.white,
-    this.inactiveTextColor = AppColors.secondary,
+    this.inactiveTextColor = AppColors.mutedForeground,
   });
 
   @override

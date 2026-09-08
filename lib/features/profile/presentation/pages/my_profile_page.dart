@@ -358,7 +358,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
 
                                 const SizedBox(height: 36),
 
-                                // Username Input (Disabled/Read-only)
+                                  // Username Input (Disabled/Read-only)
                                 const Input(
                                   placeholder: 'Username',
                                   formControlName: 'username',
@@ -366,7 +366,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                     'assets/icons/at-symbol.svg',
                                     width: 20,
                                     height: 20,
-                                    color: AppColors.secondary,
+                                    color: AppColors.mutedForeground,
                                   ),
                                 ),
 
@@ -380,7 +380,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                     'assets/icons/user-square.svg',
                                     width: 20,
                                     height: 20,
-                                    color: AppColors.secondary,
+                                    color: AppColors.mutedForeground,
                                   ),
                                 ),
 

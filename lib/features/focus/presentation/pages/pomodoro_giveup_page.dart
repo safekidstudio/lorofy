@@ -89,7 +89,7 @@ class PomodoroGiveupPage extends StatelessWidget {
                         fontFamily: AppTextStyles.fontFamily,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.secondary,
+                        color: AppColors.mutedForeground,
                       ),
                     ),
                   ),

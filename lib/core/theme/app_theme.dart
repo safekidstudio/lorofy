@@ -58,8 +58,8 @@ class AppColors {
 
   static const CupertinoDynamicColor mutedForeground =
       CupertinoDynamicColor.withBrightness(
-        color: Color(0xFF8E8E93),
-        darkColor: Color(0xFF8E8E93),
+        color: Color(0xFF6E6E73),
+        darkColor: Color(0xFF98989D),
       );
 
   // Borders & Inputs

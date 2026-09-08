@@ -53,7 +53,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                       'View more ',
                       style: TextStyle(
                         fontFamily: AppTextStyles.fontFamily,
-                        color: AppColors.secondary,
+                        color: AppColors.mutedForeground,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -62,7 +62,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                       'assets/icons/chevron-right.svg',
                       width: 16,
                       height: 16,
-                      color: AppColors.primary.withValues(alpha: 0.4),
+                      color: AppColors.mutedForeground,
                     ),
                   ],
                 ),
@@ -106,7 +106,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                           'No rankings yet',
                           style: TextStyle(
                             fontFamily: AppTextStyles.fontFamily,
-                            color: AppColors.secondary,
+                            color: AppColors.mutedForeground,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -301,7 +301,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
               style: const TextStyle(
                 fontFamily: AppTextStyles.fontFamily,
                 fontSize: 12,
-                color: AppColors.secondary,
+                color: AppColors.mutedForeground,
                 fontWeight: FontWeight.w500,
               ),
             ),

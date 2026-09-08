@@ -249,7 +249,7 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
               'assets/icons/chevron-down.svg',
               width: 16,
               height: 16,
-              color: AppColors.secondary,
+              color: AppColors.mutedForeground,
             ),
           ],
         ),
