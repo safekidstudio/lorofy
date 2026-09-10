@@ -88,10 +88,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                   size: 24,
                 ),
               )
-            : const Padding(
-                padding: EdgeInsetsGeometry.only(left: 16),
-                child: Logo(key: ValueKey('logo_text')),
-              ),
+            : const Logo(key: ValueKey('logo_text')),
       ),
       rightActions: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),

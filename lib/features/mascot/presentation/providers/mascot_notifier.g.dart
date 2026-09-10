@@ -41,7 +41,7 @@ final class MascotNotifierProvider
   }
 }
 
-String _$mascotNotifierHash() => r'0106cc0530729cca8416ee0c3f8795bf9e8d6ff1';
+String _$mascotNotifierHash() => r'2536c2d2fcebaa7c70d0cee58c1273b5d54e7b32';
 
 abstract class _$MascotNotifier extends $Notifier<MascotState> {
   MascotState build();

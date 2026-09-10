@@ -20,7 +20,7 @@ final class LoginControllerProvider
         argument: null,
         retry: null,
         name: r'loginControllerProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -33,7 +33,7 @@ final class LoginControllerProvider
   LoginController create() => LoginController();
 }
 
-String _$loginControllerHash() => r'0aeb6f0d113e70dfc99212971b96ddced24a0103';
+String _$loginControllerHash() => r'ca8b2b5265f99c67d0b35f565889d36a9a6edc39';
 
 abstract class _$LoginController extends $AsyncNotifier<void> {
   FutureOr<void> build();

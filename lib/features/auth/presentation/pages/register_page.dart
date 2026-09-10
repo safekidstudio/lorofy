@@ -51,8 +51,28 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<void>>(loginControllerProvider, (previous, next) {
+      next.whenOrNull(
+        error: (error, _) {
+          AppToast.show(
+            context,
+            message: error.errorMessage,
+            type: ToastType.error,
+          );
+        },
+        data: (_) {
+          AppToast.show(
+            context,
+            message: 'Welcome to Lorofy!',
+            type: ToastType.success,
+          );
+        },
+      );
+    });
+
     final registerState = ref.watch(registerControllerProvider);
-    final isLoading = registerState.isLoading;
+    final loginState = ref.watch(loginControllerProvider);
+    final isLoading = registerState.isLoading || loginState.isLoading;
     final errorMessage = registerState.hasError
         ? _parseError(registerState.error)
         : null;

@@ -7,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'login_controller.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class LoginController extends _$LoginController {
   late final GoogleSignIn _googleSignIn = GoogleSignIn(
     serverClientId: AppConfig.googleWebClientId.isNotEmpty
@@ -21,15 +21,22 @@ class LoginController extends _$LoginController {
   }
 
   Future<void> login({required String email, required String password}) async {
+    final authRepo = ref.read(authRepositoryProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await ref.read(authRepositoryProvider).login(email, password);
+      await authRepo.login(email, password);
     });
   }
 
   Future<void> loginWithGoogle() async {
+    final authRepo = ref.read(authRepositoryProvider);
     state = const AsyncLoading();
     try {
+      // Clear previous cached session if any
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {}
+
       final googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -47,18 +54,18 @@ class LoginController extends _$LoginController {
 
       if (token == null || token.isEmpty) {
         state = AsyncValue.error(
-          'Failed to retrieve Google Auth Token',
+          'Failed to retrieve Google Auth Token. Ensure GOOGLE_WEB_CLIENT_ID is configured.',
           StackTrace.current,
         );
         return;
       }
 
       state = await AsyncValue.guard(() async {
-        await ref.read(authRepositoryProvider).loginWithOAuth(
-              provider: 'GOOGLE',
-              token: token,
-              fullName: googleUser.displayName,
-            );
+        await authRepo.loginWithOAuth(
+          provider: 'GOOGLE',
+          token: token,
+          fullName: googleUser.displayName,
+        );
       });
     } catch (e, st) {
       AppLogger.error('Google Sign-In Error: $e', tag: 'GoogleAuth');
