@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/features/focus/presentation/providers/focus_lifecycle_observer.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 
@@ -71,8 +72,10 @@ class MyApp extends ConsumerWidget {
       ],
       routerConfig: router,
       builder: (context, child) {
-        return GlobalLoadingOverlay(
-          child: child ?? const SizedBox.shrink(),
+        return FocusLifecycleObserver(
+          child: GlobalLoadingOverlay(
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );
