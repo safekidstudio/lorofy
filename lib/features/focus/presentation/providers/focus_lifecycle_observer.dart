@@ -62,9 +62,10 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
     if (state == AppLifecycleState.paused) {
       _cancelGraceTimer();
 
+      final seconds = widget.strictGracePeriodSeconds;
+
       if (activeBlockMode == BlockMode.strict) {
         // Strict Mode: Send warning notification and start grace period timer
-        final seconds = widget.strictGracePeriodSeconds;
         NotificationService().showStrictWarningNotification(seconds: seconds);
 
         _gracePeriodTimer = Timer(Duration(seconds: seconds), () {
@@ -74,8 +75,27 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
           }
         });
       } else if (activeBlockMode == BlockMode.medium) {
-        // Medium Mode: Send reminder notification to return to Lorofy
-        NotificationService().showFocusReminderNotification();
+        // Medium Mode (Whitelist): Send warning notification with whitelisted app count
+        final allowedCount = settings.allowedAppPackages.length;
+        final String bodyText = allowedCount > 0
+            ? 'You have $seconds seconds to return to Lorofy or whitelisted apps ($allowedCount allowed).'
+            : 'You have $seconds seconds to return to Lorofy before your session fails.';
+
+        NotificationService().showStrictWarningNotification(
+          seconds: seconds,
+          title: 'Focus Session Active (Whitelist Mode)',
+          body: bodyText,
+        );
+
+        _gracePeriodTimer = Timer(Duration(seconds: seconds), () {
+          if (mounted) {
+            ref.read(pomodoroTimerProvider.notifier).confirmGiveUp();
+            NotificationService().showSessionFailedNotification(
+              title: 'Focus Session Failed',
+              body: 'Your focus session failed because you stayed outside of Lorofy.',
+            );
+          }
+        });
       }
     } else if (state == AppLifecycleState.resumed) {
       // Return to app within grace period: cancel timer and clear notifications

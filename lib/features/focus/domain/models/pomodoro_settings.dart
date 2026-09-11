@@ -13,6 +13,7 @@ class PomodoroSettings {
   final bool isDeepFocusMode;
   final BlockMode blockMode;
   final Set<String> blockedCategories;
+  final Set<String> allowedAppPackages;
   final bool autoStartBreak;
   final bool autoStartFocus;
   final bool pushNotifications;
@@ -30,6 +31,7 @@ class PomodoroSettings {
     this.isDeepFocusMode = false,
     this.blockMode = BlockMode.medium,
     this.blockedCategories = const {'Social Media'},
+    this.allowedAppPackages = const {},
     this.autoStartBreak = true,
     this.autoStartFocus = true,
     this.pushNotifications = true,
@@ -48,6 +50,7 @@ class PomodoroSettings {
     bool? isDeepFocusMode,
     BlockMode? blockMode,
     Set<String>? blockedCategories,
+    Set<String>? allowedAppPackages,
     bool? autoStartBreak,
     bool? autoStartFocus,
     bool? pushNotifications,
@@ -70,6 +73,7 @@ class PomodoroSettings {
       isDeepFocusMode: isDeepFocusMode ?? this.isDeepFocusMode,
       blockMode: blockMode ?? this.blockMode,
       blockedCategories: blockedCategories ?? this.blockedCategories,
+      allowedAppPackages: allowedAppPackages ?? this.allowedAppPackages,
       autoStartBreak: autoStartBreak ?? this.autoStartBreak,
       autoStartFocus: autoStartFocus ?? this.autoStartFocus,
       pushNotifications: pushNotifications ?? this.pushNotifications,
@@ -89,6 +93,7 @@ class PomodoroSettings {
         'isDeepFocusMode': isDeepFocusMode,
         'blockMode': blockMode.name,
         'blockedCategories': blockedCategories.toList(),
+        'allowedAppPackages': allowedAppPackages.toList(),
         'autoStartBreak': autoStartBreak,
         'autoStartFocus': autoStartFocus,
         'pushNotifications': pushNotifications,
@@ -120,6 +125,10 @@ class PomodoroSettings {
               ?.map((e) => e as String)
               .toSet() ??
           const {'Social Media'},
+      allowedAppPackages: (json['allowedAppPackages'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toSet() ??
+          const {},
       autoStartBreak: json['autoStartBreak'] as bool? ?? true,
       autoStartFocus: json['autoStartFocus'] as bool? ?? true,
       pushNotifications: json['pushNotifications'] as bool? ?? true,

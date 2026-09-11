@@ -38,6 +38,8 @@ dependencies:
   reactive_forms: ^18.2.2
   shared_preferences: ^2.5.5
   flutter_local_notifications: ^18.0.1
+  installed_apps: ^2.1.0
+  package_info_plus: ^8.1.0
 
 dev_dependencies:
   build_runner: ^2.4.11

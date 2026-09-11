@@ -30,13 +30,13 @@ class AdvancedModeSection extends ConsumerWidget {
     );
   }
 
-  void _openSelectAllowedApps(BuildContext context) {
+  void _openSelectAllowedApps(BuildContext context, WidgetRef ref) {
     Navigator.push(
       context,
       CupertinoModalSheetRoute(
         builder: (context) => const Sheet(
           decoration: MaterialSheetDecoration(
-            size: SheetSize.fit,
+            size: SheetSize.stretch,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
@@ -132,7 +132,7 @@ class AdvancedModeSection extends ConsumerWidget {
                       const SizedBox(height: 12),
                       CupertinoButton(
                         padding: EdgeInsets.zero,
-                        onPressed: () => _openSelectAllowedApps(context),
+                        onPressed: () => _openSelectAllowedApps(context, ref),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
