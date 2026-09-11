@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/core/services/notification_service.dart';
@@ -8,8 +9,13 @@ import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.d
 
 class FocusLifecycleObserver extends ConsumerStatefulWidget {
   final Widget child;
+  final int strictGracePeriodSeconds;
 
-  const FocusLifecycleObserver({super.key, required this.child});
+  const FocusLifecycleObserver({
+    super.key,
+    required this.child,
+    this.strictGracePeriodSeconds = 10,
+  });
 
   @override
   ConsumerState<FocusLifecycleObserver> createState() => _FocusLifecycleObserverState();
@@ -17,6 +23,7 @@ class FocusLifecycleObserver extends ConsumerStatefulWidget {
 
 class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
     with WidgetsBindingObserver {
+  Timer? _gracePeriodTimer;
 
   @override
   void initState() {
@@ -28,8 +35,14 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
 
   @override
   void dispose() {
+    _cancelGraceTimer();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  void _cancelGraceTimer() {
+    _gracePeriodTimer?.cancel();
+    _gracePeriodTimer = null;
   }
 
   @override
@@ -38,6 +51,7 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
 
     final timerState = ref.read(pomodoroTimerProvider);
     if (timerState.phase != PomodoroState.focus) {
+      _cancelGraceTimer();
       return;
     }
 
@@ -46,16 +60,26 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
         settings.isDeepFocusMode ? settings.blockMode : BlockMode.medium;
 
     if (state == AppLifecycleState.paused) {
+      _cancelGraceTimer();
+
       if (activeBlockMode == BlockMode.strict) {
-        // Strict Mode: Fail focus session immediately when leaving app
-        ref.read(pomodoroTimerProvider.notifier).confirmGiveUp();
-        NotificationService().showSessionFailedNotification();
+        // Strict Mode: Send warning notification and start grace period timer
+        final seconds = widget.strictGracePeriodSeconds;
+        NotificationService().showStrictWarningNotification(seconds: seconds);
+
+        _gracePeriodTimer = Timer(Duration(seconds: seconds), () {
+          if (mounted) {
+            ref.read(pomodoroTimerProvider.notifier).confirmGiveUp();
+            NotificationService().showSessionFailedNotification();
+          }
+        });
       } else if (activeBlockMode == BlockMode.medium) {
         // Medium Mode: Send reminder notification to return to Lorofy
         NotificationService().showFocusReminderNotification();
       }
     } else if (state == AppLifecycleState.resumed) {
-      // Clear notifications when user returns to Lorofy
+      // Return to app within grace period: cancel timer and clear notifications
+      _cancelGraceTimer();
       NotificationService().cancelAll();
     }
   }

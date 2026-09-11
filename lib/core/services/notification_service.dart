@@ -42,39 +42,52 @@ class NotificationService {
         await androidPlatform.requestNotificationsPermission();
       }
 
+      // Request iOS Permissions
+      final iosPlatform = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+      if (iosPlatform != null) {
+        await iosPlatform.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+
       _isInitialized = true;
     } catch (e) {
       debugPrint('Error initializing NotificationService: $e');
     }
   }
 
-  /// Show reminder notification when app goes to background during Medium Mode focus
+  /// Show standard focus reminder notification (Medium Mode)
   Future<void> showFocusReminderNotification({
-    String title = 'Phiên tập trung đang diễn ra! 🌿',
-    String body = 'Vui lòng quay lại Lorofy để không gián đoạn quá trình phát triển mầm cây.',
+    String title = 'Focus Session Active',
+    String body = 'Return to Lorofy to keep your focus session going.',
   }) async {
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       'focus_reminder_channel',
       'Focus Reminders',
-      channelDescription: 'Notifications to remind you to stay focused in Lorofy',
-      importance: Importance.max,
+      channelDescription: 'Reminders when focus session is running in background',
+      importance: Importance.high,
       priority: Priority.high,
       showWhen: true,
       icon: '@mipmap/launcher_icon',
+      styleInformation: BigTextStyleInformation(body),
     );
 
-    const notificationDetails = NotificationDetails(
+    final notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
+        interruptionLevel: InterruptionLevel.active,
       ),
     );
 
     try {
       await _notificationsPlugin.show(
-        1001, // Notification ID for Focus Reminder
+        1001,
         title,
         body,
         notificationDetails,
@@ -85,33 +98,78 @@ class NotificationService {
     }
   }
 
-  /// Show alert notification when focus session fails in Strict Mode
-  Future<void> showSessionFailedNotification({
-    String title = 'Phiên tập trung đã thất bại! 🥀',
-    String body = 'Bạn đã rời khỏi Lorofy trong chế độ Chặn Nghiêm Ngặt (Strict Mode).',
+  /// Show strict mode warning notification (Grace Period)
+  Future<void> showStrictWarningNotification({
+    int seconds = 10,
+    String? title,
+    String? body,
   }) async {
-    const androidDetails = AndroidNotificationDetails(
-      'session_alert_channel',
-      'Session Alerts',
-      channelDescription: 'Alerts when focus sessions complete or fail',
+    final defaultTitle = 'Warning: Focus Session in Danger';
+    final defaultBody = 'You have $seconds seconds to return to Lorofy before your session fails.';
+
+    final androidDetails = AndroidNotificationDetails(
+      'strict_warning_channel',
+      'Strict Mode Warnings',
+      channelDescription: 'Urgent warnings when leaving app in Strict Mode',
       importance: Importance.max,
-      priority: Priority.high,
+      priority: Priority.max,
       showWhen: true,
       icon: '@mipmap/launcher_icon',
+      styleInformation: BigTextStyleInformation(body ?? defaultBody),
     );
 
-    const notificationDetails = NotificationDetails(
+    final notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,
         presentSound: true,
+        interruptionLevel: InterruptionLevel.timeSensitive,
       ),
     );
 
     try {
       await _notificationsPlugin.show(
-        1002, // Notification ID for Session Fail
+        1003,
+        title ?? defaultTitle,
+        body ?? defaultBody,
+        notificationDetails,
+        payload: 'strict_warning',
+      );
+    } catch (e) {
+      debugPrint('Error showing strict warning notification: $e');
+    }
+  }
+
+  /// Show session failed notification (Strict Mode Timeout)
+  Future<void> showSessionFailedNotification({
+    String title = 'Focus Session Failed',
+    String body = 'Your focus session was terminated because you left the app in Strict Mode.',
+  }) async {
+    final androidDetails = AndroidNotificationDetails(
+      'session_alert_channel',
+      'Session Alerts',
+      channelDescription: 'Alerts when focus session fails or completes',
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: true,
+      icon: '@mipmap/launcher_icon',
+      styleInformation: BigTextStyleInformation(body),
+    );
+
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        interruptionLevel: InterruptionLevel.active,
+      ),
+    );
+
+    try {
+      await _notificationsPlugin.show(
+        1002,
         title,
         body,
         notificationDetails,
