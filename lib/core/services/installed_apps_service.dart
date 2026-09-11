@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:installed_apps/app_info.dart';
 import 'package:installed_apps/installed_apps.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:lorofy/core/utils/logger.dart';
 
 class AppInfoItem {
   final String name;
@@ -16,6 +17,7 @@ class AppInfoItem {
 }
 
 class InstalledAppsService {
+  static const String _tag = 'InstalledAppsService';
   static final InstalledAppsService _instance = InstalledAppsService._internal();
   factory InstalledAppsService() => _instance;
   InstalledAppsService._internal();
@@ -52,8 +54,8 @@ class InstalledAppsService {
         _cachedApps = mapped;
         return mapped;
       }
-    } catch (e) {
-      debugPrint('Error fetching installed apps: $e');
+    } catch (e, stack) {
+      AppLogger.error('Error fetching installed apps', error: e, stackTrace: stack, tag: _tag);
     }
 
     return [];

@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/core/services/foreground_app_service.dart';
 import 'package:lorofy/core/services/installed_apps_service.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'allowed_apps_grid_view.dart';
 import 'app_picker_dialog.dart';
+import 'usage_permission_dialog.dart';
 import 'whitelist_intro_view.dart';
 
 enum WhitelistStep { intro, grid }
@@ -65,6 +67,15 @@ class _SelectAllowedAppsSheetState
       !setEquals(_initialSavedPackages, _workingSelectedPackages);
 
   Future<void> _openAppPickerSheet() async {
+    final hasPermission = await ForegroundAppService().hasUsagePermission();
+    if (!hasPermission) {
+      if (!mounted) return;
+      final granted = await showUsagePermissionDialog(context);
+      if (!granted) return;
+    }
+
+    if (!mounted) return;
+
     final result = await showCupertinoModalPopup<Set<String>>(
       context: context,
       builder: (context) => AppPickerDialog(

@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:lorofy/core/utils/logger.dart';
 
 class NotificationService {
+  static const String _tag = 'NotificationService';
+
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
@@ -14,7 +16,9 @@ class NotificationService {
   Future<void> init() async {
     if (_isInitialized) return;
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/launcher_icon');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/launcher_icon',
+    );
     const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -31,20 +35,27 @@ class NotificationService {
       await _notificationsPlugin.initialize(
         initSettings,
         onDidReceiveNotificationResponse: (NotificationResponse response) {
-          debugPrint('Notification clicked: ${response.payload}');
+          AppLogger.debug(
+            'Notification clicked: ${response.payload}',
+            tag: _tag,
+          );
         },
       );
 
       // Request Android 13+ (API 33+) Notification Permission
       final androidPlatform = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       if (androidPlatform != null) {
         await androidPlatform.requestNotificationsPermission();
       }
 
       // Request iOS Permissions
       final iosPlatform = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
       if (iosPlatform != null) {
         await iosPlatform.requestPermissions(
           alert: true,
@@ -54,8 +65,13 @@ class NotificationService {
       }
 
       _isInitialized = true;
-    } catch (e) {
-      debugPrint('Error initializing NotificationService: $e');
+    } catch (e, stack) {
+      AppLogger.error(
+        'Error initializing NotificationService',
+        error: e,
+        stackTrace: stack,
+        tag: _tag,
+      );
     }
   }
 
@@ -67,7 +83,8 @@ class NotificationService {
     final androidDetails = AndroidNotificationDetails(
       'focus_reminder_channel',
       'Focus Reminders',
-      channelDescription: 'Reminders when focus session is running in background',
+      channelDescription:
+          'Reminders when focus session is running in background',
       importance: Importance.high,
       priority: Priority.high,
       showWhen: true,
@@ -93,8 +110,13 @@ class NotificationService {
         notificationDetails,
         payload: 'focus_reminder',
       );
-    } catch (e) {
-      debugPrint('Error showing focus reminder notification: $e');
+    } catch (e, stack) {
+      AppLogger.error(
+        'Error showing focus reminder notification',
+        error: e,
+        stackTrace: stack,
+        tag: _tag,
+      );
     }
   }
 
@@ -105,7 +127,8 @@ class NotificationService {
     String? body,
   }) async {
     final defaultTitle = 'Warning: Focus Session in Danger';
-    final defaultBody = 'You have $seconds seconds to return to Lorofy before your session fails.';
+    final defaultBody =
+        'You have $seconds seconds to return to Lorofy before your session fails.';
 
     final androidDetails = AndroidNotificationDetails(
       'strict_warning_channel',
@@ -136,15 +159,21 @@ class NotificationService {
         notificationDetails,
         payload: 'strict_warning',
       );
-    } catch (e) {
-      debugPrint('Error showing strict warning notification: $e');
+    } catch (e, stack) {
+      AppLogger.error(
+        'Error showing strict warning notification',
+        error: e,
+        stackTrace: stack,
+        tag: _tag,
+      );
     }
   }
 
   /// Show session failed notification (Strict Mode Timeout)
   Future<void> showSessionFailedNotification({
     String title = 'Focus Session Failed',
-    String body = 'Your focus session was terminated because you left the app in Strict Mode.',
+    String body =
+        'Your focus session was terminated because you left the app in Strict Mode.',
   }) async {
     final androidDetails = AndroidNotificationDetails(
       'session_alert_channel',
@@ -175,8 +204,13 @@ class NotificationService {
         notificationDetails,
         payload: 'session_failed',
       );
-    } catch (e) {
-      debugPrint('Error showing session failed notification: $e');
+    } catch (e, stack) {
+      AppLogger.error(
+        'Error showing session failed notification',
+        error: e,
+        stackTrace: stack,
+        tag: _tag,
+      );
     }
   }
 
@@ -184,8 +218,13 @@ class NotificationService {
   Future<void> cancelAll() async {
     try {
       await _notificationsPlugin.cancelAll();
-    } catch (e) {
-      debugPrint('Error cancelling notifications: $e');
+    } catch (e, stack) {
+      AppLogger.error(
+        'Error cancelling notifications',
+        error: e,
+        stackTrace: stack,
+        tag: _tag,
+      );
     }
   }
 }

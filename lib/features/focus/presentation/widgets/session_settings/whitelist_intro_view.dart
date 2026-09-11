@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
@@ -69,55 +70,107 @@ class WhitelistIntroView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 28),
-                const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '• ',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 13,
-                        color: AppColors.mutedForeground,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'Due to iOS system limitations, certain system apps (e.g., Messages, Phone, etc.) cannot be disabled!',
+                if (defaultTargetPlatform == TargetPlatform.android) ...[
+                  const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '• ',
                         style: TextStyle(
                           fontFamily: AppTextStyles.fontFamily,
                           fontSize: 13,
-                          height: 1.4,
                           color: AppColors.mutedForeground,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppPadding.md),
-                const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '• ',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 13,
-                        color: AppColors.mutedForeground,
+                      Expanded(
+                        child: Text(
+                          'On Android, Lorofy requires Usage Access permission to recognize when you enter your Whitelisted apps.',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 13,
+                            height: 1.4,
+                            color: AppColors.mutedForeground,
+                          ),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'When choosing apps, it\'s recommended not to exceed 20, and avoid selecting categories (e.g., Social, Entertainment, etc.), as it may lead to disabling failure.',
+                    ],
+                  ),
+                  const SizedBox(height: AppPadding.md),
+                  const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '• ',
                         style: TextStyle(
                           fontFamily: AppTextStyles.fontFamily,
                           fontSize: 13,
-                          height: 1.4,
                           color: AppColors.mutedForeground,
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                      Expanded(
+                        child: Text(
+                          'Whitelisted apps (e.g., Dictionary, Music, Work apps) can be opened during focus sessions without failing your session.',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 13,
+                            height: 1.4,
+                            color: AppColors.mutedForeground,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '• ',
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          fontSize: 13,
+                          color: AppColors.mutedForeground,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          'Due to iOS system limitations, certain system apps (e.g., Messages, Phone, etc.) cannot be disabled!',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 13,
+                            height: 1.4,
+                            color: AppColors.mutedForeground,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppPadding.md),
+                  const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '• ',
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          fontSize: 13,
+                          color: AppColors.mutedForeground,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          'When choosing apps, it\'s recommended not to exceed 20, and avoid selecting categories (e.g., Social, Entertainment, etc.), as it may lead to disabling failure.',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 13,
+                            height: 1.4,
+                            color: AppColors.mutedForeground,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 32),
                 Button.primary(
                   text: 'Select allow apps',

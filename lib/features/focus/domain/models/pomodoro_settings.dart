@@ -12,12 +12,9 @@ class PomodoroSettings {
   final bool timedReminder;
   final bool isDeepFocusMode;
   final BlockMode blockMode;
-  final Set<String> blockedCategories;
   final Set<String> allowedAppPackages;
   final bool autoStartBreak;
   final bool autoStartFocus;
-  final bool pushNotifications;
-  final bool backgroundProcess;
   final bool isLoaded;
 
   const PomodoroSettings({
@@ -30,12 +27,9 @@ class PomodoroSettings {
     this.timedReminder = true,
     this.isDeepFocusMode = false,
     this.blockMode = BlockMode.medium,
-    this.blockedCategories = const {'Social Media'},
     this.allowedAppPackages = const {},
     this.autoStartBreak = true,
     this.autoStartFocus = true,
-    this.pushNotifications = true,
-    this.backgroundProcess = true,
     this.isLoaded = false,
   });
 
@@ -49,12 +43,9 @@ class PomodoroSettings {
     bool? timedReminder,
     bool? isDeepFocusMode,
     BlockMode? blockMode,
-    Set<String>? blockedCategories,
     Set<String>? allowedAppPackages,
     bool? autoStartBreak,
     bool? autoStartFocus,
-    bool? pushNotifications,
-    bool? backgroundProcess,
     bool? isLoaded,
   }) {
     int newFocusMinutes = focusMinutes ?? this.focusMinutes;
@@ -72,12 +63,9 @@ class PomodoroSettings {
       timedReminder: timedReminder ?? this.timedReminder,
       isDeepFocusMode: isDeepFocusMode ?? this.isDeepFocusMode,
       blockMode: blockMode ?? this.blockMode,
-      blockedCategories: blockedCategories ?? this.blockedCategories,
       allowedAppPackages: allowedAppPackages ?? this.allowedAppPackages,
       autoStartBreak: autoStartBreak ?? this.autoStartBreak,
       autoStartFocus: autoStartFocus ?? this.autoStartFocus,
-      pushNotifications: pushNotifications ?? this.pushNotifications,
-      backgroundProcess: backgroundProcess ?? this.backgroundProcess,
       isLoaded: isLoaded ?? this.isLoaded,
     );
   }
@@ -92,12 +80,9 @@ class PomodoroSettings {
         'timedReminder': timedReminder,
         'isDeepFocusMode': isDeepFocusMode,
         'blockMode': blockMode.name,
-        'blockedCategories': blockedCategories.toList(),
         'allowedAppPackages': allowedAppPackages.toList(),
         'autoStartBreak': autoStartBreak,
         'autoStartFocus': autoStartFocus,
-        'pushNotifications': pushNotifications,
-        'backgroundProcess': backgroundProcess,
         'isLoaded': isLoaded,
       };
 
@@ -121,18 +106,12 @@ class PomodoroSettings {
         (e) => e.name == json['blockMode'] || e.value == json['blockMode'],
         orElse: () => BlockMode.medium,
       ),
-      blockedCategories: (json['blockedCategories'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toSet() ??
-          const {'Social Media'},
       allowedAppPackages: (json['allowedAppPackages'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toSet() ??
           const {},
       autoStartBreak: json['autoStartBreak'] as bool? ?? true,
       autoStartFocus: json['autoStartFocus'] as bool? ?? true,
-      pushNotifications: json['pushNotifications'] as bool? ?? true,
-      backgroundProcess: json['backgroundProcess'] as bool? ?? true,
       isLoaded: json['isLoaded'] as bool? ?? true,
     );
   }

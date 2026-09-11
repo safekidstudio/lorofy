@@ -38,11 +38,8 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
       timedReminder: true,
       isDeepFocusMode: true,
       blockMode: BlockMode.medium,
-      blockedCategories: {'Social Media'},
       autoStartBreak: true,
       autoStartFocus: true,
-      pushNotifications: true,
-      backgroundProcess: true,
       isLoaded: true,
     );
   }
