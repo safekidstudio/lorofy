@@ -13,7 +13,7 @@ import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.dart';
 import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
-
+import 'package:lorofy/features/settings/presentation/providers/system_settings_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Immutable state
@@ -165,17 +165,32 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     // Stop ambient sound on give up
     ref.read(musicPlayerProvider.notifier).stop();
 
+    final settings = ref.read(pomodoroSettingsProvider);
+    final systemSettings = ref.read(systemSettingsProvider);
+    final isStrict =
+        settings.isDeepFocusMode && settings.blockMode == BlockMode.strict;
+    final penaltyPoints = isStrict
+        ? systemSettings.penaltyPointsStrict
+        : systemSettings.penaltyPointsMedium;
+
+    // Deduct points from AuthProvider state
+    final currentPoints = ref.read(authProvider).rankPoints ?? 0;
+    final updatedPoints = (currentPoints - penaltyPoints).clamp(0, 999999).toInt();
+    ref.read(authProvider.notifier).updatePointsState(updatedPoints);
+
     // Call API failSession
     final sessionId = state.backendSessionId;
     if (sessionId != null) {
       final elapsedSeconds = state.totalSessionSeconds - state.countdownSeconds;
       final elapsedMins = (elapsedSeconds / 60).round();
       try {
-        await ref.read(focusRepositoryProvider).failSession(
-          sessionId: sessionId,
-          actualMinutes: elapsedMins,
-          failureReason: 'User clicked Give Up',
-        );
+        await ref
+            .read(focusRepositoryProvider)
+            .failSession(
+              sessionId: sessionId,
+              actualMinutes: elapsedMins,
+              failureReason: 'User clicked Give Up',
+            );
       } catch (e) {
         debugPrint('Error failing backend session: $e');
       }
@@ -191,9 +206,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     _cancelTicker();
     ref.read(musicPlayerProvider.notifier).stop();
     final settings = ref.read(pomodoroSettingsProvider);
-    state = PomodoroTimerState(
-      selectedCategory: settings.selectedCategory,
-    );
+    state = PomodoroTimerState(selectedCategory: settings.selectedCategory);
   }
 
   void restartFocus() {
@@ -206,7 +219,9 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     try {
       final FocusRepository repository = ref.read(focusRepositoryProvider);
       final settings = ref.read(pomodoroSettingsProvider);
-      final activeBlockMode = settings.isDeepFocusMode ? settings.blockMode : BlockMode.medium;
+      final activeBlockMode = settings.isDeepFocusMode
+          ? settings.blockMode
+          : BlockMode.medium;
       final session = await repository.startSession(
         categoryId: state.selectedCategory?.id,
         blockMode: activeBlockMode,
@@ -220,7 +235,10 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     }
   }
 
-  void _runTicker(PomodoroState expectedPhase, {required VoidCallback onComplete}) {
+  void _runTicker(
+    PomodoroState expectedPhase, {
+    required VoidCallback onComplete,
+  }) {
     _ticker = Timer.periodic(const Duration(milliseconds: 50), (_) {
       if (state.phase != expectedPhase) {
         _ticker?.cancel();
@@ -228,7 +246,10 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
       }
 
       final elapsed = (_stopwatch!.elapsedMilliseconds / 1000.0);
-      final remaining = (state.totalSessionSeconds - elapsed).clamp(0.0, state.totalSessionSeconds.toDouble());
+      final remaining = (state.totalSessionSeconds - elapsed).clamp(
+        0.0,
+        state.totalSessionSeconds.toDouble(),
+      );
       final newCountdown = remaining.ceil();
 
       if (newCountdown != state.countdownSeconds) {
@@ -245,24 +266,65 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
   void _onFocusCompleted() {
     final settings = ref.read(pomodoroSettingsProvider);
+    final systemSettings = ref.read(systemSettingsProvider);
+
+    final focusMinutes = (state.totalSessionSeconds / 60).round();
+    final isStrict =
+        settings.isDeepFocusMode && settings.blockMode == BlockMode.strict;
+    final multiplier = isStrict
+        ? systemSettings.rewardMultiplierStrict
+        : systemSettings.rewardMultiplierMedium;
+
+    final calculatedPoints =
+        (focusMinutes * systemSettings.rewardBasePointsPerMin * multiplier).round();
+    final calculatedCoins =
+        (focusMinutes * systemSettings.rewardBaseCoinsPerMin * multiplier).round();
+
+    // Optimistically set earned points & coins based on settings conversion formula
+    state = state.copyWith(
+      earnedPoints: calculatedPoints,
+      earnedCoins: calculatedCoins,
+    );
 
     // Call API completeSession
     final sessionId = state.backendSessionId;
     if (sessionId != null) {
       final actualMins = (state.totalSessionSeconds / 60).round();
-      ref.read(focusRepositoryProvider).completeSession(sessionId, actualMins).then((session) {
-        state = state.copyWith(
-          earnedPoints: session.earnedPoints,
-          earnedCoins: session.earnedCoins,
-        );
-        // Add growth points to the active mascot
-        ref.read(mascotProvider.notifier).addGrowthPoints(session.earnedPoints);
-        // Sync points in Auth provider
-        final currentPoints = ref.read(authProvider).rankPoints ?? 0;
-        ref.read(authProvider.notifier).updatePointsState(currentPoints + session.earnedPoints);
-      }).catchError((e) {
-        debugPrint('Error completing backend session: $e');
-      });
+      ref
+          .read(focusRepositoryProvider)
+          .completeSession(sessionId, actualMins)
+          .then((session) {
+            final points = session.earnedPoints;
+            final coins = session.earnedCoins;
+
+            state = state.copyWith(
+              earnedPoints: points,
+              earnedCoins: coins,
+            );
+            // Add growth points to the active mascot
+            ref
+                .read(mascotProvider.notifier)
+                .addGrowthPoints(points);
+            // Sync points in Auth provider
+            final currentPoints = ref.read(authProvider).rankPoints ?? 0;
+            ref
+                .read(authProvider.notifier)
+                .updatePointsState(currentPoints + points);
+          })
+          .catchError((e) {
+            debugPrint('Error completing backend session: $e');
+            ref.read(mascotProvider.notifier).addGrowthPoints(calculatedPoints);
+            final currentPoints = ref.read(authProvider).rankPoints ?? 0;
+            ref
+                .read(authProvider.notifier)
+                .updatePointsState(currentPoints + calculatedPoints);
+          });
+    } else {
+      ref.read(mascotProvider.notifier).addGrowthPoints(calculatedPoints);
+      final currentPoints = ref.read(authProvider).rankPoints ?? 0;
+      ref
+          .read(authProvider.notifier)
+          .updatePointsState(currentPoints + calculatedPoints);
     }
 
     final targetRounds = settings.isDeepFocusMode ? 1 : settings.targetRounds;
@@ -301,5 +363,6 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 // ---------------------------------------------------------------------------
 
 final pomodoroTimerProvider =
-    NotifierProvider<PomodoroNotifier, PomodoroTimerState>(PomodoroNotifier.new);
-
+    NotifierProvider<PomodoroNotifier, PomodoroTimerState>(
+      PomodoroNotifier.new,
+    );

@@ -1,13 +1,24 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
+import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
+import 'package:lorofy/features/settings/presentation/providers/system_settings_provider.dart';
 
-class PomodoroGiveupConfirmationSheet extends StatelessWidget {
+class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
   const PomodoroGiveupConfirmationSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(pomodoroSettingsProvider);
+    final systemSettings = ref.watch(systemSettingsProvider);
+    final isStrict = settings.isDeepFocusMode && settings.blockMode == BlockMode.strict;
+    final penaltyPoints = isStrict
+        ? systemSettings.penaltyPointsStrict
+        : systemSettings.penaltyPointsMedium;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: SafeArea(
@@ -31,7 +42,7 @@ class PomodoroGiveupConfirmationSheet extends StatelessWidget {
 
             // Mockup Title Text
             const Text(
-              'Do you want give up\nthis session?',
+              'Do you want to give up\nthis session?',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: AppTextStyles.titleFontFamily,
@@ -41,17 +52,63 @@ class PomodoroGiveupConfirmationSheet extends StatelessWidget {
                 height: 1.2,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // Cat knocking over coffee SVG illustration (assets/illustrations/overview.svg)
             Center(
               child: const SVG(
                 'assets/illustrations/overview.svg',
-                width: 180,
-                height: 180,
+                width: 160,
+                height: 160,
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
+
+            // Consequence info box
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                children: [
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('🥀 ', style: TextStyle(fontSize: 14)),
+                      Text(
+                        'Your tree will wither',
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.destructive,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('🪙 ', style: TextStyle(fontSize: 14)),
+                      Text(
+                        'You will lose -$penaltyPoints Points',
+                        style: const TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.mutedForeground,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
 
             // Actions
             Row(
