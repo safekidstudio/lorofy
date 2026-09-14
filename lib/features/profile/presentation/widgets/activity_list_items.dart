@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/domain/models/focus_session.dart';
@@ -9,38 +10,11 @@ class PastDaySummary {
   PastDaySummary(this.date, this.sessions);
 }
 
-// Helpers to format date and time
-String _formatTime(DateTime dt) {
-  final hour = dt.hour == 0 ? 12 : (dt.hour > 12 ? dt.hour - 12 : dt.hour);
-  final minute = dt.minute.toString().padLeft(2, '0');
-  return '${hour.toString().padLeft(2, '0')}:$minute';
-}
-
-String _formatAmPm(DateTime dt) {
-  return dt.hour >= 12 ? 'PM' : 'AM';
-}
-
-String _formatDay(DateTime dt) {
-  return dt.day.toString();
-}
-
-String _formatMonth(DateTime dt) {
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  return months[dt.month - 1];
-}
+// Helpers to format date and time using intl
+String _formatTime(DateTime dt) => DateFormat('hh:mm').format(dt);
+String _formatAmPm(DateTime dt) => DateFormat('a').format(dt);
+String _formatDay(DateTime dt) => DateFormat('d').format(dt);
+String _formatMonth(DateTime dt) => DateFormat.MMM().format(dt);
 
 Widget _buildFlowerRow(int healthyCount, int failedCount) {
   return Wrap(

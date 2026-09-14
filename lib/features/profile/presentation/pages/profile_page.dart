@@ -9,6 +9,8 @@ import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/features/profile/presentation/pages/my_profile_page.dart';
+import 'package:lorofy/features/profile/presentation/widgets/streak_repair_banner.dart';
+
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -137,6 +139,12 @@ class ProfilePage extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 24),
+                  if (authStatus.userProfile != null &&
+                      authStatus.userProfile!.canRepairStreak) ...[
+                    StreakRepairBanner(profile: authStatus.userProfile!),
+                    const SizedBox(height: 16),
+                  ],
+
                   _buildMenuItem(
                     context: context,
                     title: 'My Profile',
@@ -160,6 +168,7 @@ class ProfilePage extends ConsumerWidget {
                     title: 'Activities',
                     onTap: () => context.push('/my-activities'),
                   ),
+
                   /*
                   const SizedBox(height: 8),
                   _buildMenuItem(

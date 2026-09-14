@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/core/utils/app_date_formatter.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/sliding_segmented_control.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
@@ -17,27 +19,6 @@ class ExploreRecordSection extends ConsumerStatefulWidget {
 
 class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
   bool _isDayToggle = true;
-
-  String _getMonthAbbreviation(int month) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    if (month >= 1 && month <= 12) {
-      return months[month - 1];
-    }
-    return '';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,13 +118,9 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
         final session = entry.value;
 
         // Parse and format local time
-        final localTime = DateTime.parse(session.startedAt).toLocal();
-        final hour = localTime.hour;
-        final minute = localTime.minute.toString().padLeft(2, '0');
-        final period = hour >= 12 ? 'PM' : 'AM';
-        final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-        final timeStrFormatted =
-            '${displayHour.toString().padLeft(2, '0')}:$minute';
+        final localTime = AppDateFormatter.parse(session.startedAt) ?? DateTime.now();
+        final timeStrFormatted = DateFormat('hh:mm').format(localTime);
+        final period = DateFormat('a').format(localTime);
 
         final int flowerCount = session.earnedPoints;
         final String durationStr = '${session.actualMinutes} mins';
@@ -230,9 +207,8 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
     // Group by local date string "yyyy-MM-dd"
     final Map<String, int> dailyFlowers = {};
     for (var session in completedSessions) {
-      final localDate = DateTime.parse(session.startedAt).toLocal();
-      final dateKey =
-          '${localDate.year}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')}';
+      final localDate = AppDateFormatter.parse(session.startedAt) ?? DateTime.now();
+      final dateKey = DateFormat('yyyy-MM-dd').format(localDate);
       dailyFlowers[dateKey] =
           (dailyFlowers[dateKey] ?? 0) + session.earnedPoints;
     }
@@ -257,8 +233,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
     }
 
     final todayLocal = DateTime.now().toLocal();
-    final todayKey =
-        '${todayLocal.year}-${todayLocal.month.toString().padLeft(2, '0')}-${todayLocal.day.toString().padLeft(2, '0')}';
+    final todayKey = DateFormat('yyyy-MM-dd').format(todayLocal);
 
     return Column(
       spacing: 10,
@@ -270,10 +245,10 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
         final date = DateTime.parse(dateKey);
         final bool isToday = dateKey == todayKey;
 
-        final String dayStr = date.day.toString();
+        final String dayStr = DateFormat('d').format(date);
         final String monthStr = isToday
             ? 'Today'
-            : _getMonthAbbreviation(date.month);
+            : DateFormat.MMM().format(date);
 
         final bool isHighlight = isToday || index == 0;
         final Color numberColor = isHighlight

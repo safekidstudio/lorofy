@@ -173,28 +173,35 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
         ? systemSettings.penaltyPointsStrict
         : systemSettings.penaltyPointsMedium;
 
-    // Deduct points from AuthProvider state
-    final currentPoints = ref.read(authProvider).rankPoints ?? 0;
-    final updatedPoints = (currentPoints - penaltyPoints).clamp(0, 999999).toInt();
-    ref.read(authProvider.notifier).updatePointsState(updatedPoints);
+    final elapsedSeconds = state.totalSessionSeconds - state.countdownSeconds;
+    final elapsedMins = (elapsedSeconds / 60).round();
+
+    // Deduct points optimistically ONLY if elapsedSeconds >= 60 or elapsedMins >= 1 (Server Grace Period rule)
+    if (elapsedSeconds >= 60 || elapsedMins >= 1) {
+      final currentPoints = ref.read(authProvider).rankPoints ?? 0;
+      final updatedPoints = (currentPoints - penaltyPoints).clamp(0, 999999).toInt();
+      ref.read(authProvider.notifier).updatePointsState(updatedPoints);
+    }
 
     // Call API failSession
     final sessionId = state.backendSessionId;
     if (sessionId != null) {
-      final elapsedSeconds = state.totalSessionSeconds - state.countdownSeconds;
-      final elapsedMins = (elapsedSeconds / 60).round();
       try {
-        await ref
+        final session = await ref
             .read(focusRepositoryProvider)
             .failSession(
               sessionId: sessionId,
               actualMinutes: elapsedMins,
               failureReason: 'User clicked Give Up',
             );
+        state = state.copyWith(earnedPoints: session.earnedPoints);
+        // Refresh fresh profile details & rank points from backend
+        ref.read(authProvider.notifier).refreshProfile();
       } catch (e) {
         debugPrint('Error failing backend session: $e');
       }
     }
+
   }
 
   void skipBreak() {

@@ -19,6 +19,9 @@ dependencies:
   # Routing
   go_router: ^17.3.0
 
+  # Formatting & i18n
+  intl: ^0.20.2
+
   # Networking
   dio: ^5.10.0
   jwt_decoder: ^2.0.1

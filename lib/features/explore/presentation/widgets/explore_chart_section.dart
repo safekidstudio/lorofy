@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/core/utils/app_date_formatter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:lorofy/features/explore/domain/models/focus_stats.dart';
 import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
@@ -17,12 +19,9 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
   int? _selectedIndex;
 
   String _formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      return '${date.month}.${date.day}';
-    } catch (_) {
-      return dateStr;
-    }
+    final dt = AppDateFormatter.parse(dateStr);
+    if (dt == null) return dateStr;
+    return DateFormat('M.d').format(dt);
   }
 
   @override

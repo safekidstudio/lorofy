@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:lorofy/core/storage/auth_storage.dart';
+import 'package:lorofy/features/auth/data/models/user_profile.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_provider.g.dart';
+
 
 enum AuthState { initial, authenticated, unauthenticated }
 
@@ -15,6 +17,7 @@ class AuthStatus {
   final String? avatarUrl;
   final String? username;
   final int? rankPoints;
+  final UserProfile? userProfile;
 
   AuthStatus({
     required this.state,
@@ -24,6 +27,7 @@ class AuthStatus {
     this.avatarUrl,
     this.username,
     this.rankPoints,
+    this.userProfile,
   });
 
   AuthStatus copyWith({
@@ -34,6 +38,7 @@ class AuthStatus {
     String? avatarUrl,
     String? username,
     int? rankPoints,
+    UserProfile? userProfile,
   }) {
     return AuthStatus(
       state: state ?? this.state,
@@ -43,6 +48,7 @@ class AuthStatus {
       avatarUrl: avatarUrl ?? this.avatarUrl,
       username: username ?? this.username,
       rankPoints: rankPoints ?? this.rankPoints,
+      userProfile: userProfile ?? this.userProfile,
     );
   }
 }
@@ -102,22 +108,44 @@ class Auth extends _$Auth {
           avatarUrl: profile.avatarUrl,
           username: profile.username,
           rankPoints: profile.rankPoints,
+          userProfile: profile,
         );
       } else {
         state = AuthStatus(state: AuthState.unauthenticated);
       }
     } catch (e) {
-      // If error is 401 Unauthorized, token is invalid -> logout
-      // Otherwise (offline/network errors), keep the cached session!
       final isAuthError = e is DioException && e.response?.statusCode == 401;
       if (isAuthError) {
         await logout();
       } else if (state.state == AuthState.initial) {
-        // If we are offline and have no cache (e.g. initial launch offline), fallback to unauthenticated
         state = AuthStatus(state: AuthState.unauthenticated);
       }
     }
   }
+
+  Future<UserProfile?> refreshProfile() async {
+    try {
+      final profile = await ref.read(authRepositoryProvider).getMe();
+      await _authStorage.saveProfileCache(
+        isOnboarded: profile.isOnboarded,
+        displayName: profile.displayName,
+        avatarUrl: profile.avatarUrl,
+        username: profile.username,
+      );
+      state = state.copyWith(
+        isOnboarded: profile.isOnboarded,
+        displayName: profile.displayName,
+        avatarUrl: profile.avatarUrl,
+        username: profile.username,
+        rankPoints: profile.rankPoints,
+        userProfile: profile,
+      );
+      return profile;
+    } catch (e) {
+      return null;
+    }
+  }
+
 
   // Handle successful login from API response
   Future<void> loginSuccess({

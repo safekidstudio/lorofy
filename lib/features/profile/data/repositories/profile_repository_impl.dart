@@ -4,8 +4,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/core/network/dio_client.dart';
+import 'package:lorofy/features/auth/data/models/user_profile.dart';
 import 'package:lorofy/features/profile/domain/models/country_model.dart';
+import 'package:lorofy/features/profile/domain/models/point_history_model.dart';
 import 'package:lorofy/features/profile/domain/repositories/profile_repository.dart';
+
 
 part 'profile_repository_impl.g.dart';
 
@@ -93,7 +96,52 @@ class ProfileRepositoryImpl implements ProfileRepository {
     final data = response.data['data'] as List<dynamic>;
     await prefs.setString('cached_countries', jsonEncode(data));
   }
+
+  @override
+  Future<List<PointHistoryModel>> getPointHistory({int page = 0, int size = 20}) async {
+    try {
+      final response = await _dio.get(
+        '/profiles/points/history',
+        queryParameters: {'page': page, 'size': size},
+        options: ApiOptions.protected,
+      );
+
+      final dataField = response.data['data'];
+      if (dataField != null) {
+        final items = dataField['items'] as List<dynamic>? ?? [];
+        return items
+            .map((e) => PointHistoryModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } catch (e) {
+      throw e.toFailure();
+    }
+  }
+
+  @override
+  Future<UserProfile> repairStreak({required bool useFreezeItem, required bool useCoins}) async {
+    try {
+      final response = await _dio.post(
+        '/profiles/streak/repair',
+        data: {
+          'useFreezeItem': useFreezeItem,
+          'useCoins': useCoins,
+        },
+        options: ApiOptions.protected,
+      );
+
+      final dataField = response.data['data'];
+      if (dataField != null) {
+        return UserProfile.fromJson(dataField as Map<String, dynamic>);
+      }
+      throw Exception('Lỗi khôi phục streak: Dữ liệu không hợp lệ');
+    } catch (e) {
+      throw e.toFailure();
+    }
+  }
 }
+
 
 @Riverpod(keepAlive: true)
 ProfileRepository profileRepository(Ref ref) {

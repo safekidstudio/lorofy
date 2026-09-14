@@ -7,6 +7,7 @@ import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/components/ui/sliding_segmented_control.dart';
 import 'package:lorofy/components/ui/loader.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/core/utils/app_date_formatter.dart';
 import 'package:lorofy/features/explore/data/repositories/explore_repository_impl.dart';
 import 'package:lorofy/features/focus/domain/models/focus_session.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -152,7 +153,7 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
       // Group everything by day
       final Map<DateTime, List<FocusSession>> groupedMap = {};
       for (final session in sorted) {
-        final localTime = DateTime.parse(session.startedAt).toLocal();
+        final localTime = AppDateFormatter.parse(session.startedAt) ?? DateTime.now();
         final sessionDate = DateTime(
           localTime.year,
           localTime.month,

@@ -4,8 +4,10 @@ import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
+import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/settings/presentation/providers/system_settings_provider.dart';
+
 
 class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
   const PomodoroGiveupConfirmationSheet({super.key});
@@ -18,6 +20,11 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
     final penaltyPoints = isStrict
         ? systemSettings.penaltyPointsStrict
         : systemSettings.penaltyPointsMedium;
+
+    final timerState = ref.watch(pomodoroTimerProvider);
+    final elapsedSeconds = timerState.totalSessionSeconds - timerState.countdownSeconds;
+    final isGracePeriod = elapsedSeconds < 60;
+
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -54,7 +61,7 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
 
-            // Cat knocking over coffee SVG illustration (assets/illustrations/overview.svg)
+            // Cat knocking over coffee SVG illustration
             Center(
               child: const SVG(
                 'assets/illustrations/overview.svg',
@@ -89,25 +96,43 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('🪙 ', style: TextStyle(fontSize: 14)),
-                      Text(
-                        'You will lose -$penaltyPoints Points',
-                        style: const TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.mutedForeground,
+                  const SizedBox(height: 6),
+                  if (isGracePeriod)
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('🛡️ ', style: TextStyle(fontSize: 14)),
+                        Text(
+                          'Grace period (< 60s): No point penalty',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF00B894),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    )
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('🪙 ', style: TextStyle(fontSize: 14)),
+                        Text(
+                          'You will lose -$penaltyPoints Points (${isStrict ? "STRICT" : "MEDIUM"})',
+                          style: const TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.mutedForeground,
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
+
             const SizedBox(height: 24),
 
             // Actions
