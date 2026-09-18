@@ -6,19 +6,19 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'explore_stats_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<FocusStats> exploreStats(Ref ref) async {
   final ExploreRepository repository = ref.watch(exploreRepositoryProvider);
   return await repository.getFocusStats();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<FocusSession>> todayActivities(Ref ref) async {
   final ExploreRepository repository = ref.watch(exploreRepositoryProvider);
   return await repository.getTodayActivities();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<List<FocusSession>> monthActivities(Ref ref) async {
   final ExploreRepository repository = ref.watch(exploreRepositoryProvider);
   return await repository.getMonthActivities();

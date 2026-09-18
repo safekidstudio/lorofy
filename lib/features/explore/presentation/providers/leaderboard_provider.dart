@@ -6,7 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'leaderboard_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Future<Leaderboard> leaderboard(
   Ref ref, {
   required String timeframe,

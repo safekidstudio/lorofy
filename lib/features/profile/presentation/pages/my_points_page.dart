@@ -7,6 +7,7 @@ import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/features/profile/presentation/providers/point_history_provider.dart';
 import 'package:lorofy/features/profile/presentation/widgets/point_history_item_tile.dart';
+import 'package:lorofy/features/profile/presentation/pages/streak_celebration_page.dart';
 
 class MyPointsPage extends ConsumerWidget {
   const MyPointsPage({super.key});
@@ -97,32 +98,44 @@ class MyPointsPage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: AppPadding.sm),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppPadding.md,
-                  vertical: AppPadding.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: CupertinoColors.activeOrange.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      CupertinoIcons.flame_fill,
-                      color: CupertinoColors.activeOrange,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$currentStreak-day streak',
-                      style: AppTextStyles.caption.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.foreground,
+              GestureDetector(
+                onTap: () {
+                  if (currentStreak > 0) {
+                    StreakCelebrationPage.show(
+                      context,
+                      currentStreak: currentStreak,
+                      streakIncreased: false,
+                      streakFreezeCount: profile?.streakFreezeCount ?? 0,
+                    );
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppPadding.md,
+                    vertical: AppPadding.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.activeOrange.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        CupertinoIcons.flame_fill,
+                        color: CupertinoColors.activeOrange,
+                        size: 16,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      Text(
+                        '$currentStreak-day streak',
+                        style: AppTextStyles.caption.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.foreground,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

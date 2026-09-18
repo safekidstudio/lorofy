@@ -24,6 +24,13 @@ class UnauthorizedException extends AppException {
   UnauthorizedException([super.message = "Session expired", super.code]);
 }
 
+class ForbiddenException extends AppException {
+  ForbiddenException([
+    super.message = "You don't have permission to access this resource.",
+    super.code,
+  ]);
+}
+
 class ServerException extends AppException {
   ServerException([super.message = "Server error", super.code]);
 }
@@ -38,7 +45,8 @@ extension ErrorExtractor on Object {
     if (error is Failure) return error;
 
     if (error is DioException) {
-      if (error.response?.statusCode == 401) {
+      final statusCode = error.response?.statusCode;
+      if (statusCode == 401 || statusCode == 403) {
         return UnauthorizedFailure(errorMessage, 'UNAUTHORIZED');
       }
       if (error.type == DioExceptionType.connectionTimeout ||
@@ -47,11 +55,14 @@ extension ErrorExtractor on Object {
           error.type == DioExceptionType.connectionError) {
         return NetworkFailure(errorMessage, 'NETWORK_ERROR');
       }
-      return ServerFailure(errorMessage, error.response?.statusCode?.toString());
+      return ServerFailure(errorMessage, statusCode?.toString());
     }
 
     if (error is UnauthorizedException) {
       return UnauthorizedFailure(error.message, error.code);
+    }
+    if (error is ForbiddenException) {
+      return ForbiddenFailure(error.message, error.code);
     }
     if (error is NetworkException) {
       return NetworkFailure(error.message, error.code);

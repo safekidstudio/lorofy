@@ -97,124 +97,138 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
         otpState.error != null ? _parseError(otpState.error!) : null;
 
     return PageWrapper(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // 1. Back button
-          const TopBar(),
-          const Spacer(),
-
-          // 2. Title
-          const Text(
-            'Verify your OTP',
-            style: TextStyle(
-              fontFamily: AppTextStyles.titleFontFamily,
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
-              color: AppColors.foreground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-
-          // 3. Subtitle with masked email
-          Text.rich(
-            TextSpan(
-              text: 'Enter your OTP sent to ',
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.mutedForeground,
-                fontSize: 14,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
               ),
-              children: [
-                TextSpan(
-                  text: _maskedEmail,
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.foreground,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 1. Back button
+                    const TopBar(),
+                    const Spacer(),
 
-          // 4. OTP Input
-          OtpInput(
-            onCodeCompleted: _onCodeCompleted,
-            hasError: errorMessage != null,
-          ),
-
-          // 5. Error
-          if (errorMessage != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              errorMessage,
-              style: AppTextStyles.body.copyWith(
-                color: CupertinoColors.systemRed,
-                fontSize: 13,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-
-          const SizedBox(height: 28),
-
-          // 6. Verify button
-          Center(
-            child: SizedBox(
-              width: 180,
-              child: Button.primary(
-                text: 'Verify',
-                isLoading: isLoading,
-                onPressed: (_otpCode.length == 6 && !isLoading)
-                    ? () => _handleVerify(_otpCode)
-                    : null,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // 7. Resend section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Didn't receive it? ",
-                style: AppTextStyles.body.copyWith(
-                  color: AppColors.mutedForeground,
-                  fontSize: 14,
-                ),
-              ),
-              _cooldownSeconds > 0
-                  ? Text(
-                      'Resend in ${_cooldownSeconds}s',
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.mutedForeground,
-                        fontSize: 14,
+                    // 2. Title
+                    const Text(
+                      'Verify your OTP',
+                      style: TextStyle(
+                        fontFamily: AppTextStyles.titleFontFamily,
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.foreground,
                       ),
-                    )
-                  : CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: isLoading ? null : _handleResend,
-                      child: Text(
-                        'Resend OTP',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+
+                    // 3. Subtitle with masked email
+                    Text.rich(
+                      TextSpan(
+                        text: 'Enter your OTP sent to ',
                         style: AppTextStyles.body.copyWith(
-                          color: AppColors.foreground,
+                          color: AppColors.mutedForeground,
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          decoration: TextDecoration.underline,
-                          decorationColor: AppColors.foreground,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: _maskedEmail,
+                            style: AppTextStyles.body.copyWith(
+                              color: AppColors.foreground,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
+
+                    // 4. OTP Input
+                    OtpInput(
+                      onCodeCompleted: _onCodeCompleted,
+                      hasError: errorMessage != null,
+                    ),
+
+                    // 5. Error
+                    if (errorMessage != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        errorMessage,
+                        style: AppTextStyles.body.copyWith(
+                          color: CupertinoColors.systemRed,
+                          fontSize: 13,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+
+                    const SizedBox(height: 28),
+
+                    // 6. Verify button
+                    Center(
+                      child: SizedBox(
+                        width: 180,
+                        child: Button.primary(
+                          text: 'Verify',
+                          isLoading: isLoading,
+                          onPressed: (_otpCode.length == 6 && !isLoading)
+                              ? () => _handleVerify(_otpCode)
+                              : null,
                         ),
                       ),
                     ),
-            ],
-          ),
 
-          const Spacer(),
-        ],
+                    const SizedBox(height: 24),
+
+                    // 7. Resend section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Didn't receive it? ",
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.mutedForeground,
+                            fontSize: 14,
+                          ),
+                        ),
+                        _cooldownSeconds > 0
+                            ? Text(
+                                'Resend in ${_cooldownSeconds}s',
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.mutedForeground,
+                                  fontSize: 14,
+                                ),
+                              )
+                            : CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: isLoading ? null : _handleResend,
+                                child: Text(
+                                  'Resend OTP',
+                                  style: AppTextStyles.body.copyWith(
+                                    color: AppColors.foreground,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColors.foreground,
+                                  ),
+                                ),
+                              ),
+                      ],
+                    ),
+
+                    const Spacer(),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

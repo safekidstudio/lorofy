@@ -29,6 +29,8 @@ class PomodoroTimerState {
   final FocusCategory? selectedCategory;
   final int? earnedPoints;
   final int? earnedCoins;
+  final int? currentStreak;
+  final bool streakIncreased;
 
   const PomodoroTimerState({
     this.phase = PomodoroState.idle,
@@ -40,6 +42,8 @@ class PomodoroTimerState {
     this.selectedCategory,
     this.earnedPoints,
     this.earnedCoins,
+    this.currentStreak,
+    this.streakIncreased = false,
   });
 
   PomodoroTimerState copyWith({
@@ -52,6 +56,8 @@ class PomodoroTimerState {
     FocusCategory? selectedCategory,
     int? earnedPoints,
     int? earnedCoins,
+    int? currentStreak,
+    bool? streakIncreased,
   }) {
     return PomodoroTimerState(
       phase: phase ?? this.phase,
@@ -63,6 +69,8 @@ class PomodoroTimerState {
       selectedCategory: selectedCategory ?? this.selectedCategory,
       earnedPoints: earnedPoints ?? this.earnedPoints,
       earnedCoins: earnedCoins ?? this.earnedCoins,
+      currentStreak: currentStreak ?? this.currentStreak,
+      streakIncreased: streakIncreased ?? this.streakIncreased,
     );
   }
 
@@ -271,7 +279,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     });
   }
 
-  void _onFocusCompleted() {
+  void _onFocusCompleted() async {
     final settings = ref.read(pomodoroSettingsProvider);
     final systemSettings = ref.read(systemSettingsProvider);
 
@@ -287,10 +295,17 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     final calculatedCoins =
         (focusMinutes * systemSettings.rewardBaseCoinsPerMin * multiplier).round();
 
+    // Record daily streak update
+    final streakResult = await ref
+        .read(authProvider.notifier)
+        .recordFocusCompletionStreak();
+
     // Optimistically set earned points & coins based on settings conversion formula
     state = state.copyWith(
       earnedPoints: calculatedPoints,
       earnedCoins: calculatedCoins,
+      currentStreak: streakResult.currentStreak,
+      streakIncreased: streakResult.streakIncreased,
     );
 
     // Call API completeSession
@@ -317,6 +332,9 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
             ref
                 .read(authProvider.notifier)
                 .updatePointsState(currentPoints + points);
+
+            // Refresh user profile from backend
+            ref.read(authProvider.notifier).refreshProfile();
           })
           .catchError((e) {
             debugPrint('Error completing backend session: $e');

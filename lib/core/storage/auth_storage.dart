@@ -14,6 +14,15 @@ class AuthStorage {
   static const _displayNameKey = "display_name";
   static const _avatarUrlKey = "avatar_url";
   static const _usernameKey = "username";
+  static const _lastFocusDateKey = "last_focus_date";
+
+  Future<void> saveLastFocusDate(String dateStr) async {
+    await _storage.write(key: _lastFocusDateKey, value: dateStr);
+  }
+
+  Future<String?> getLastFocusDate() async {
+    return await _storage.read(key: _lastFocusDateKey);
+  }
 
   Future<void> saveTokens({
     required String accessToken,

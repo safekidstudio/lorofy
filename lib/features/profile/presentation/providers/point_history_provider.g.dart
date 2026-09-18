@@ -28,7 +28,7 @@ final class PointHistoryProvider
         argument: null,
         retry: null,
         name: r'pointHistoryProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -48,4 +48,4 @@ final class PointHistoryProvider
   }
 }
 
-String _$pointHistoryHash() => r'9716c236fe59ce57ae5f6219a719efa69b59c126';
+String _$pointHistoryHash() => r'59dac67f607a6a43e4ca99c60518c031e2e92f7f';

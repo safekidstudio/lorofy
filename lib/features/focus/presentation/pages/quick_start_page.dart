@@ -20,6 +20,7 @@ import 'package:lorofy/features/focus/presentation/widgets/focus_timer/pomodoro_
 import 'package:lorofy/features/focus/presentation/widgets/focus_timer/pomodoro_timer_display.dart';
 import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.dart';
 import 'package:lorofy/features/mascot/presentation/widgets/mascot_graphic.dart';
+import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 
 class QuickStartPage extends ConsumerStatefulWidget {
   final ValueChanged<bool> onFocusStateChanged;
@@ -166,12 +167,15 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
 
     Widget currentScreen;
     if (phase == PomodoroState.completed) {
+      final userProfileStreak = ref.watch(authProvider).userProfile?.currentStreak ?? 0;
       currentScreen = PomodoroCompletePage(
         key: const ValueKey('completed_page'),
         onBackToHome: onReset,
         onHaveARest: onReset,
         earnedPoints: timerState.earnedPoints ?? 0,
         earnedCoins: timerState.earnedCoins ?? 0,
+        currentStreak: timerState.currentStreak ?? userProfileStreak,
+        streakIncreased: timerState.streakIncreased,
       );
     } else if (phase == PomodoroState.giveup) {
       currentScreen = PomodoroGiveupPage(

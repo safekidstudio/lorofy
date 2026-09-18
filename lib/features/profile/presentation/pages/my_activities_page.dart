@@ -2,17 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
-import 'package:lorofy/components/ui/toast.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/components/ui/sliding_segmented_control.dart';
-import 'package:lorofy/components/ui/loader.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/utils/app_date_formatter.dart';
-import 'package:lorofy/features/explore/data/repositories/explore_repository_impl.dart';
 import 'package:lorofy/features/focus/domain/models/focus_session.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/features/profile/presentation/widgets/status_select_sheet.dart';
 import 'package:lorofy/features/profile/presentation/widgets/activity_list_items.dart';
+import 'package:lorofy/features/profile/presentation/providers/activities_provider.dart';
+import 'package:lorofy/components/ui/app_refresh_control.dart';
 
 class MyActivitiesPage extends ConsumerStatefulWidget {
   const MyActivitiesPage({super.key});
@@ -24,133 +23,14 @@ class MyActivitiesPage extends ConsumerStatefulWidget {
 class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
   String _selectedStatus = 'ALL'; // 'ALL', 'COMPLETED', 'FAILED'
   String _selectedTimeframe = 'ALL'; // 'ALL', 'TODAY', 'WEEK'
-  bool _isLoading = true;
-  bool _isLoadingMore = false;
-  bool _isLastPage = false;
-  int _currentPage = 0;
-  List<FocusSession> _sessions = [];
-  final ScrollController _scrollController = ScrollController();
 
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-    _loadActivities(reset: true);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (!_scrollController.hasClients) return;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.position.pixels;
-    // Trigger when user scrolls to 90% of the list
-    if (currentScroll >= maxScroll * 0.9) {
-      if (!_isLoading && !_isLoadingMore && !_isLastPage) {
-        _loadNextPage();
-      }
-    }
-  }
-
-  Future<void> _loadActivities({bool reset = false}) async {
-    if (reset) {
-      setState(() {
-        _currentPage = 0;
-        _isLastPage = false;
-        _isLoading = true;
-        _sessions = [];
-      });
-    }
-
-    try {
-      final repository = ref.read(exploreRepositoryProvider);
-
-      String? startDate;
-      String? endDate;
-      final now = DateTime.now();
-
-      if (_selectedTimeframe == 'TODAY') {
-        final todayStart = DateTime(now.year, now.month, now.day);
-        final todayEnd = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          23,
-          59,
-          59,
-          999,
-        );
-        startDate = todayStart.toUtc().toIso8601String();
-        endDate = todayEnd.toUtc().toIso8601String();
-      } else if (_selectedTimeframe == 'WEEK') {
-        final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-        final weekStart = DateTime(
-          startOfWeek.year,
-          startOfWeek.month,
-          startOfWeek.day,
-        );
-        final weekEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
-        startDate = weekStart.toUtc().toIso8601String();
-        endDate = weekEnd.toUtc().toIso8601String();
-      }
-
-      String? statusParam;
-      if (_selectedStatus != 'ALL') {
-        statusParam = _selectedStatus;
-      }
-
-      final list = await repository.getFilteredActivities(
-        status: statusParam,
-        startDate: startDate,
-        endDate: endDate,
-        page: _currentPage,
-        size: 20,
-      );
-
-      if (mounted) {
-        setState(() {
-          _sessions.addAll(list);
-          _isLastPage = list.length < 20;
-          _isLoading = false;
-          _isLoadingMore = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _isLoadingMore = false;
-        });
-        AppToast.show(
-          context,
-          message: 'Failed to load activities: ${e.toString()}',
-          type: ToastType.error,
-        );
-      }
-    }
-  }
-
-  void _loadNextPage() {
-    setState(() {
-      _isLoadingMore = true;
-      _currentPage++;
-    });
-    _loadActivities();
-  }
-
-  List<dynamic> _buildDisplayList() {
-    final sorted = List<FocusSession>.from(_sessions)
+  List<dynamic> _buildDisplayList(List<FocusSession> sessions) {
+    final sorted = List<FocusSession>.from(sessions)
       ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
 
     if (_selectedTimeframe == 'TODAY') {
-      // Show every session individually by hour
       return sorted;
     } else {
-      // Group everything by day
       final Map<DateTime, List<FocusSession>> groupedMap = {};
       for (final session in sorted) {
         final localTime = AppDateFormatter.parse(session.startedAt) ?? DateTime.now();
@@ -206,7 +86,6 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
             currentStatus: _selectedStatus,
             onSelect: (status) {
               setState(() => _selectedStatus = status);
-              _loadActivities(reset: true);
             },
           ),
         ),
@@ -357,7 +236,12 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final displayList = _buildDisplayList();
+    final activitiesAsync = ref.watch(
+      filteredActivitiesProvider(
+        timeframe: _selectedTimeframe,
+        status: _selectedStatus,
+      ),
+    );
 
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
@@ -404,7 +288,6 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
                           ? 'ALL'
                           : (index == 1 ? 'TODAY' : 'WEEK');
                       setState(() => _selectedTimeframe = timeframe);
-                      _loadActivities(reset: true);
                     },
                   ),
                   _buildStatusDropdown(context),
@@ -416,27 +299,53 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
 
             // List of items
             Expanded(
-              child: _isLoading
-                  ? _buildSkeleton()
-                  : (displayList.isEmpty
-                        ? _buildEmptyState()
-                        : CupertinoScrollbar(
-                            child: ListView.builder(
-                              controller: _scrollController,
-                              physics: const BouncingScrollPhysics(),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                              ),
-                              itemCount:
-                                  displayList.length + (_isLoadingMore ? 1 : 0),
-                              itemBuilder: (context, index) {
-                                if (index == displayList.length) {
-                                  return const Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 16),
-                                    child: Center(child: Loader(size: 24)),
-                                  );
-                                }
+              child: activitiesAsync.when(
+                loading: () => _buildSkeleton(),
+                error: (err, stack) => Center(
+                  child: Text(
+                    'Failed to load activities: $err',
+                    style: const TextStyle(
+                      fontFamily: AppTextStyles.fontFamily,
+                      color: CupertinoColors.systemRed,
+                    ),
+                  ),
+                ),
+                data: (sessions) {
+                  final displayList = _buildDisplayList(sessions);
 
+                  if (displayList.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  return CupertinoScrollbar(
+                    child: CustomScrollView(
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      slivers: [
+                        AppRefreshControl(
+                          onRefresh: () async {
+                            ref.invalidate(
+                              filteredActivitiesProvider(
+                                timeframe: _selectedTimeframe,
+                                status: _selectedStatus,
+                              ),
+                            );
+                            await ref.read(
+                              filteredActivitiesProvider(
+                                timeframe: _selectedTimeframe,
+                                status: _selectedStatus,
+                              ).future,
+                            );
+                          },
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                          ),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
                                 final item = displayList[index];
                                 if (item is FocusSession) {
                                   return TodayActivityItem(session: item);
@@ -445,8 +354,15 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
                                 }
                                 return const SizedBox.shrink();
                               },
+                              childCount: displayList.length,
                             ),
-                          )),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),

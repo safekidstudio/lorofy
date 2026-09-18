@@ -199,19 +199,23 @@ class Button extends ConsumerWidget {
               // Prefix Icon
               if (prefix != null) ...[prefix!, const SizedBox(width: 8)],
               // Text chính
-              Text(
-                text,
-                style: AppTextStyles.buttonText
-                    .copyWith(
-                      fontFamily: AppTextStyles.titleFontFamily,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400,
-                      color: textColor,
-                      decoration: variant == ButtonVariant.link
-                          ? TextDecoration.underline
-                          : TextDecoration.none,
-                    )
-                    .merge(textStyle),
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.buttonText
+                      .copyWith(
+                        fontFamily: AppTextStyles.titleFontFamily,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                        color: textColor,
+                        decoration: variant == ButtonVariant.link
+                            ? TextDecoration.underline
+                            : TextDecoration.none,
+                      )
+                      .merge(textStyle),
+                ),
               ),
               // Suffix Icon
               if (suffix != null) ...[const SizedBox(width: 8), suffix!],

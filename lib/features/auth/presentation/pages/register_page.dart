@@ -80,82 +80,96 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return PageWrapper(
       child: ReactiveForm(
         formGroup: _form,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 1. Header Back Button
-            const TopBar(),
-            const Spacer(),
-
-            // 2. Title "What's your email?"
-            const Text(
-              "What's your email?",
-              style: TextStyle(
-                fontFamily: AppTextStyles.titleFontFamily,
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: AppColors.foreground,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 28),
-
-            // 3. Flat email input field (without top label text)
-            Input(
-              placeholder: 'example@lorofy.com',
-              formControlName: 'email',
-              keyboardType: TextInputType.emailAddress,
-              disabled: isLoading,
-              errorMessage: errorMessage,
-            ),
-            const SizedBox(height: 28),
-
-            // 4. Centered, smaller Continue button
-            Center(
-              child: SizedBox(
-                width: 180,
-                child: ReactiveFormConsumer(
-                  builder: (context, form, child) {
-                    return Button.primary(
-                      text: 'Continue',
-                      isLoading: isLoading,
-                      onPressed: (form.valid && !isLoading) ? _onContinue : null,
-                    );
-                  },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-              ),
-            ),
-            const SizedBox(height: 28),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // 1. Header Back Button
+                      const TopBar(),
+                      const Spacer(),
 
-            // 5. Wavy Divider
-            const WavyDivider(text: 'Or'),
-            const SizedBox(height: 24),
+                      // 2. Title "What's your email?"
+                      const Text(
+                        "What's your email?",
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.titleFontFamily,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.foreground,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 28),
 
-            // 6. Circular Social Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SocialIconButton(
-                  svgPath: 'assets/icons/apple-drawing.svg',
-                  onPressed: () => AppToast.show(
-                    context,
-                    message: 'Apple Sign-in is coming soon!',
-                    type: ToastType.info,
+                      // 3. Flat email input field (without top label text)
+                      Input(
+                        placeholder: 'example@lorofy.com',
+                        formControlName: 'email',
+                        keyboardType: TextInputType.emailAddress,
+                        disabled: isLoading,
+                        errorMessage: errorMessage,
+                      ),
+                      const SizedBox(height: 28),
+
+                      // 4. Centered, smaller Continue button
+                      Center(
+                        child: SizedBox(
+                          width: 180,
+                          child: ReactiveFormConsumer(
+                            builder: (context, form, child) {
+                              return Button.primary(
+                                text: 'Continue',
+                                isLoading: isLoading,
+                                onPressed: (form.valid && !isLoading) ? _onContinue : null,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+
+                      // 5. Wavy Divider
+                      const WavyDivider(text: 'Or'),
+                      const SizedBox(height: 24),
+
+                      // 6. Circular Social Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SocialIconButton(
+                            svgPath: 'assets/icons/apple-drawing.svg',
+                            onPressed: () => AppToast.show(
+                              context,
+                              message: 'Apple Sign-in is coming soon!',
+                              type: ToastType.info,
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          SocialIconButton(
+                            svgPath: 'assets/icons/google-drawing.svg',
+                            onPressed: isLoading
+                                ? null
+                                : () => ref
+                                    .read(loginControllerProvider.notifier)
+                                    .loginWithGoogle(),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 20),
-                SocialIconButton(
-                  svgPath: 'assets/icons/google-drawing.svg',
-                  onPressed: isLoading
-                      ? null
-                      : () => ref
-                          .read(loginControllerProvider.notifier)
-                          .loginWithGoogle(),
-                ),
-              ],
-            ),
-            const Spacer(),
-          ],
+              ),
+            );
+          },
         ),
       ),
     );

@@ -3,13 +3,16 @@ import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:rive/rive.dart';
+import 'package:lorofy/features/profile/presentation/pages/streak_celebration_page.dart';
+import 'package:lorofy/components/ui/safe_rive_animation.dart';
 
-class PomodoroCompletePage extends StatelessWidget {
+class PomodoroCompletePage extends StatefulWidget {
   final VoidCallback onBackToHome;
   final VoidCallback onHaveARest;
   final int earnedPoints;
   final int earnedCoins;
+  final int currentStreak;
+  final bool streakIncreased;
 
   const PomodoroCompletePage({
     super.key,
@@ -17,7 +20,46 @@ class PomodoroCompletePage extends StatelessWidget {
     required this.onHaveARest,
     this.earnedPoints = 0,
     this.earnedCoins = 0,
+    this.currentStreak = 0,
+    this.streakIncreased = false,
   });
+
+  @override
+  State<PomodoroCompletePage> createState() => _PomodoroCompletePageState();
+}
+
+class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
+  bool _hasAutoShownStreak = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Automatic Duolingo-style transition to StreakCelebrationPage on completion
+    if (widget.currentStreak > 0 && !_hasAutoShownStreak) {
+      _hasAutoShownStreak = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            StreakCelebrationPage.show(
+              context,
+              currentStreak: widget.currentStreak,
+              streakIncreased: widget.streakIncreased,
+            );
+          }
+        });
+      });
+    }
+  }
+
+  void _handleManualStreakClick(BuildContext context) {
+    if (widget.currentStreak > 0) {
+      StreakCelebrationPage.show(
+        context,
+        currentStreak: widget.currentStreak,
+        streakIncreased: widget.streakIncreased,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +68,7 @@ class PomodoroCompletePage extends StatelessWidget {
       children: [
         // Rive Confetti falling in the background
         const Positioned.fill(
-          child: RiveAnimation.asset(
+          child: SafeRiveAnimation.asset(
             'assets/river/confetti.riv',
             fit: BoxFit.cover,
           ),
@@ -42,7 +84,7 @@ class PomodoroCompletePage extends StatelessWidget {
                 AppHeader(
                   leftActions: CupertinoButton(
                     padding: EdgeInsets.zero,
-                    onPressed: onBackToHome,
+                    onPressed: widget.onBackToHome,
                     child: const Icon(
                       CupertinoIcons.xmark,
                       color: Color(0xFF232321),
@@ -91,7 +133,7 @@ class PomodoroCompletePage extends StatelessWidget {
                           ),
                         ),
                         
-                        if (earnedPoints > 0) ...[
+                        if (widget.earnedPoints > 0) ...[
                           const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -111,7 +153,7 @@ class PomodoroCompletePage extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      '+$earnedPoints PTS',
+                                      '+${widget.earnedPoints} PTS',
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -119,6 +161,67 @@ class PomodoroCompletePage extends StatelessWidget {
                                       ),
                                     ),
                                   ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+
+                        if (widget.currentStreak > 0) ...[
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              GestureDetector(
+                                onTap: () => _handleManualStreakClick(context),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: CupertinoColors.activeOrange.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: CupertinoColors.activeOrange.withValues(alpha: 0.3),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        CupertinoIcons.flame_fill,
+                                        color: CupertinoColors.activeOrange,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        '${widget.currentStreak}-Day Streak!',
+                                        style: const TextStyle(
+                                          fontFamily: AppTextStyles.fontFamily,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: CupertinoColors.activeOrange,
+                                        ),
+                                      ),
+                                      if (widget.streakIncreased) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: CupertinoColors.activeOrange,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: const Text(
+                                            '+1 Today 🎉',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: CupertinoColors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -132,7 +235,7 @@ class PomodoroCompletePage extends StatelessWidget {
                             width: 180,
                             child: Button.secondary(
                               text: 'Have a rest',
-                              onPressed: onHaveARest,
+                              onPressed: widget.onHaveARest,
                             ),
                           ),
                         ),

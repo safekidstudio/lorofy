@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Divider, Colors, Material;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 // import 'package:lorofy/components/ui/app_switch.dart';
@@ -251,6 +252,20 @@ class SettingsPage extends ConsumerWidget {
                         ),
                       ),
                       */
+                      // Section 2: DEVELOPER & STREAK LAB
+                      _buildSectionHeader('DEVELOPER & STREAK LAB'),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: CupertinoColors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: _buildRow(
+                          title: '🔥 Streak Test Lab (Rive & Flow)',
+                          subtitle: 'Test Rive & Streak',
+                          onTap: () => context.push('/streak-test'),
+                        ),
+                      ),
                       const SizedBox(height: 40),
                     ],
                   ),

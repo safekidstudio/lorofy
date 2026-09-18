@@ -59,116 +59,130 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
     return PageWrapper(
       child: ReactiveForm(
         formGroup: _form,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 1. Back button
-            const TopBar(),
-            const Spacer(),
-
-            // 2. Title
-            const Text(
-              'Create your\npassword',
-              style: TextStyle(
-                fontFamily: AppTextStyles.titleFontFamily,
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: AppColors.foreground,
-                height: 1.15,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-
-            Text(
-              'Password must be at least 8 characters',
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.mutedForeground,
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-
-            // 3. Password field
-            ReactiveFormConsumer(
-              builder: (context, form, child) {
-                final passwordControl = form.control('password');
-                String? errorText;
-                if (passwordControl.hasError(ValidationMessage.minLength) && passwordControl.dirty) {
-                  errorText = 'Password must be at least 8 characters';
-                }
-                return Input(
-                  placeholder: 'Password',
-                  formControlName: 'password',
-                  obscureText: true,
-                  disabled: isLoading,
-                  errorMessage: errorText,
-                );
-              },
-            ),
-
-            // 4. Server error
-            if (serverError != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                serverError,
-                style: AppTextStyles.body.copyWith(
-                  color: CupertinoColors.systemRed,
-                  fontSize: 13,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // 1. Back button
+                      const TopBar(),
+                      const Spacer(),
 
-            const SizedBox(height: 28),
+                      // 2. Title
+                      const Text(
+                        'Create your\npassword',
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.titleFontFamily,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.foreground,
+                          height: 1.15,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
 
-            // 5. Create button
-            Center(
-              child: SizedBox(
-                width: 180,
-                child: ReactiveFormConsumer(
-                  builder: (context, form, child) {
-                    return Button.primary(
-                      text: 'Create',
-                      isLoading: isLoading,
-                      onPressed: (form.valid && !isLoading) ? _handleSubmit : null,
-                    );
-                  },
+                      Text(
+                        'Password must be at least 8 characters',
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.mutedForeground,
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
+
+                      // 3. Password field
+                      ReactiveFormConsumer(
+                        builder: (context, form, child) {
+                          final passwordControl = form.control('password');
+                          String? errorText;
+                          if (passwordControl.hasError(ValidationMessage.minLength) && passwordControl.dirty) {
+                            errorText = 'Password must be at least 8 characters';
+                          }
+                          return Input(
+                            placeholder: 'Password',
+                            formControlName: 'password',
+                            obscureText: true,
+                            disabled: isLoading,
+                            errorMessage: errorText,
+                          );
+                        },
+                      ),
+
+                      // 4. Server error
+                      if (serverError != null) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          serverError,
+                          style: AppTextStyles.body.copyWith(
+                            color: CupertinoColors.systemRed,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+
+                      const SizedBox(height: 28),
+
+                      // 5. Create button
+                      Center(
+                        child: SizedBox(
+                          width: 180,
+                          child: ReactiveFormConsumer(
+                            builder: (context, form, child) {
+                              return Button.primary(
+                                text: 'Create',
+                                isLoading: isLoading,
+                                onPressed: (form.valid && !isLoading) ? _handleSubmit : null,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // 6. Terms note
+                      Text.rich(
+                        TextSpan(
+                          text: 'By creating an account you agree to our ',
+                          style: AppTextStyles.caption,
+                          children: [
+                            TextSpan(
+                              text: 'Terms of Service',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.foreground,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const TextSpan(text: ' and '),
+                            TextSpan(
+                              text: 'Privacy Policy',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.foreground,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const Spacer(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // 6. Terms note
-            Text.rich(
-              TextSpan(
-                text: 'By creating an account you agree to our ',
-                style: AppTextStyles.caption,
-                children: [
-                  TextSpan(
-                    text: 'Terms of Service',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.foreground,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const TextSpan(text: ' and '),
-                  TextSpan(
-                    text: 'Privacy Policy',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.foreground,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const Spacer(),
-          ],
+            );
+          },
         ),
       ),
     );

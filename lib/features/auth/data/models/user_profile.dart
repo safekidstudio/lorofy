@@ -61,5 +61,47 @@ class UserProfile {
       repairCostCoins: json['repairCostCoins'] as int? ?? 100,
     );
   }
+
+  UserProfile copyWith({
+    String? id,
+    String? username,
+    String? displayName,
+    String? countryCode,
+    String? countryName,
+    String? timezone,
+    bool? isOnboarded,
+    String? avatarUrl,
+    String? defaultBlockMode,
+    int? rankPoints,
+    int? goldCoins,
+    int? totalFocusMinutes,
+    int? currentStreak,
+    int? longestStreak,
+    int? streakFreezeCount,
+    bool? canRepairStreak,
+    int? repairableStreak,
+    int? repairCostCoins,
+  }) {
+    return UserProfile(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      displayName: displayName ?? this.displayName,
+      countryCode: countryCode ?? this.countryCode,
+      countryName: countryName ?? this.countryName,
+      timezone: timezone ?? this.timezone,
+      isOnboarded: isOnboarded ?? this.isOnboarded,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      defaultBlockMode: defaultBlockMode ?? this.defaultBlockMode,
+      rankPoints: rankPoints ?? this.rankPoints,
+      goldCoins: goldCoins ?? this.goldCoins,
+      totalFocusMinutes: totalFocusMinutes ?? this.totalFocusMinutes,
+      currentStreak: currentStreak ?? this.currentStreak,
+      longestStreak: longestStreak ?? this.longestStreak,
+      streakFreezeCount: streakFreezeCount ?? this.streakFreezeCount,
+      canRepairStreak: canRepairStreak ?? this.canRepairStreak,
+      repairableStreak: repairableStreak ?? this.repairableStreak,
+      repairCostCoins: repairCostCoins ?? this.repairCostCoins,
+    );
+  }
 }
 

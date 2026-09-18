@@ -44,6 +44,14 @@ class UnauthorizedFailure extends Failure {
   ]);
 }
 
+/// Failure representing access denied to a resource (genuine 403 after token refresh)
+class ForbiddenFailure extends Failure {
+  const ForbiddenFailure([
+    super.message = "You don't have permission to access this resource.",
+    super.code,
+  ]);
+}
+
 /// Failure representing local storage/cache errors
 class CacheFailure extends Failure {
   const CacheFailure([

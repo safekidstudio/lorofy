@@ -4,7 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
-import 'package:rive/rive.dart' hide LinearGradient, Image;
+import 'package:lorofy/components/ui/safe_rive_animation.dart';
+import 'package:rive/rive.dart' hide Animation;
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/components/ui/loader.dart';
 
@@ -431,48 +432,29 @@ class _StandaloneRiveLoadingWidget extends StatefulWidget {
 
 class _StandaloneRiveLoadingWidgetState
     extends State<_StandaloneRiveLoadingWidget> {
-  SMITrigger? _successTrigger;
-  SMITrigger? _failTrigger;
-  SMIBool? _loadingBool;
+  StateMachine? _riveStateMachine;
 
   void _onRiveInit(Artboard artboard) {
     final stateMachineName = widget.stateMachineName ?? 'State Machine 1';
-    final controller = StateMachineController.fromArtboard(
-      artboard,
-      stateMachineName,
-    );
-    if (controller != null) {
-      artboard.addController(controller);
-      for (final input in controller.inputs) {
-        if (input is SMITrigger) {
-          if (input.name == 'success' || input.name == 'isSuccess') {
-            _successTrigger = input;
-          } else if (input.name == 'fail' ||
-              input.name == 'failed' ||
-              input.name == 'isFailed') {
-            _failTrigger = input;
-          }
-        } else if (input is SMIBool) {
-          if (input.name == 'isLoading' ||
-              input.name == 'isFocusing' ||
-              input.name == 'loading') {
-            _loadingBool = input;
-          }
-        }
-      }
+    final sm = artboard.stateMachine(stateMachineName) ?? artboard.defaultStateMachine();
+    if (sm != null) {
+      _riveStateMachine = sm;
       _applyStatus();
     }
   }
 
   void _applyStatus() {
     if (widget.status == LoadingStatus.success) {
-      _successTrigger?.fire();
+      _riveStateMachine?.trigger('success')?.fire();
+      _riveStateMachine?.trigger('isSuccess')?.fire();
     } else if (widget.status == LoadingStatus.error) {
-      _failTrigger?.fire();
+      _riveStateMachine?.trigger('fail')?.fire();
+      _riveStateMachine?.trigger('failed')?.fire();
+      _riveStateMachine?.trigger('isFailed')?.fire();
     } else if (widget.status == LoadingStatus.loading) {
-      if (_loadingBool != null) {
-        _loadingBool!.value = true;
-      }
+      _riveStateMachine?.boolean('isLoading')?.value = true;
+      _riveStateMachine?.boolean('isFocusing')?.value = true;
+      _riveStateMachine?.boolean('loading')?.value = true;
     }
   }
 
@@ -489,9 +471,8 @@ class _StandaloneRiveLoadingWidgetState
     return SizedBox(
       width: widget.size,
       height: widget.size,
-      child: RiveAnimation.asset(
+      child: SafeRiveAnimation.asset(
         widget.riveAsset,
-        stateMachines: [widget.stateMachineName ?? 'State Machine 1'],
         onInit: _onRiveInit,
         fit: BoxFit.contain,
       ),

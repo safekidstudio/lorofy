@@ -72,90 +72,104 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return PageWrapper(
       child: ReactiveForm(
         formGroup: _form,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 1. Header Back Button
-            const TopBar(),
-            const Spacer(),
-
-            // 2. Title "Login your account"
-            const Text(
-              'Login your account',
-              style: TextStyle(
-                fontFamily: AppTextStyles.titleFontFamily,
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: AppColors.foreground,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 28),
-
-            // 3. Flat input fields (without top label text)
-            Input(
-              placeholder: 'example@lorofy.com',
-              formControlName: 'email',
-              keyboardType: TextInputType.emailAddress,
-              disabled: loginState.isLoading,
-            ),
-            const SizedBox(height: 16),
-            Input(
-              placeholder: '****************',
-              formControlName: 'password',
-              obscureText: true,
-              disabled: loginState.isLoading,
-            ),
-            const SizedBox(height: 28),
-
-            // 4. Centered, smaller Login button
-            Center(
-              child: SizedBox(
-                width: 180,
-                child: ReactiveFormConsumer(
-                  builder: (context, form, child) {
-                    return Button.primary(
-                      text: 'Login',
-                      isLoading: loginState.isLoading,
-                      onPressed: (form.valid && !loginState.isLoading)
-                          ? _handleLogin
-                          : null,
-                    );
-                  },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-              ),
-            ),
-            const SizedBox(height: 28),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // 1. Header Back Button
+                      const TopBar(),
+                      const Spacer(),
 
-            // 5. Wavy Divider
-            const WavyDivider(text: 'Or'),
-            const SizedBox(height: 24),
+                      // 2. Title "Login your account"
+                      const Text(
+                        'Login your account',
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.titleFontFamily,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.foreground,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 28),
 
-            // 6. Circular Social Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SocialIconButton(
-                  svgPath: 'assets/icons/apple-drawing.svg',
-                  onPressed: () => AppToast.show(
-                    context,
-                    message: 'Apple Sign-in is coming soon!',
-                    type: ToastType.info,
+                      // 3. Flat input fields (without top label text)
+                      Input(
+                        placeholder: 'example@lorofy.com',
+                        formControlName: 'email',
+                        keyboardType: TextInputType.emailAddress,
+                        disabled: loginState.isLoading,
+                      ),
+                      const SizedBox(height: 16),
+                      Input(
+                        placeholder: '****************',
+                        formControlName: 'password',
+                        obscureText: true,
+                        disabled: loginState.isLoading,
+                      ),
+                      const SizedBox(height: 28),
+
+                      // 4. Centered, smaller Login button
+                      Center(
+                        child: SizedBox(
+                          width: 180,
+                          child: ReactiveFormConsumer(
+                            builder: (context, form, child) {
+                              return Button.primary(
+                                text: 'Login',
+                                isLoading: loginState.isLoading,
+                                onPressed: (form.valid && !loginState.isLoading)
+                                    ? _handleLogin
+                                    : null,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+
+                      // 5. Wavy Divider
+                      const WavyDivider(text: 'Or'),
+                      const SizedBox(height: 24),
+
+                      // 6. Circular Social Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SocialIconButton(
+                            svgPath: 'assets/icons/apple-drawing.svg',
+                            onPressed: () => AppToast.show(
+                              context,
+                              message: 'Apple Sign-in is coming soon!',
+                              type: ToastType.info,
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          SocialIconButton(
+                            svgPath: 'assets/icons/google-drawing.svg',
+                            onPressed: loginState.isLoading
+                                ? null
+                                : () => ref
+                                      .read(loginControllerProvider.notifier)
+                                      .loginWithGoogle(),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 20),
-                SocialIconButton(
-                  svgPath: 'assets/icons/google-drawing.svg',
-                  onPressed: loginState.isLoading
-                      ? null
-                      : () => ref
-                            .read(loginControllerProvider.notifier)
-                            .loginWithGoogle(),
-                ),
-              ],
-            ),
-            const Spacer(),
-          ],
+              ),
+            );
+          },
         ),
       ),
     );

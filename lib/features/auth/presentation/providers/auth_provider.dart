@@ -114,10 +114,13 @@ class Auth extends _$Auth {
         state = AuthStatus(state: AuthState.unauthenticated);
       }
     } catch (e) {
-      final isAuthError = e is DioException && e.response?.statusCode == 401;
+      final statusCode = e is DioException ? e.response?.statusCode : null;
+      final isAuthError = statusCode == 401 || statusCode == 403;
       if (isAuthError) {
+        // Token expired or invalid → clear session
         await logout();
       } else if (state.state == AuthState.initial) {
+        // Network or server error → stay on auth screen, don't crash
         state = AuthStatus(state: AuthState.unauthenticated);
       }
     }
@@ -252,5 +255,32 @@ class Auth extends _$Auth {
 
   void updatePointsState(int points) {
     state = state.copyWith(rankPoints: points);
+  }
+
+  Future<({bool streakIncreased, int currentStreak})> recordFocusCompletionStreak() async {
+    final todayStr = DateTime.now().toIso8601String().split('T').first;
+    final lastFocusDate = await _authStorage.getLastFocusDate();
+
+    final profile = state.userProfile;
+    final currentStreak = profile?.currentStreak ?? 0;
+    final longestStreak = profile?.longestStreak ?? 0;
+
+    if (lastFocusDate != todayStr) {
+      await _authStorage.saveLastFocusDate(todayStr);
+      final newStreak = currentStreak + 1;
+      final newLongest = newStreak > longestStreak ? newStreak : longestStreak;
+
+      if (profile != null) {
+        final updatedProfile = profile.copyWith(
+          currentStreak: newStreak,
+          longestStreak: newLongest,
+        );
+        state = state.copyWith(userProfile: updatedProfile);
+      }
+
+      return (streakIncreased: true, currentStreak: newStreak);
+    } else {
+      return (streakIncreased: false, currentStreak: currentStreak > 0 ? currentStreak : 1);
+    }
   }
 }

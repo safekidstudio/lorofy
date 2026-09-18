@@ -26,7 +26,7 @@ final class LeaderboardProvider
   }) : super(
          retry: null,
          name: r'leaderboardProvider',
-         isAutoDispose: true,
+         isAutoDispose: false,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
@@ -68,7 +68,7 @@ final class LeaderboardProvider
   }
 }
 
-String _$leaderboardHash() => r'15513ec1f9184ac926c5051314e1455f1e3af6e0';
+String _$leaderboardHash() => r'a764b68ea24dd7817e9a5ae156e4a4844e2302a7';
 
 final class LeaderboardFamily extends $Family
     with
@@ -82,7 +82,7 @@ final class LeaderboardFamily extends $Family
         name: r'leaderboardProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
-        isAutoDispose: true,
+        isAutoDispose: false,
       );
 
   LeaderboardProvider call({required String timeframe, String? countryCode}) =>

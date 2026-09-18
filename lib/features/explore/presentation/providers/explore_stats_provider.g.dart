@@ -26,7 +26,7 @@ final class ExploreStatsProvider
         argument: null,
         retry: null,
         name: r'exploreStatsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -45,7 +45,7 @@ final class ExploreStatsProvider
   }
 }
 
-String _$exploreStatsHash() => r'3b329080536b6941357ee2255e72f8f6f94845f4';
+String _$exploreStatsHash() => r'37bf43f675d3e0980f0c96184984d1034c905ce6';
 
 @ProviderFor(todayActivities)
 final todayActivitiesProvider = TodayActivitiesProvider._();
@@ -66,7 +66,7 @@ final class TodayActivitiesProvider
         argument: null,
         retry: null,
         name: r'todayActivitiesProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -86,7 +86,7 @@ final class TodayActivitiesProvider
   }
 }
 
-String _$todayActivitiesHash() => r'fa7151f8075dd491dac3fc51d6f1d245c1f27037';
+String _$todayActivitiesHash() => r'6c5c7abcfceb1f7daf88b16cececfbda5458c0d2';
 
 @ProviderFor(monthActivities)
 final monthActivitiesProvider = MonthActivitiesProvider._();
@@ -107,7 +107,7 @@ final class MonthActivitiesProvider
         argument: null,
         retry: null,
         name: r'monthActivitiesProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -127,4 +127,4 @@ final class MonthActivitiesProvider
   }
 }
 
-String _$monthActivitiesHash() => r'fd28b041910dd53a714ac8ee75f97cf22f7c24d0';
+String _$monthActivitiesHash() => r'585cdcebdeea370d56ef2fccaf32069900f26184';

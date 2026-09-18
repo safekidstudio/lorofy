@@ -9,6 +9,7 @@ import 'package:lorofy/components/ui/fomo_toast.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
 import 'package:lorofy/features/explore/domain/models/leaderboard.dart';
+import 'package:lorofy/components/ui/app_refresh_control.dart';
 
 class LeaderboardPage extends ConsumerStatefulWidget {
   const LeaderboardPage({super.key});
@@ -73,12 +74,27 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
 
             // Scrollable Segmented Tab, Podium & Ranks List
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                slivers: [
+                  AppRefreshControl(
+                    onRefresh: () async {
+                      ref.invalidate(
+                        leaderboardProvider(timeframe: timeframe),
+                      );
+                      await ref.read(
+                        leaderboardProvider(timeframe: timeframe).future,
+                      );
+                    },
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                     const SizedBox(height: 12),
                     // Tabs Selector
                     Center(
@@ -304,7 +320,10 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
           ],
         ),
       ),
-    );
+    ],
+  ),
+),
+);
   }
 
   Widget _buildPodiumCol(

@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/toast.dart';
-import 'package:rive/rive.dart' hide LinearGradient, Image;
+import 'package:lorofy/components/ui/safe_rive_animation.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
@@ -237,7 +237,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
             children: [
               // Rive Confetti falling behind content
               const Positioned.fill(
-                child: RiveAnimation.asset(
+                child: SafeRiveAnimation.asset(
                   'assets/river/confetti.riv',
                   fit: BoxFit.cover,
                 ),

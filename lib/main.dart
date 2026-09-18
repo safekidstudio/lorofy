@@ -13,8 +13,11 @@ import 'package:lorofy/components/ui/global_loading_overlay.dart';
 import 'package:lorofy/core/services/feedback/feedback_provider.dart';
 import 'package:lorofy/core/services/feedback/ui_feedback_service_impl.dart';
 
+import 'package:rive/rive.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await RiveNative.init();
 
   // Configure Android 15 / SDK 35 Edge-to-Edge System UI
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
