@@ -101,6 +101,20 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
     // Use a fixed, deterministic playerId so hot restart can reference this
     // exact native player and stop it via _stopOrphanedAudio().
     final player = AudioPlayer(playerId: 'lorofy_$assetPath');
+    await player.setAudioContext(
+      AudioContext(
+        android: const AudioContextAndroid(
+          stayAwake: true,
+          contentType: AndroidContentType.music,
+          usageType: AndroidUsageType.media,
+          audioFocus: AndroidAudioFocus.none,
+        ),
+        iOS: AudioContextIOS(
+          category: AVAudioSessionCategory.ambient,
+          options: {AVAudioSessionOptions.mixWithOthers},
+        ),
+      ),
+    );
     await player.setReleaseMode(ReleaseMode.loop);
     await player.setSource(AssetSource(assetPath));
     _playerCache[assetPath] = player;
