@@ -15,14 +15,14 @@ class UIFeedbackServiceImpl implements FeedbackService {
   Future<void> init() async {
     if (_isPreloaded) return;
     try {
-      // Configure UI click audio to mix with active playback and never steal AudioFocus
+      // Configure global audio context to default to media sound stream
       try {
         await AudioPlayer.global.setAudioContext(
           AudioContext(
             android: const AudioContextAndroid(
               audioFocus: AndroidAudioFocus.none,
-              usageType: AndroidUsageType.assistanceSonification,
-              contentType: AndroidContentType.sonification,
+              usageType: AndroidUsageType.media,
+              contentType: AndroidContentType.music,
             ),
             iOS: AudioContextIOS(
               category: AVAudioSessionCategory.ambient,
@@ -63,6 +63,17 @@ class UIFeedbackServiceImpl implements FeedbackService {
   void _playClickSound() {
     try {
       final player = AudioPlayer();
+      player.setAudioContext(AudioContext(
+        android: const AudioContextAndroid(
+          audioFocus: AndroidAudioFocus.none,
+          usageType: AndroidUsageType.assistanceSonification,
+          contentType: AndroidContentType.sonification,
+        ),
+        iOS: AudioContextIOS(
+          category: AVAudioSessionCategory.ambient,
+          options: {AVAudioSessionOptions.mixWithOthers},
+        ),
+      )).catchError((_) {});
       player.setPlayerMode(PlayerMode.lowLatency).catchError((_) {});
       player.setVolume(soundVolume).catchError((_) {});
       player.play(AssetSource('sounds/click.wav')).then((_) {
