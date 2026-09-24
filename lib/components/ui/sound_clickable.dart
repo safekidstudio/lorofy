@@ -109,6 +109,44 @@ class AppBackButton extends StatelessWidget {
   }
 }
 
+/// A standard, styled Check/Confirm Button for Lorofy headers/bars that plays a click sound and pops back.
+class AppCheckButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final Color backgroundColor;
+  final Color iconColor;
+
+  const AppCheckButton({
+    super.key,
+    this.onPressed,
+    this.backgroundColor = const Color(0xFF232321),
+    this.iconColor = CupertinoColors.white,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SoundClickable(
+      onTap: onPressed ?? () {
+        if (context.canPop()) {
+          context.pop();
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          shape: BoxShape.circle,
+        ),
+        child: SVG(
+          'assets/icons/check.svg',
+          width: 24,
+          height: 24,
+          color: iconColor,
+        ),
+      ),
+    );
+  }
+}
+
 /// A Cupertino-friendly action area wrapper for cards and list items.
 /// Dims the child subtly when pressed (pressedOpacity defaults to 0.8)
 /// and triggers the click sound effect.

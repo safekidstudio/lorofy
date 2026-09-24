@@ -29,25 +29,20 @@ class PomodoroCompletePage extends StatefulWidget {
 }
 
 class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
-  bool _hasAutoShownStreak = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Automatic Duolingo-style transition to StreakCelebrationPage on completion
-    if (widget.currentStreak > 0 && !_hasAutoShownStreak) {
-      _hasAutoShownStreak = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) {
-            StreakCelebrationPage.show(
-              context,
-              currentStreak: widget.currentStreak,
-              streakIncreased: widget.streakIncreased,
-            );
-          }
-        });
-      });
+  void _triggerActionWithStreakFlow(VoidCallback defaultAction) {
+    if (widget.currentStreak > 0 && widget.streakIncreased) {
+      StreakCelebrationPage.show(
+        context,
+        currentStreak: widget.currentStreak,
+        streakIncreased: widget.streakIncreased,
+        onDismiss: () {
+          Navigator.of(context).pop();
+          defaultAction();
+        },
+      );
+    } else {
+      defaultAction();
     }
   }
 
@@ -84,7 +79,7 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
                 AppHeader(
                   leftActions: CupertinoButton(
                     padding: EdgeInsets.zero,
-                    onPressed: widget.onBackToHome,
+                    onPressed: () => _triggerActionWithStreakFlow(widget.onBackToHome),
                     child: const Icon(
                       CupertinoIcons.xmark,
                       color: Color(0xFF232321),
@@ -235,7 +230,7 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
                             width: 180,
                             child: Button.secondary(
                               text: 'Have a rest',
-                              onPressed: widget.onHaveARest,
+                              onPressed: () => _triggerActionWithStreakFlow(widget.onHaveARest),
                             ),
                           ),
                         ),

@@ -1,12 +1,16 @@
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
+import 'package:lorofy/features/focus/domain/models/current_session.dart';
 import 'package:lorofy/features/focus/domain/models/focus_category.dart';
 import 'package:lorofy/features/focus/domain/models/focus_session.dart';
 
 abstract class FocusRepository {
+  Future<CurrentSession> getCurrentSession();
+
   Future<FocusSession> startSession({
     String? categoryId,
     required BlockMode blockMode,
     required int plannedMinutes,
+    bool force = false,
   });
 
   Future<FocusSession> pauseSession(String sessionId);

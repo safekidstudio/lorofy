@@ -12,4 +12,7 @@ abstract class FeedbackService {
 
   /// Enable or disable haptic feedback globally.
   void setHapticsEnabled(bool enabled);
+
+  /// Set click sound volume (0.0 to 1.0).
+  void setSoundVolume(double volume);
 }

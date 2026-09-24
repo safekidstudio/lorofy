@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/focus/data/repositories/focus_repository_impl.dart';
 import 'package:lorofy/features/focus/presentation/pages/quick_start_page.dart';
+import 'package:lorofy/features/focus/presentation/widgets/focus_timer/active_session_dialog.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -44,6 +46,68 @@ class _HomePageState extends ConsumerState<HomePage>
     _dragController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
+    );
+
+    // Silently check active session state on app launch
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkActiveSession();
+    });
+  }
+
+  Future<void> _checkActiveSession() async {
+    try {
+      final currentData =
+          await ref.read(focusRepositoryProvider).getCurrentSession();
+      if (!mounted ||
+          !currentData.hasActiveSession ||
+          currentData.session == null) {
+        return;
+      }
+
+      // Case 1: Session completed while device was inactive (isOverdue == true)
+      if (currentData.isOverdue) {
+        final session = currentData.session!;
+        await ref.read(focusRepositoryProvider).completeSession(
+              session.id,
+              session.plannedMinutes,
+            );
+        if (mounted) {
+          _showSessionCompletedBanner(session.plannedMinutes);
+        }
+        return;
+      }
+
+      // Case 2: Session still has remaining time -> Prompt user to resume
+      if (mounted) {
+        showActiveSessionDialog(
+          context: context,
+          ref: ref,
+          activeState: currentData,
+        );
+      }
+    } catch (e) {
+      debugPrint('Background session check failed (offline or not logged in): $e');
+    }
+  }
+
+  void _showSessionCompletedBanner(int minutes) {
+    showCupertinoDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: const Text('🎉 Congratulations!'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            'You completed your $minutes-minute focus session while the app was inactive. Your points and streak have been credited!',
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Awesome'),
+            onPressed: () => Navigator.of(ctx).pop(),
+          ),
+        ],
+      ),
     );
   }
 

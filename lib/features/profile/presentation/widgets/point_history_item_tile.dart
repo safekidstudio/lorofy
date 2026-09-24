@@ -11,10 +11,12 @@ class PointHistoryItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isReward = item.isReward;
-    final color = isReward ? CupertinoColors.systemGreen : CupertinoColors.systemRed;
-    final icon = isReward ? CupertinoIcons.add_circled : CupertinoIcons.minus_circled;
+    final color = isReward ? const Color(0xFF00B074) : const Color(0xFFFF4B4B);
+    final icon = isReward
+        ? CupertinoIcons.add_circled_solid
+        : CupertinoIcons.minus_circle_fill;
     final sign = isReward && item.points > 0 ? '+' : '';
-    
+
     final formattedTime = AppDateFormatter.formatDateTime(item.timestamp);
 
     return Container(
@@ -35,7 +37,7 @@ class PointHistoryItemTile extends StatelessWidget {
               color: color.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 22),
           ),
           const SizedBox(width: AppPadding.md),
           Expanded(
@@ -43,28 +45,34 @@ class PointHistoryItemTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.title,
+                  item.title.isNotEmpty ? item.title : (isReward ? 'Reward Points' : 'Penalty Points'),
                   style: AppTextStyles.body.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: AppColors.foreground,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  item.description,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.mutedForeground,
+                if (item.description.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    item.description,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.mutedForeground,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                ],
                 const SizedBox(height: 6),
                 Row(
                   children: [
                     Text(
                       formattedTime,
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.mutedForeground.withValues(alpha: 0.8),
+                        fontSize: 11,
+                      ),
                     ),
-                    if (item.blockMode != null) ...[
+                    if (item.blockMode != null && item.blockMode!.isNotEmpty) ...[
                       const SizedBox(width: AppPadding.sm),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -76,6 +84,7 @@ class PointHistoryItemTile extends StatelessWidget {
                           item.blockMode!,
                           style: AppTextStyles.caption.copyWith(
                             fontWeight: FontWeight.w600,
+                            fontSize: 10,
                           ),
                         ),
                       ),

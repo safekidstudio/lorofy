@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:lorofy/core/network/response/api_response.dart';
 import 'package:lorofy/core/network/dio_client.dart';
+import 'package:lorofy/features/focus/data/models/current_session_model.dart';
 import 'package:lorofy/features/focus/data/models/focus_category_model.dart';
 import 'package:lorofy/features/focus/data/models/focus_session_model.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
@@ -13,11 +14,23 @@ class FocusRemoteDataSource {
 
   FocusRemoteDataSource(this._dio);
 
+  // GET CURRENT SESSION
+  Future<CurrentSessionModel> getCurrentSession() async {
+    final response = await _dio.get(
+      '/focus/current',
+      options: ApiOptions.protected,
+    );
+    return response.unwrap(
+      (json) => CurrentSessionModel.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
   // START SESSION
   Future<FocusSessionModel> startSession({
     String? categoryId,
     required BlockMode blockMode,
     required int plannedMinutes,
+    bool force = false,
   }) async {
     final response = await _dio.post(
       '/focus/start',
@@ -25,6 +38,7 @@ class FocusRemoteDataSource {
         'categoryId': categoryId,
         'blockMode': blockMode.value,
         'plannedMinutes': plannedMinutes,
+        'force': force,
       },
       options: ApiOptions.protected,
     );
@@ -54,7 +68,7 @@ class FocusRemoteDataSource {
       data: {
         'actualMinutes': actualMinutes,
       },
-      options: ApiOptions.protected,
+      options: ApiOptions.idempotent,
     );
     return response.unwrap(
       (json) => FocusSessionModel.fromJson(json as Map<String, dynamic>),
@@ -73,7 +87,7 @@ class FocusRemoteDataSource {
         'actualMinutes': actualMinutes,
         'failureReason': failureReason ?? 'User exited session',
       },
-      options: ApiOptions.protected,
+      options: ApiOptions.idempotent,
     );
     return response.unwrap(
       (json) => FocusSessionModel.fromJson(json as Map<String, dynamic>),

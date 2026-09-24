@@ -12,31 +12,49 @@ class AppDateFormatter {
   }
 
   /// Formats Date & Time: dd/MM/yyyy - hh:mm a (e.g. 12/09/2026 - 11:45 PM)
-  static String formatDateTime(dynamic input, {String locale = 'en'}) {
+  static String formatDateTime(dynamic input) {
     final dt = input is String ? parse(input) : (input is DateTime ? input.toLocal() : null);
     if (dt == null) return '';
-    return DateFormat('dd/MM/yyyy - hh:mm a', locale).format(dt);
+    try {
+      return DateFormat('dd/MM/yyyy - hh:mm a').format(dt);
+    } catch (_) {
+      return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+    }
   }
 
   /// Formats Date only: dd/MM/yyyy (e.g. 12/09/2026)
-  static String formatDate(dynamic input, {String locale = 'en'}) {
+  static String formatDate(dynamic input) {
     final dt = input is String ? parse(input) : (input is DateTime ? input.toLocal() : null);
     if (dt == null) return '';
-    return DateFormat('dd/MM/yyyy', locale).format(dt);
+    try {
+      return DateFormat('dd/MM/yyyy').format(dt);
+    } catch (_) {
+      return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+    }
   }
 
   /// Formats Date readable: Sep 12, 2026
-  static String formatDateMedium(dynamic input, {String locale = 'en'}) {
+  static String formatDateMedium(dynamic input) {
     final dt = input is String ? parse(input) : (input is DateTime ? input.toLocal() : null);
     if (dt == null) return '';
-    return DateFormat.yMMMd(locale).format(dt);
+    try {
+      return DateFormat.yMMMd().format(dt);
+    } catch (_) {
+      return formatDate(dt);
+    }
   }
 
   /// Formats Time only: 11:45 PM
-  static String formatTime(dynamic input, {String locale = 'en'}) {
+  static String formatTime(dynamic input) {
     final dt = input is String ? parse(input) : (input is DateTime ? input.toLocal() : null);
     if (dt == null) return '';
-    return DateFormat.jm(locale).format(dt);
+    try {
+      return DateFormat.jm().format(dt);
+    } catch (_) {
+      final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+      final period = dt.hour >= 12 ? 'PM' : 'AM';
+      return '$hour:${dt.minute.toString().padLeft(2, '0')} $period';
+    }
   }
 
   /// Formats relative time: Just now, 5m ago, 2h ago, 3d ago

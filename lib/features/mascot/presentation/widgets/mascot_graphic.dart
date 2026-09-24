@@ -55,14 +55,20 @@ class _MascotGraphicState extends State<MascotGraphic> {
     _riveStateMachine?.trigger('failed')?.fire();
   }
 
-  void _onRiveInit(Artboard artboard) {
-    final stateMachineName = widget.mascot.type.stateMachineName;
-    final sm = artboard.stateMachine(stateMachineName) ?? artboard.defaultStateMachine();
-    if (sm != null) {
-      _riveStateMachine = sm;
+  void _onRiveControllerInit(RiveWidgetController controller) {
+    _riveStateMachine = controller.stateMachine;
+    if (_riveStateMachine != null) {
       _applyInputs();
-      setState(() => _isRiveInitialized = true);
+      if (mounted && !_isRiveInitialized) {
+        setState(() => _isRiveInitialized = true);
+      }
     }
+  }
+
+  void _updateRiveInputValue(double value) {
+    if (_riveStateMachine == null) return;
+    _riveStateMachine?.number('input')?.value = value;
+    _riveStateMachine?.number('progress')?.value = value;
   }
 
   void _applyInputs() {
@@ -70,7 +76,6 @@ class _MascotGraphicState extends State<MascotGraphic> {
 
     final mascot = widget.mascot;
     final stage = mascot.currentStage;
-    final progress = widget.isFocusing ? widget.focusProgressRatio : mascot.stageProgressRatio;
 
     // 1. Apply stage value
     _riveStateMachine?.number('stage')?.value = stage.levelValue.toDouble();
@@ -92,32 +97,6 @@ class _MascotGraphicState extends State<MascotGraphic> {
     }
     if (widget.isFailed) {
       fireFailed();
-    }
-
-    // 5. Map progress value
-    if (mascot.type == MascotType.tree) {
-      // Special mapping for Lorofy's grow-plant.riv:
-      // - Stage Egg (Seed): 0% to 20%
-      // - Stage Baby (Sprout): 20% to 80%
-      // - Stage Adult (Mature Tree): 80% to 100%
-      double targetRiveValue = 20.0;
-      switch (stage) {
-        case MascotStage.level1:
-          targetRiveValue = progress * 20.0;
-          break;
-        case MascotStage.level2:
-          targetRiveValue = 20.0 + progress * 60.0;
-          break;
-        case MascotStage.level3:
-          targetRiveValue = 80.0 + progress * 20.0;
-          break;
-      }
-      _riveStateMachine?.number('input')?.value = targetRiveValue;
-      _riveStateMachine?.number('progress')?.value = targetRiveValue;
-    } else {
-      // Default mapping: [0.0, 1.0] maps to [0, 100]
-      _riveStateMachine?.number('input')?.value = progress * 100.0;
-      _riveStateMachine?.number('progress')?.value = progress * 100.0;
     }
   }
 
@@ -152,31 +131,51 @@ class _MascotGraphicState extends State<MascotGraphic> {
     final double renderWidth = widget.width ?? defaultSize;
     final double renderHeight = widget.height ?? defaultSize;
 
+    final double targetProgress = widget.isFocusing
+        ? (widget.focusProgressRatio * 100.0).clamp(0.0, 100.0)
+        : (widget.mascot.type == MascotType.tree
+            ? (widget.mascot.currentStage == MascotStage.level1
+                ? widget.mascot.stageProgressRatio * 20.0
+                : widget.mascot.currentStage == MascotStage.level2
+                    ? 20.0 + widget.mascot.stageProgressRatio * 60.0
+                    : 80.0 + widget.mascot.stageProgressRatio * 20.0)
+            : widget.mascot.stageProgressRatio * 100.0);
+
     return SizedBox(
       width: renderWidth,
       height: renderHeight,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Loading spinner using our custom rotating Loader component
-          if (!_isRiveInitialized)
-            const Loader(
-              size: 32.0,
-              color: Color(0xFF232321),
-            ),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(end: targetProgress),
+        duration: widget.isFocusing
+            ? const Duration(milliseconds: 1000)
+            : const Duration(milliseconds: 450),
+        curve: widget.isFocusing ? Curves.linear : Curves.easeOutCubic,
+        builder: (context, animatedValue, child) {
+          _updateRiveInputValue(animatedValue);
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // Loading spinner using our custom rotating Loader component
+              if (!_isRiveInitialized)
+                const Loader(
+                  size: 32.0,
+                  color: Color(0xFF232321),
+                ),
 
-          // Smooth fade-in transition when Rive is initialized and ready
-          AnimatedOpacity(
-            opacity: _isRiveInitialized ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOut,
-            child: SafeRiveAnimation.asset(
-              widget.mascot.type.assetPath,
-              onInit: _onRiveInit,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ],
+              // Smooth fade-in transition when Rive is initialized and ready
+              AnimatedOpacity(
+                opacity: _isRiveInitialized ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                child: SafeRiveAnimation.asset(
+                  widget.mascot.type.assetPath,
+                  onInitController: _onRiveControllerInit,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

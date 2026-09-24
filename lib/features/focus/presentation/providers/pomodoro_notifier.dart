@@ -14,6 +14,8 @@ import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.da
 import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/features/settings/presentation/providers/system_settings_provider.dart';
+import 'package:lorofy/features/focus/domain/models/focus_session.dart';
+import 'package:lorofy/features/profile/presentation/providers/activities_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Immutable state
@@ -95,7 +97,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
   // ── Public API ──────────────────────────────────────────────────────────
 
-  void startFocus(int focusMinutes) {
+  void startFocus(int focusMinutes, {bool force = false}) {
     _cancelTicker();
     final totalSeconds = focusMinutes * 60;
     _stopwatch = Stopwatch()..start();
@@ -118,7 +120,34 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     _playAmbientSound(settings);
 
     // Call API startSession in the background
-    _apiStartSession(focusMinutes);
+    _apiStartSession(focusMinutes, force: force);
+  }
+
+  /// Resumes an unfinished session from the server
+  void resumeSession({
+    required FocusSession session,
+    required int remainingSeconds,
+  }) {
+    _cancelTicker();
+    final totalSeconds = session.plannedMinutes * 60;
+    _stopwatch = Stopwatch()..start();
+
+    final settings = ref.read(pomodoroSettingsProvider);
+
+    state = state.copyWith(
+      phase: PomodoroState.focus,
+      totalSessionSeconds: totalSeconds,
+      countdownSeconds: remainingSeconds,
+      selectedCategory: settings.selectedCategory,
+      backendSessionId: session.id,
+      earnedPoints: 0,
+      earnedCoins: 0,
+    );
+
+    _runTicker(PomodoroState.focus, onComplete: _onFocusCompleted);
+
+    // Start ambient sound if configured
+    _playAmbientSound(settings);
   }
 
   void _playAmbientSound(PomodoroSettings settings) {
@@ -205,6 +234,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
         state = state.copyWith(earnedPoints: session.earnedPoints);
         // Refresh fresh profile details & rank points from backend
         ref.read(authProvider.notifier).refreshProfile();
+        ref.invalidate(filteredActivitiesProvider);
       } catch (e) {
         debugPrint('Error failing backend session: $e');
       }
@@ -230,20 +260,48 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     startFocus(settings.focusMinutes);
   }
 
-  Future<void> _apiStartSession(int focusMinutes) async {
+  Future<void> _apiStartSession(int focusMinutes, {bool force = false}) async {
     try {
       final FocusRepository repository = ref.read(focusRepositoryProvider);
       final settings = ref.read(pomodoroSettingsProvider);
       final activeBlockMode = settings.isDeepFocusMode
           ? settings.blockMode
           : BlockMode.medium;
-      final session = await repository.startSession(
-        categoryId: state.selectedCategory?.id,
-        blockMode: activeBlockMode,
-        plannedMinutes: focusMinutes,
-      );
+
+      FocusSession session;
+      try {
+        session = await repository.startSession(
+          categoryId: state.selectedCategory?.id,
+          blockMode: activeBlockMode,
+          plannedMinutes: focusMinutes,
+          force: force,
+        );
+      } catch (e) {
+        final errStr = e.toString().toLowerCase();
+        // When active session conflict is detected (409 Conflict or active session error) and force was not set
+        if (!force &&
+            (errStr.contains('active focus session') ||
+                errStr.contains('in progress') ||
+                errStr.contains('conflict') ||
+                errStr.contains('409'))) {
+          debugPrint(
+            'Active session conflict detected on backend. Retrying atomically with force=true...',
+          );
+          // Automatically force start to supersede old session and create a new one in a single atomic transaction
+          session = await repository.startSession(
+            categoryId: state.selectedCategory?.id,
+            blockMode: activeBlockMode,
+            plannedMinutes: focusMinutes,
+            force: true,
+          );
+        } else {
+          rethrow;
+        }
+      }
+
       if (state.phase == PomodoroState.focus) {
         state = state.copyWith(backendSessionId: session.id);
+        debugPrint('Backend session started successfully: ${session.id}');
       }
     } catch (e) {
       debugPrint('Error starting backend session: $e');
@@ -335,6 +393,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
             // Refresh user profile from backend
             ref.read(authProvider.notifier).refreshProfile();
+            ref.invalidate(filteredActivitiesProvider);
           })
           .catchError((e) {
             debugPrint('Error completing backend session: $e');

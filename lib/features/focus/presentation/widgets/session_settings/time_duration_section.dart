@@ -45,8 +45,8 @@ class TimeDurationSection extends ConsumerWidget {
               trackShape: const FullWidthSliderTrackShape(),
             ),
             child: Slider(
-              value: settings.focusMinutes.toDouble().clamp(5.0, 180.0),
-              min: 5.0,
+              value: settings.focusMinutes.toDouble().clamp(1.0, 180.0),
+              min: 1.0,
               max: 180.0,
               onChanged: (val) {
                 ref
@@ -56,9 +56,7 @@ class TimeDurationSection extends ConsumerWidget {
                     );
               },
               onChangeEnd: (val) {
-                ref
-                    .read(pomodoroSettingsProvider.notifier)
-                    .saveToStorage();
+                ref.read(pomodoroSettingsProvider.notifier).saveToStorage();
               },
             ),
           ),
@@ -81,7 +79,8 @@ class FullWidthSliderTrackShape extends RoundedRectSliderTrackShape {
   }) {
     final double trackHeight = sliderTheme.trackHeight ?? 2.0;
     final double trackLeft = offset.dx;
-    final double trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final double trackTop =
+        offset.dy + (parentBox.size.height - trackHeight) / 2;
     final double trackWidth = parentBox.size.width;
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }

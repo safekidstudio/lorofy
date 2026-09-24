@@ -122,7 +122,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
         final timeStrFormatted = DateFormat('hh:mm').format(localTime);
         final period = DateFormat('a').format(localTime);
 
-        final int flowerCount = session.earnedPoints;
+        final int flowerCount = session.earnedPoints.clamp(0, 999999);
         final String durationStr = '${session.actualMinutes} mins';
         final bool isHighlight = index == 0;
 
@@ -210,7 +210,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
       final localDate = AppDateFormatter.parse(session.startedAt) ?? DateTime.now();
       final dateKey = DateFormat('yyyy-MM-dd').format(localDate);
       dailyFlowers[dateKey] =
-          (dailyFlowers[dateKey] ?? 0) + session.earnedPoints;
+          (dailyFlowers[dateKey] ?? 0) + session.earnedPoints.clamp(0, 999999);
     }
 
     final sortedDates = dailyFlowers.keys.toList()

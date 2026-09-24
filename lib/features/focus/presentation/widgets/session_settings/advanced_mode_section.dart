@@ -17,12 +17,12 @@ class AdvancedModeSection extends ConsumerWidget {
       CupertinoModalSheetRoute(
         builder: (context) => const Sheet(
           decoration: MaterialSheetDecoration(
-            size: SheetSize.stretch,
+            size: SheetSize.fit,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            color: Color(0xFFF6F6F6),
+            color: AppColors.background,
           ),
           child: BlockModeSelectionSheet(),
         ),
@@ -36,12 +36,12 @@ class AdvancedModeSection extends ConsumerWidget {
       CupertinoModalSheetRoute(
         builder: (context) => const Sheet(
           decoration: MaterialSheetDecoration(
-            size: SheetSize.stretch,
+            size: SheetSize.fit,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            color: Color(0xFFF6F6F6),
+            color: AppColors.background,
           ),
           child: SelectAllowedAppsSheet(),
         ),

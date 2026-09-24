@@ -3,42 +3,46 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'feedback_service.dart';
 
-/// Infrastructure/Data implementation of [FeedbackService] using [AudioPlayer] and [HapticFeedback].
+/// Infrastructure/Data implementation of [FeedbackService] using [AudioPool] and [HapticFeedback].
 class UIFeedbackServiceImpl implements FeedbackService {
-  bool _isPreloaded = false;
+  AudioPool? _pool;
+  Future<void>? _initFuture;
   bool _audioEnabled = true;
   bool _hapticsEnabled = true;
 
-  double soundVolume = 0.35;
+  double soundVolume = 0.3;
 
   @override
-  Future<void> init() async {
-    if (_isPreloaded) return;
-    try {
-      // Configure global audio context to default to media sound stream
-      try {
-        await AudioPlayer.global.setAudioContext(
-          AudioContext(
-            android: const AudioContextAndroid(
-              audioFocus: AndroidAudioFocus.none,
-              usageType: AndroidUsageType.media,
-              contentType: AndroidContentType.music,
-            ),
-            iOS: AudioContextIOS(
-              category: AVAudioSessionCategory.ambient,
-              options: {AVAudioSessionOptions.mixWithOthers},
-            ),
-          ),
-        );
-      } catch (_) {}
+  Future<void> init() {
+    if (_pool != null) return Future.value();
+    _initFuture ??= _doInit();
+    return _initFuture!;
+  }
 
-      final tempPlayer = AudioPlayer();
-      await tempPlayer.setSource(AssetSource('sounds/click.wav'));
-      await tempPlayer.dispose();
-      _isPreloaded = true;
-    } catch (e) {
+  Future<void> _doInit() async {
+    try {
+      _pool = await AudioPool.create(
+        source: AssetSource('sounds/click.wav'),
+        minPlayers: 2,
+        maxPlayers: 4,
+        audioContext: AudioContext(
+          android: const AudioContextAndroid(
+            audioFocus: AndroidAudioFocus.none,
+            usageType: AndroidUsageType.media,
+            contentType: AndroidContentType.music,
+          ),
+          iOS: AudioContextIOS(
+            category: AVAudioSessionCategory.ambient,
+            options: const {},
+          ),
+        ),
+      );
       if (kDebugMode) {
-        print('UIFeedbackServiceImpl: Preload non-fatal warning: $e');
+        print('UIFeedbackServiceImpl: AudioPool initialized successfully');
+      }
+    } catch (e, stack) {
+      if (kDebugMode) {
+        print('UIFeedbackServiceImpl: Preload warning: $e\n$stack');
       }
     }
   }
@@ -60,35 +64,20 @@ class UIFeedbackServiceImpl implements FeedbackService {
     } catch (_) {}
   }
 
-  void _playClickSound() {
+  Future<void> _playClickSound() async {
     try {
-      final player = AudioPlayer();
-      player.setAudioContext(AudioContext(
-        android: const AudioContextAndroid(
-          audioFocus: AndroidAudioFocus.none,
-          usageType: AndroidUsageType.assistanceSonification,
-          contentType: AndroidContentType.sonification,
-        ),
-        iOS: AudioContextIOS(
-          category: AVAudioSessionCategory.ambient,
-          options: {AVAudioSessionOptions.mixWithOthers},
-        ),
-      )).catchError((_) {});
-      player.setPlayerMode(PlayerMode.lowLatency).catchError((_) {});
-      player.setVolume(soundVolume).catchError((_) {});
-      player.play(AssetSource('sounds/click.wav')).then((_) {
-        player.onPlayerComplete.first.then((_) {
-          player.dispose();
-        }).catchError((_) {
-          player.dispose();
-        });
-      }).catchError((_) {
-        player.dispose();
-        SystemSound.play(SystemSoundType.click);
-      });
-    } catch (_) {
+      if (_pool != null) {
+        await _pool!.start(volume: soundVolume);
+      } else {
+        init();
+        await SystemSound.play(SystemSoundType.click);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('UIFeedbackServiceImpl: playClick error: $e');
+      }
       try {
-        SystemSound.play(SystemSoundType.click);
+        await SystemSound.play(SystemSoundType.click);
       } catch (_) {}
     }
   }
@@ -102,6 +91,15 @@ class UIFeedbackServiceImpl implements FeedbackService {
   void setHapticsEnabled(bool enabled) {
     _hapticsEnabled = enabled;
   }
+
+  @override
+  void setSoundVolume(double volume) {
+    soundVolume = volume.clamp(0.0, 1.0);
+  }
+
+  void dispose() {
+    _pool?.dispose();
+    _pool = null;
+    _initFuture = null;
+  }
 }
-
-

@@ -2,6 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:lorofy/core/storage/auth_storage.dart';
 import 'package:lorofy/features/auth/data/models/user_profile.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
+import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
+import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
+import 'package:lorofy/features/focus/presentation/providers/categories_provider.dart';
+import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.dart';
+import 'package:lorofy/features/profile/presentation/providers/activities_provider.dart';
+import 'package:lorofy/features/profile/presentation/providers/point_history_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_provider.g.dart';
@@ -64,6 +70,17 @@ class Auth extends _$Auth {
     _checkInitialAuth();
 
     return AuthStatus(state: AuthState.initial);
+  }
+
+  void _clearAllUserSessionProviders() {
+    ref.invalidate(leaderboardProvider);
+    ref.invalidate(filteredActivitiesProvider);
+    ref.invalidate(todayActivitiesProvider);
+    ref.invalidate(monthActivitiesProvider);
+    ref.invalidate(exploreStatsProvider);
+    ref.invalidate(pointHistoryProvider);
+    ref.invalidate(focusCategoriesProvider);
+    ref.invalidate(mascotProvider);
   }
 
   // Check initial auth state
@@ -172,6 +189,10 @@ class Auth extends _$Auth {
       avatarUrl: avatarUrl,
       username: username,
     );
+
+    // Invalidate old session providers so new user gets fresh data
+    _clearAllUserSessionProviders();
+
     // Update RAM and change state
     state = AuthStatus(
       state: AuthState.authenticated,
@@ -188,6 +209,9 @@ class Auth extends _$Auth {
   Future<void> logout() async {
     // Clear from Secure Storage
     await _authStorage.clearTokens();
+
+    // Clear all cached RAM providers for user data
+    _clearAllUserSessionProviders();
 
     // Reset RAM to default
     state = AuthStatus(state: AuthState.unauthenticated);

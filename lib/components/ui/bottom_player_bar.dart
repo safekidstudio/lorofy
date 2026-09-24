@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/features/focus/presentation/providers/music_player_provider.dart';
-import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.dart';
-import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 
 class BottomPlayerBar extends ConsumerWidget {
@@ -13,9 +13,6 @@ class BottomPlayerBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final playerState = ref.watch(musicPlayerProvider);
     if (playerState.currentlyPlaying == null) return const SizedBox.shrink();
-
-    final phase = ref.watch(pomodoroTimerProvider).phase;
-    final isSessionActive = phase == PomodoroState.focus;
 
     final song = playerState.currentlyPlaying!;
 
@@ -109,53 +106,60 @@ class BottomPlayerBar extends ConsumerWidget {
               ),
               Row(
                 children: [
-                  GestureDetector(
+                  SoundClickable(
                     onTap: () {
                       ref.read(musicPlayerProvider.notifier).togglePlay();
                     },
-                    child: Icon(
-                      playerState.isPlaying
-                          ? CupertinoIcons.pause_fill
-                          : CupertinoIcons.play_fill,
-                      color: AppColors.primary,
-                      size: 24,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                      child: Icon(
+                        playerState.isPlaying
+                            ? CupertinoIcons.pause_fill
+                            : CupertinoIcons.play_fill,
+                        color: AppColors.primary,
+                        size: 26,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  GestureDetector(
+                  const SizedBox(width: 8),
+                  SoundClickable(
                     onTap: () {
                       ref.read(musicPlayerProvider.notifier).toggleFavorite();
                     },
-                    child: Icon(
-                      playerState.isFavorited
-                          ? CupertinoIcons.heart_fill
-                          : CupertinoIcons.heart,
-                      color: playerState.isFavorited
-                          ? CupertinoColors.systemRed
-                          : AppColors.mutedForeground,
-                      size: 22,
-                    ),
-                  ),
-                  // Show check button only in preview/settings mode (not during active session)
-                  if (!isSessionActive) ...[  
-                    const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: () => ref.read(musicPlayerProvider.notifier).stop(),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF232321),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const SVG(
-                          'assets/icons/check.svg',
-                          width: 16,
-                          height: 16,
-                          color: CupertinoColors.white,
-                        ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                      child: Icon(
+                        playerState.isFavorited
+                            ? CupertinoIcons.heart_fill
+                            : CupertinoIcons.heart,
+                        color: playerState.isFavorited
+                            ? CupertinoColors.systemRed
+                            : AppColors.mutedForeground,
+                        size: 24,
                       ),
                     ),
-                  ],
+                  ),
+                  const SizedBox(width: 10),
+                  SoundClickable(
+                    onTap: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF232321),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const SVG(
+                        'assets/icons/check.svg',
+                        width: 18,
+                        height: 18,
+                        color: CupertinoColors.white,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],

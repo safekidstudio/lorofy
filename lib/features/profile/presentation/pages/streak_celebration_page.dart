@@ -1,6 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lorofy/components/ui/button.dart';
+import 'package:lorofy/components/ui/number_flow_text.dart';
 import 'package:lorofy/components/ui/safe_rive_animation.dart';
+import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/profile/presentation/widgets/weekly_streak_tracker.dart';
 import 'package:rive/rive.dart' hide Animation;
 
 class StreakCelebrationPage extends StatefulWidget {
@@ -51,16 +54,55 @@ class StreakCelebrationPage extends StatefulWidget {
   State<StreakCelebrationPage> createState() => _StreakCelebrationPageState();
 }
 
-class _StreakCelebrationPageState extends State<StreakCelebrationPage> {
+class _StreakCelebrationPageState extends State<StreakCelebrationPage>
+    with SingleTickerProviderStateMixin {
   RiveWidgetController? _riveController;
-  StateMachine? _riveStateMachine;
   final Map<String, ViewModelInstance> _vmInstances = {};
+
+  bool _showBoardAndButton = false;
+  bool _showSubtitle = false;
+  bool _showStreakNumber = false;
+
+  late AnimationController _countController;
+  late Animation<double> _countAnimation;
+  int _displayedStreak = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final startStreak = (widget.streakIncreased && widget.currentStreak > 0)
+        ? (widget.currentStreak - 1)
+        : widget.currentStreak;
+
+    _displayedStreak = startStreak;
+
+    _countController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
+
+    _countAnimation =
+        Tween<double>(
+          begin: startStreak.toDouble(),
+          end: widget.currentStreak.toDouble(),
+        ).animate(
+          CurvedAnimation(parent: _countController, curve: Curves.easeOutCubic),
+        );
+
+    _countAnimation.addListener(() {
+      final val = _countAnimation.value.round();
+      if (val != _displayedStreak) {
+        setState(() {
+          _displayedStreak = val;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
-    if (_riveStateMachine != null) {
-      _riveStateMachine!.removeEventListener(_onRiveEvent);
-    }
+    _countController.dispose();
     for (final vmi in _vmInstances.values) {
       vmi.dispose();
     }
@@ -68,28 +110,57 @@ class _StreakCelebrationPageState extends State<StreakCelebrationPage> {
     super.dispose();
   }
 
+  void _startCountAnimation() {
+    final startStreak = (widget.streakIncreased && widget.currentStreak > 0)
+        ? (widget.currentStreak - 1)
+        : widget.currentStreak;
+
+    setState(() {
+      _displayedStreak = startStreak;
+    });
+    _countController.reset();
+    _countController.forward();
+  }
+
   void _onRiveControllerInit(RiveWidgetController controller) {
     _riveController = controller;
-    _riveStateMachine = controller.stateMachine;
 
-    final ab = controller.artboard;
-    final animCount = ab.animationCount();
-    final smCount = ab.stateMachineCount();
+    // Staggered Timeline Flow:
+    // 1. Fire burst plays first (0s -> 2.0s)
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      if (!mounted) return;
 
-    debugPrint('========================================================');
-    debugPrint('🔥 [RIVE ARTBOARD LOADED]: "${ab.name}"');
-    debugPrint('🔥 [RIVE STATEMACHINE LOADED]: "${controller.stateMachine.name}"');
-    debugPrint('🔥 [RIVE STATEMACHINE COUNT]: $smCount');
-    for (int i = 0; i < smCount; i++) {
-      debugPrint('   - StateMachine [$i]: "${ab.stateMachineAt(i)?.name}"');
-    }
-    debugPrint('🔥 [RIVE ANIMATION COUNT]: $animCount');
-    for (int i = 0; i < animCount; i++) {
-      debugPrint('   - Animation [$i]: "${ab.animationAt(i).name}"');
-    }
-    debugPrint('========================================================');
+      // Step 1: Show Weekly Board Card & Continue Button
+      setState(() {
+        _showBoardAndButton = true;
+      });
 
-    _riveStateMachine?.addEventListener(_onRiveEvent);
+      // Step 2: Show Subtitle 'day streak this week!' (+300ms after Board & Button appear)
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (!mounted) return;
+
+        setState(() {
+          _showSubtitle = true;
+        });
+
+        // Step 3: Show Streak Number - Scale up from small (0.2) to large (1.0) (+300ms after Subtitle)
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (!mounted) return;
+
+          setState(() {
+            _showStreakNumber = true;
+          });
+
+          // Step 4: AFTER Streak Number finishes scaling up (+550ms), RUN THE SLIDE ANIMATION!
+          if (widget.streakIncreased && widget.currentStreak > 0) {
+            Future.delayed(const Duration(milliseconds: 550), () {
+              if (!mounted) return;
+              _startCountAnimation();
+            });
+          }
+        });
+      });
+    });
   }
 
   void _setupRiveDataBinding(File file) {
@@ -98,7 +169,6 @@ class _StreakCelebrationPageState extends State<StreakCelebrationPage> {
 
     _vmInstances.clear();
 
-    // Bind all ViewModels in file (VMStreak, VMSphere)
     for (int i = 0; i < file.viewModelCount; i++) {
       final vm = file.viewModelByIndex(i);
       if (vm != null) {
@@ -106,13 +176,11 @@ class _StreakCelebrationPageState extends State<StreakCelebrationPage> {
         if (vmi != null) {
           ab.bindViewModelInstance(vmi);
           _vmInstances[vm.name] = vmi;
-          debugPrint('🔥 BOUND VIEWMODEL [$i]: "${vm.name}" (${vmi.name})');
         }
       }
     }
 
     _updateStreakValues();
-    _triggerRiveClick();
   }
 
   void _updateStreakValues() {
@@ -121,41 +189,6 @@ class _StreakCelebrationPageState extends State<StreakCelebrationPage> {
 
     streakVM?.number('counter')?.value = widget.currentStreak.toDouble();
     sphereVM?.number('numStates')?.value = widget.currentStreak.toDouble();
-  }
-
-  void _triggerRiveClick() {
-    debugPrint('🔥 [RIVE TAP DETECTED] Firing triggers on VMStreak & VMSphere...');
-
-    _updateStreakValues();
-
-    final streakVM = _vmInstances['VMStreak'];
-    final sphereVM = _vmInstances['VMSphere'];
-
-    // 1. VMStreak triggers & booleans
-    streakVM?.boolean('booStreak')?.value = true;
-    streakVM?.trigger('trigStreak')?.trigger();
-
-    // 2. VMSphere triggers & booleans
-    sphereVM?.boolean('boolSphere')?.value = true;
-    sphereVM?.trigger('trigSphere')?.trigger();
-
-    // 3. State Machine input triggers
-    // ignore: deprecated_member_use
-    _riveStateMachine?.trigger('trigStreak')?.fire();
-    // ignore: deprecated_member_use
-    _riveStateMachine?.trigger('trigSphere')?.fire();
-    // ignore: deprecated_member_use
-    _riveStateMachine?.boolean('booStreak')?.value = true;
-    // ignore: deprecated_member_use
-    _riveStateMachine?.boolean('boolSphere')?.value = true;
-
-    // Advance frame & repaint
-    _riveStateMachine?.advanceAndApply(0.1);
-    _riveController?.scheduleRepaint();
-  }
-
-  void _onRiveEvent(Event event) {
-    debugPrint('🔥 [RIVE NATIVE EVENT FIRED!]: name="${event.name}" type=${event.type}');
   }
 
   void _handleDismiss() {
@@ -171,250 +204,141 @@ class _StreakCelebrationPageState extends State<StreakCelebrationPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    final screenHeight = MediaQuery.sizeOf(context).height;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.center,
-            radius: 1.2,
-            colors: isDark
-                ? const [
-                    Color(0xFF1E1B4B),
-                    Color(0xFF0F172A),
-                    Color(0xFF020617),
-                  ]
-                : const [
-                    Color(0xFFFFF7ED),
-                    Color(0xFFFFEDD5),
-                    Color(0xFFFED7AA),
-                  ],
+      body: Stack(
+        children: [
+          // 1. Rive Background Animation (Pure background, no overlay tint/dimming)
+          Positioned.fill(
+            child: SafeRiveAnimation.asset(
+              'assets/river/fire-streak.riv',
+              onInitController: _onRiveControllerInit,
+              onInitFile: _setupRiveDataBinding,
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  const SizedBox(height: 24),
 
-                  // Header Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF97316).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: const Color(0xFFF97316).withValues(alpha: 0.4),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(CupertinoIcons.flame_fill, color: Color(0xFFF97316), size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          'CHUỖI STREAK HẰNG NGÀY',
-                          style: TextStyle(
-                            color: Color(0xFFF97316),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+          // 2. UI Overlay Content
+          SafeArea(
+            child: Column(
+              children: [
+                // Reserved box for Rive flame background artwork (responsive for phones & tablets)
+                SizedBox(height: screenHeight * 0.33),
 
-                  const SizedBox(height: 16),
-
-                  // Streak number title
-                  Text(
-                    '${widget.currentStreak} Ngày',
-                    style: TextStyle(
-                      fontSize: 44,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : const Color(0xFF1E293B),
-                      letterSpacing: -1,
-                    ),
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  Text(
-                    widget.streakIncreased
-                        ? '🔥 Tuyệt vời! Ngọn lửa thói quen của bạn đang cháy bùng!'
-                        : 'Giữ vững phong độ để tiếp tục chuỗi thói quen!',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Interactive Rive Mascot Display
-                  Expanded(
-                    child: Center(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: _triggerRiveClick,
-                        child: Container(
-                          constraints: const BoxConstraints(
-                            maxWidth: 340,
-                            maxHeight: 340,
-                          ),
-                          child: SafeRiveAnimation.asset(
-                            'assets/river/fire-streak.riv',
-                            onInitController: _onRiveControllerInit,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Stats card container
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.06)
-                            : Colors.black.withValues(alpha: 0.04),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.1)
-                              : Colors.black.withValues(alpha: 0.08),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatItem(
-                              context,
-                              title: 'Kỷ lục cao nhất',
-                              value: '${widget.longestStreak} ngày',
-                              icon: Icons.emoji_events,
-                              iconColor: const Color(0xFFEAB308),
-                              isDark: isDark,
+                // Step 3 in Timeline: Big Streak Number (Scales up from small 0.2 to large 1.0, THEN slides digit!)
+                AnimatedOpacity(
+                  opacity: _showStreakNumber ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 450),
+                  child: AnimatedScale(
+                    scale: _showStreakNumber ? 1.0 : 0.2,
+                    duration: const Duration(milliseconds: 450),
+                    curve: Curves.easeOutBack,
+                    child: GestureDetector(
+                      onTap: _startCountAnimation,
+                      child: NumberFlowText(
+                        text: _displayedStreak.toString().padLeft(2, '0'),
+                        duration: const Duration(milliseconds: 450),
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.titleFontFamily,
+                          fontSize: 136,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          height: 1.0,
+                          shadows: const [
+                            Shadow(
+                              color: Color.fromARGB(255, 241, 113, 28),
+                              blurRadius: 0,
+                              offset: Offset(0, 6),
                             ),
-                          ),
-                          Container(
-                            width: 1,
-                            height: 36,
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.1)
-                                : Colors.black.withValues(alpha: 0.1),
-                          ),
-                          Expanded(
-                            child: _buildStatItem(
-                              context,
-                              title: 'Bùa bảo vệ',
-                              value: '${widget.streakFreezeCount} lượt',
-                              icon: CupertinoIcons.snow,
-                              iconColor: const Color(0xFF3B82F6),
-                              isDark: isDark,
-                            ),
-                          ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Step 2 in Timeline: Subtitle 'day streak this week!' appears after board/button
+                AnimatedOpacity(
+                  opacity: _showSubtitle ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 400),
+                  child: AnimatedSlide(
+                    offset: _showSubtitle
+                        ? Offset.zero
+                        : const Offset(0.0, 0.2),
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeOutCubic,
+                    child: Text(
+                      'day streak this week!',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.titleLarge.copyWith(
+                        fontSize: 24,
+                        color: Colors.white,
+                        shadows: const [
+                          Shadow(color: Colors.black54, blurRadius: 8),
                         ],
                       ),
                     ),
                   ),
+                ),
 
-                  const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-                  // CTA Button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: ElevatedButton(
-                        onPressed: _handleDismiss,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFF97316),
-                          foregroundColor: Colors.white,
-                          elevation: 8,
-                          shadowColor: const Color(0xFFF97316).withValues(alpha: 0.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: const Text(
-                          'Tiếp tục',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                          ),
+                // Step 1 in Timeline: Weekly Tracker Card & Continue Button appear FIRST
+                AnimatedOpacity(
+                  opacity: _showBoardAndButton ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 500),
+                  child: AnimatedSlide(
+                    offset: _showBoardAndButton
+                        ? Offset.zero
+                        : const Offset(0.0, 0.2),
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutCubic,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: WeeklyStreakTracker(
+                        currentStreak: widget.currentStreak,
+                        isDark: isDark,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const Spacer(),
+
+                // Standardized App Button anchored at the VERY BOTTOM
+                AnimatedOpacity(
+                  opacity: _showBoardAndButton ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 500),
+                  child: AnimatedSlide(
+                    offset: _showBoardAndButton
+                        ? Offset.zero
+                        : const Offset(0.0, 0.2),
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutCubic,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppPadding.xl,
+                        vertical: AppPadding.lg,
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Button.secondary(
+                          text: 'Continue',
+                          onPressed: _handleDismiss,
                         ),
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 20),
-                ],
-              ),
-
-              // Top right close button
-              Positioned(
-                top: 12,
-                right: 16,
-                child: IconButton(
-                  onPressed: _handleDismiss,
-                  icon: Icon(
-                    CupertinoIcons.xmark_circle_fill,
-                    size: 32,
-                    color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4),
-                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(
-    BuildContext context, {
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color iconColor,
-    required bool isDark,
-  }) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 16, color: iconColor),
-            const SizedBox(width: 6),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-              ),
+              ],
             ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : const Color(0xFF1E293B),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/features/focus/data/datasources/focus_remote_data_source.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
+import 'package:lorofy/features/focus/domain/models/current_session.dart';
 import 'package:lorofy/features/focus/domain/models/focus_category.dart';
 import 'package:lorofy/features/focus/domain/models/focus_session.dart';
 import 'package:lorofy/features/focus/domain/repositories/focus_repository.dart';
@@ -14,16 +15,27 @@ class FocusRepositoryImpl implements FocusRepository {
   FocusRepositoryImpl(this._remoteDataSource);
 
   @override
+  Future<CurrentSession> getCurrentSession() async {
+    try {
+      return await _remoteDataSource.getCurrentSession();
+    } catch (e) {
+      throw e.toFailure();
+    }
+  }
+
+  @override
   Future<FocusSession> startSession({
     String? categoryId,
     required BlockMode blockMode,
     required int plannedMinutes,
+    bool force = false,
   }) async {
     try {
       return await _remoteDataSource.startSession(
         categoryId: categoryId,
         blockMode: blockMode,
         plannedMinutes: plannedMinutes,
+        force: force,
       );
     } catch (e) {
       throw e.toFailure();

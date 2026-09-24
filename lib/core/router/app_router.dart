@@ -10,7 +10,6 @@ import 'package:lorofy/features/profile/presentation/pages/notifications_page.da
 import 'package:lorofy/features/focus/presentation/pages/session_settings_page.dart';
 import 'package:lorofy/features/settings/presentation/pages/settings_page.dart';
 import 'package:lorofy/features/focus/presentation/pages/sound_settings_page.dart';
-import 'package:lorofy/features/profile/presentation/pages/streak_test_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
@@ -140,11 +139,6 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/sound-settings',
         builder: (context, state) => const SoundSettingsPage(),
-      ),
-      // 9c. Streak Test Lab
-      GoRoute(
-        path: '/streak-test',
-        builder: (context, state) => const StreakTestPage(),
       ),
     ],
 

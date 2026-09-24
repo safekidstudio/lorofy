@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/core/services/foreground_app_service.dart';
 import 'package:lorofy/core/services/installed_apps_service.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
@@ -76,10 +77,22 @@ class _SelectAllowedAppsSheetState
 
     if (!mounted) return;
 
-    final result = await showCupertinoModalPopup<Set<String>>(
-      context: context,
-      builder: (context) => AppPickerDialog(
-        initialSelectedPackages: _workingSelectedPackages,
+    final result = await Navigator.push<Set<String>>(
+      context,
+      CupertinoModalSheetRoute(
+        builder: (context) => Sheet(
+          decoration: const MaterialSheetDecoration(
+            size: SheetSize.fit,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+            color: AppColors.background,
+          ),
+          child: AppPickerDialog(
+            initialSelectedPackages: _workingSelectedPackages,
+          ),
+        ),
       ),
     );
 
@@ -128,7 +141,7 @@ class _SelectAllowedAppsSheetState
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SafeArea(
         top: false,

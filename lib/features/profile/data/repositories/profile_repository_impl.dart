@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lorofy/core/errors/exceptions.dart';
 import 'package:lorofy/core/network/dio_client.dart';
 import 'package:lorofy/features/auth/data/models/user_profile.dart';
+import 'package:lorofy/core/network/response/page_response.dart';
 import 'package:lorofy/features/profile/domain/models/country_model.dart';
 import 'package:lorofy/features/profile/domain/models/point_history_model.dart';
 import 'package:lorofy/features/profile/domain/repositories/profile_repository.dart';
@@ -106,14 +107,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
         options: ApiOptions.protected,
       );
 
-      final dataField = response.data['data'];
-      if (dataField != null) {
-        final items = dataField['items'] as List<dynamic>? ?? [];
-        return items
-            .map((e) => PointHistoryModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-      }
-      return [];
+      final pageData = response.unwrapPage(
+        (json) => PointHistoryModel.fromJson(json as Map<String, dynamic>),
+      );
+      return pageData.content;
     } catch (e) {
       throw e.toFailure();
     }
@@ -128,7 +125,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
           'useFreezeItem': useFreezeItem,
           'useCoins': useCoins,
         },
-        options: ApiOptions.protected,
+        options: ApiOptions.idempotent,
       );
 
       final dataField = response.data['data'];

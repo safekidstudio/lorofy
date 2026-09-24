@@ -2,14 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
-import 'package:lorofy/components/ui/svg_asset.dart';
-import 'package:lorofy/components/ui/sliding_segmented_control.dart';
-import 'package:lorofy/components/ui/shimmer.dart';
-import 'package:lorofy/components/ui/fomo_toast.dart';
-import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
-import 'package:lorofy/features/explore/domain/models/leaderboard.dart';
+import 'package:lorofy/components/ui/app_avatar.dart';
+import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/app_refresh_control.dart';
+import 'package:lorofy/components/ui/fomo_toast.dart';
+import 'package:lorofy/components/ui/shimmer.dart';
+import 'package:lorofy/components/ui/sliding_segmented_control.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
+import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/explore/domain/models/leaderboard.dart';
+import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
 
 class LeaderboardPage extends ConsumerStatefulWidget {
   const LeaderboardPage({super.key});
@@ -95,235 +97,242 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                    const SizedBox(height: 12),
-                    // Tabs Selector
-                    Center(
-                      child: SlidingSegmentedControl(
-                        tabs: const ['Day', 'Week', 'National'],
-                        selectedIndex: _selectedTab,
-                        onTabChanged: (index) {
-                          setState(() {
-                            _selectedTab = index;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 60),
-
-                    leaderboardAsync.when(
-                      loading: () => const _LeaderboardPageSkeleton(),
-                      error: (err, stack) => SizedBox(
-                        height: 300,
-                        child: Center(
-                          child: Text(
-                            'Error loading leaderboard: $err',
-                            style: TextStyle(
-                              fontFamily: AppTextStyles.fontFamily,
-                              color: CupertinoColors.systemRed,
+                          const SizedBox(height: 12),
+                          // Tabs Selector
+                          Center(
+                            child: SlidingSegmentedControl(
+                              tabs: const ['Day', 'Week', 'National'],
+                              selectedIndex: _selectedTab,
+                              onTabChanged: (index) {
+                                setState(() {
+                                  _selectedTab = index;
+                                });
+                              },
                             ),
                           ),
-                        ),
-                      ),
-                      data: (data) {
-                        final list = data.leaderboard.content;
+                          const SizedBox(height: 32),
 
-                        final first = list.isNotEmpty ? list[0] : null;
-                        final second = list.length > 1 ? list[1] : null;
-                        final third = list.length > 2 ? list[2] : null;
-
-                        final listItems = list.skip(3).toList();
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Podium
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                // Rank 2 (Left)
-                                Expanded(
-                                  child: second != null
-                                      ? _buildPodiumCol(
-                                          second,
-                                          borderColor: const Color(0xFFD5DEEA),
-                                          isYou:
-                                              data.currentUserRank != null &&
-                                              second.profileId ==
-                                                  data.currentUserRank!.profileId,
-                                        )
-                                      : const SizedBox(height: 130),
-                                ),
-
-                                // Rank 1 (Center) - taller
-                                Expanded(
-                                  child: first != null
-                                      ? _buildPodiumCol(
-                                          first,
-                                          isCenter: true,
-                                          borderColor: const Color(0xFFFFB61D),
-                                          isYou:
-                                              data.currentUserRank != null &&
-                                              first.profileId ==
-                                                  data.currentUserRank!.profileId,
-                                        )
-                                      : const SizedBox(height: 150),
-                                ),
-
-                                // Rank 3 (Right)
-                                Expanded(
-                                  child: third != null
-                                      ? _buildPodiumCol(
-                                          third,
-                                          borderColor: const Color(0xFFD96806),
-                                          isYou:
-                                              data.currentUserRank != null &&
-                                              third.profileId ==
-                                                  data.currentUserRank!.profileId,
-                                        )
-                                      : const SizedBox(height: 130),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 32),
-
-                            // Ranks List 4-10
-                            if (listItems.isEmpty)
-                              SizedBox(
-                                height: 100,
-                                child: Center(
-                                  child: Text(
-                                    'No further rankings available',
-                                    style: TextStyle(
-                                      fontFamily: AppTextStyles.fontFamily,
-                                      fontSize: 14,
-                                      color: AppColors.mutedForeground,
-                                    ),
+                          leaderboardAsync.when(
+                            loading: () => const _LeaderboardPageSkeleton(),
+                            error: (err, stack) => SizedBox(
+                              height: 300,
+                              child: Center(
+                                child: Text(
+                                  'Error loading leaderboard: $err',
+                                  style: const TextStyle(
+                                    fontFamily: AppTextStyles.fontFamily,
+                                    color: CupertinoColors.systemRed,
                                   ),
                                 ),
-                              )
-                            else
-                              Column(
-                                children: listItems.map((entry) {
-                                  final isYou =
-                                      data.currentUserRank != null &&
-                                      entry.profileId ==
-                                          data.currentUserRank!.profileId;
+                              ),
+                            ),
+                            data: (data) {
+                              final list = data.leaderboard.content;
 
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: isYou
-                                            ? const Color(0xFF072013)
-                                            : CupertinoColors.white,
-                                        borderRadius: BorderRadius.circular(12),
+                              if (list.isEmpty) {
+                                return const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 40),
+                                  child: AppEmptyState(
+                                    title: 'No Rankings Yet',
+                                    description:
+                                        'Be the first to complete a focus session and claim the top spot!',
+                                    iconPath: 'assets/illustrations/crown.svg',
+                                  ),
+                                );
+                              }
+
+                              final first = list.isNotEmpty ? list[0] : null;
+                              final second = list.length > 1 ? list[1] : null;
+                              final third = list.length > 2 ? list[2] : null;
+
+                              final listItems = list.skip(3).toList();
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  const SizedBox(height: 28),
+                                  // Podium
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      // Rank 2 (Left)
+                                      Expanded(
+                                        child: second != null
+                                            ? _buildPodiumCol(
+                                                second,
+                                                borderColor:
+                                                    const Color(0xFFD5DEEA),
+                                                isYou:
+                                                    data.currentUserRank !=
+                                                            null &&
+                                                        second.profileId ==
+                                                            data
+                                                                .currentUserRank!
+                                                                .profileId,
+                                              )
+                                            : const SizedBox(height: 130),
                                       ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 10,
+
+                                      // Rank 1 (Center) - taller
+                                      Expanded(
+                                        child: first != null
+                                            ? _buildPodiumCol(
+                                                first,
+                                                isCenter: true,
+                                                borderColor:
+                                                    const Color(0xFFFFB61D),
+                                                isYou:
+                                                    data.currentUserRank !=
+                                                            null &&
+                                                        first.profileId ==
+                                                            data
+                                                                .currentUserRank!
+                                                                .profileId,
+                                              )
+                                            : const SizedBox(height: 150),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          // Rank number
-                                          SizedBox(
-                                            width: 24,
-                                            child: Text(
-                                              entry.rank.toString(),
-                                              style: TextStyle(
-                                                fontFamily: AppTextStyles
-                                                    .titleFontFamily,
-                                                fontSize: 16,
-                                                color: isYou
-                                                    ? CupertinoColors.white
-                                                    : const Color(0xFF232321),
-                                              ),
-                                            ),
+
+                                      // Rank 3 (Right)
+                                      Expanded(
+                                        child: third != null
+                                            ? _buildPodiumCol(
+                                                third,
+                                                borderColor:
+                                                    const Color(0xFFD96806),
+                                                isYou:
+                                                    data.currentUserRank !=
+                                                            null &&
+                                                        third.profileId ==
+                                                            data
+                                                                .currentUserRank!
+                                                                .profileId,
+                                              )
+                                            : const SizedBox(height: 130),
+                                      ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 32),
+
+                                  // Ranks List 4+
+                                  if (listItems.isNotEmpty)
+                                    Column(
+                                      children: listItems.map((entry) {
+                                        final isYou =
+                                            data.currentUserRank != null &&
+                                                entry.profileId ==
+                                                    data.currentUserRank!
+                                                        .profileId;
+
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 8.0,
                                           ),
-                                          const SizedBox(width: 8),
-                                          // Avatar
-                                          Container(
-                                            width: 32,
-                                            height: 32,
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: isYou
+                                                  ? const Color(0xFF072013)
+                                                  : CupertinoColors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
-                                            clipBehavior: Clip.antiAlias,
-                                            child: Image.network(
-                                              entry.avatarUrl ??
-                                                  'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (
-                                                    context,
-                                                    error,
-                                                    stackTrace,
-                                                  ) => Container(
-                                                    color: const Color(
-                                                      0xFFE5E5EA,
-                                                    ),
-                                                    child: const Icon(
-                                                      CupertinoIcons
-                                                          .person_fill,
-                                                      size: 16,
-                                                      color: Color(0xFF8E8E93),
+                                            padding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 16,
+                                                  vertical: 10,
+                                                ),
+                                            child: Row(
+                                              children: [
+                                                // Rank number
+                                                SizedBox(
+                                                  width: 24,
+                                                  child: Text(
+                                                    entry.rank.toString(),
+                                                    style: TextStyle(
+                                                      fontFamily:
+                                                          AppTextStyles
+                                                              .titleFontFamily,
+                                                      fontSize: 16,
+                                                      color: isYou
+                                                          ? CupertinoColors
+                                                              .white
+                                                          : const Color(
+                                                            0xFF232321,
+                                                          ),
                                                     ),
                                                   ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                // Avatar
+                                                AppAvatar(
+                                                  path: entry.avatarUrl,
+                                                  size: 32,
+                                                ),
+                                                const SizedBox(width: 12),
+                                                // Name
+                                                Expanded(
+                                                  child: Text(
+                                                    isYou
+                                                        ? 'You'
+                                                        : entry.displayName,
+                                                    style: TextStyle(
+                                                      fontFamily:
+                                                          AppTextStyles
+                                                              .fontFamily,
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: isYou
+                                                          ? CupertinoColors
+                                                              .white
+                                                          : AppColors.primary,
+                                                    ),
+                                                  ),
+                                                ),
+                                                // Points
+                                                Text(
+                                                  '${entry.points} pts',
+                                                  style: TextStyle(
+                                                    fontFamily:
+                                                        AppTextStyles
+                                                            .fontFamily,
+                                                    fontSize: 13,
+                                                    fontWeight:
+                                                        FontWeight.w500,
+                                                    color: isYou
+                                                        ? CupertinoColors.white
+                                                            .withValues(
+                                                              alpha: 0.8,
+                                                            )
+                                                        : const Color(
+                                                          0xFF8E8E93,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          const SizedBox(width: 12),
-                                          // Name
-                                          Expanded(
-                                            child: Text(
-                                              isYou ? 'You' : entry.displayName,
-                                              style: TextStyle(
-                                                fontFamily:
-                                                    AppTextStyles.fontFamily,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: isYou
-                                                    ? CupertinoColors.white
-                                                    : AppColors.primary,
-                                              ),
-                                            ),
-                                          ),
-                                          // Points
-                                          Text(
-                                            '${entry.points} pts',
-                                            style: TextStyle(
-                                              fontFamily:
-                                                  AppTextStyles.fontFamily,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                              color: isYou
-                                                  ? CupertinoColors.white
-                                                        .withValues(alpha: 0.8)
-                                                  : const Color(0xFF8E8E93),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                        );
+                                      }).toList(),
                                     ),
-                                  );
-                                }).toList(),
-                              ),
-                          ],
-                        );
-                      },
+                                ],
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
-    ],
-  ),
-),
-);
+    );
   }
 
   Widget _buildPodiumCol(

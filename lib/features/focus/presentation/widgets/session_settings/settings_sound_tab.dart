@@ -11,6 +11,7 @@ import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.d
 import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 // import 'package:lorofy/components/ui/pro_upgrade_sheet.dart';
 import 'package:lorofy/components/ui/bottom_player_bar.dart';
+import 'package:lorofy/components/ui/sound_clickable.dart';
 // import 'package:lorofy/components/ui/button.dart';
 
 class SettingsSoundTab extends ConsumerStatefulWidget {
@@ -31,10 +32,11 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
 
   @override
   void deactivate() {
-    // Only pause preview when there is no active focus/break session.
-    // If session is running, let the sound keep playing after user backs out.
+    // Only keep sound playing if user is currently in an active focus session.
+    // If in break time or idle/giveup/completed, pause preview when backing out.
     final phase = ref.read(pomodoroTimerProvider).phase;
-    if (phase != PomodoroState.focus && phase != PomodoroState.breakTime) {
+    final isFocusing = phase == PomodoroState.focus;
+    if (!isFocusing) {
       ref.read(musicPlayerProvider.notifier).pause();
     }
     super.deactivate();
@@ -90,7 +92,7 @@ class _SettingsSoundTabState extends ConsumerState<SettingsSoundTab> {
                       final isSelected = settings.ambientSound == sound;
                       final iconPath = sound.iconPath;
 
-                      return GestureDetector(
+                      return SoundClickable(
                         onTap: () => _onAmbientSoundTap(sound, settings),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 180),

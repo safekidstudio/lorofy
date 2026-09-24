@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/audioplayers.dart' hide PlayerState;
+import 'package:audioplayers/audioplayers.dart' as ap show PlayerState;
 import 'package:lorofy/features/focus/domain/models/ambient_sound.dart';
 import 'package:lorofy/features/focus/domain/models/ambient_sound_meta.dart';
 import 'package:lorofy/features/focus/domain/models/spotify_playlist.dart';
 import 'package:lorofy/core/utils/logger.dart';
-
 
 class PlayerState {
   final SpotifySong? currentlyPlaying;
@@ -43,64 +43,31 @@ class PlayerState {
 }
 
 class MusicPlayerNotifier extends Notifier<PlayerState> {
-  // Cache: one AudioPlayer per asset path — never reload the same file twice
-  final Map<String, AudioPlayer> _playerCache = {};
-  AudioPlayer? _activePlayer;
+  static const String _kPlayerId = 'lorofy_ambient_player';
+
+  AudioPlayer? _player;
   StreamSubscription<Duration>? _positionSubscription;
   StreamSubscription<Duration>? _durationSubscription;
+  StreamSubscription<ap.PlayerState>? _stateSubscription;
 
   @override
   PlayerState build() {
-    // On hot restart, native audio from previous session is still running.
-    // Stop all known ambient players by their fixed IDs to kill orphaned audio.
-    _stopOrphanedAudio();
-
     ref.onDispose(() {
       _positionSubscription?.cancel();
       _durationSubscription?.cancel();
-      for (final p in _playerCache.values) {
-        p.dispose();
-      }
-      _playerCache.clear();
+      _stateSubscription?.cancel();
+      _player?.stop().catchError((_) {});
+      _player?.dispose().catchError((_) {});
+      _player = null;
     });
 
     return const PlayerState();
   }
 
-  /// Stops any native audio players that survived a hot restart by referencing
-  /// them via the same fixed IDs we assign when creating cached players.
-  void _stopOrphanedAudio() {
-    for (final sound in AmbientSound.values) {
-      if (sound.audioPath.isEmpty) continue;
-      // Reference the native player by its deterministic ID and stop it.
-      // If no such player exists natively, this is a no-op.
-      final orphan = AudioPlayer(playerId: 'lorofy_${sound.audioPath}');
-      orphan.stop().catchError((_) {});
-    }
-  }
+  Future<AudioPlayer> _ensurePlayer() async {
+    if (_player != null) return _player!;
 
-  String? _getAssetPath(SpotifySong song) {
-    if (song.isAmbient) {
-      // Look up by label through AmbientSoundMeta — type-safe, no string fragility
-      for (final sound in AmbientSound.values) {
-        if (sound.label == song.title) {
-          final path = sound.audioPath;
-          return path.isEmpty ? null : path;
-        }
-      }
-      return null;
-    }
-    // Fallback for Spotify demo songs: play library ambient
-    return AmbientSound.books.audioPath;
-  }
-
-  Future<AudioPlayer> _getOrCreatePlayer(String assetPath) async {
-    if (_playerCache.containsKey(assetPath)) {
-      return _playerCache[assetPath]!;
-    }
-    // Use a fixed, deterministic playerId so hot restart can reference this
-    // exact native player and stop it via _stopOrphanedAudio().
-    final player = AudioPlayer(playerId: 'lorofy_$assetPath');
+    final player = AudioPlayer(playerId: _kPlayerId);
     await player.setAudioContext(
       AudioContext(
         android: const AudioContextAndroid(
@@ -110,15 +77,41 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
           audioFocus: AndroidAudioFocus.none,
         ),
         iOS: AudioContextIOS(
-          category: AVAudioSessionCategory.ambient,
+          category: AVAudioSessionCategory.playback,
           options: {AVAudioSessionOptions.mixWithOthers},
         ),
       ),
     );
     await player.setReleaseMode(ReleaseMode.loop);
-    await player.setSource(AssetSource(assetPath));
-    _playerCache[assetPath] = player;
+
+    _positionSubscription = player.onPositionChanged.listen((pos) {
+      state = state.copyWith(position: pos);
+    });
+    _durationSubscription = player.onDurationChanged.listen((dur) {
+      state = state.copyWith(duration: dur);
+    });
+    _stateSubscription = player.onPlayerStateChanged.listen((pState) {
+      final isPlaying = pState == ap.PlayerState.playing;
+      if (state.isPlaying != isPlaying) {
+        state = state.copyWith(isPlaying: isPlaying);
+      }
+    });
+
+    _player = player;
     return player;
+  }
+
+  String? _getAssetPath(SpotifySong song) {
+    if (song.isAmbient) {
+      for (final sound in AmbientSound.values) {
+        if (sound.label == song.title) {
+          final path = sound.audioPath;
+          return path.isEmpty ? null : path;
+        }
+      }
+      return null;
+    }
+    return AmbientSound.books.audioPath;
   }
 
   Future<void> play(SpotifySong song) async {
@@ -133,29 +126,9 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
     );
 
     try {
-      // Pause current active player if switching tracks
-      if (_activePlayer != null) {
-        AppLogger.debug('play - pausing previous player', tag: 'MusicPlayer');
-        await _activePlayer?.pause();
-      }
-
-      // Cancel existing stream subs before switching player
-      await _positionSubscription?.cancel();
-      await _durationSubscription?.cancel();
-
       if (assetPath != null) {
-        final player = await _getOrCreatePlayer(assetPath);
-        _activePlayer = player;
-
-        // Subscribe to position/duration on the new active player
-        _positionSubscription = player.onPositionChanged.listen((pos) {
-          state = state.copyWith(position: pos);
-        });
-        _durationSubscription = player.onDurationChanged.listen((dur) {
-          state = state.copyWith(duration: dur);
-        });
-
-        AppLogger.debug('play - resuming player for: $assetPath', tag: 'MusicPlayer');
+        final player = await _ensurePlayer();
+        await player.setSource(AssetSource(assetPath));
         await player.resume();
         AppLogger.debug('play - successfully playing: "${song.title}"', tag: 'MusicPlayer');
       } else {
@@ -163,24 +136,30 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
       }
     } catch (e, stack) {
       AppLogger.error('Failed to play song "${song.title}"', error: e, stackTrace: stack, tag: 'MusicPlayer');
-      // Silently catch audio failures in web/desktop testing environments
     }
   }
 
   Future<void> togglePlay() async {
-    if (state.currentlyPlaying == null || _activePlayer == null) {
-      AppLogger.debug('togglePlay ignored - currentlyPlaying or _activePlayer is null', tag: 'MusicPlayer');
+    if (state.currentlyPlaying == null) {
+      AppLogger.debug('togglePlay ignored - currentlyPlaying is null', tag: 'MusicPlayer');
       return;
     }
 
     try {
+      final player = await _ensurePlayer();
       if (state.isPlaying) {
         AppLogger.debug('togglePlay - pausing player', tag: 'MusicPlayer');
-        await _activePlayer!.pause();
+        await player.pause();
         state = state.copyWith(isPlaying: false);
       } else {
         AppLogger.debug('togglePlay - resuming player', tag: 'MusicPlayer');
-        await _activePlayer!.resume();
+        if (player.source == null) {
+          final assetPath = _getAssetPath(state.currentlyPlaying!);
+          if (assetPath != null) {
+            await player.setSource(AssetSource(assetPath));
+          }
+        }
+        await player.resume();
         state = state.copyWith(isPlaying: true);
       }
     } catch (e, stack) {
@@ -189,15 +168,14 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
   }
 
   /// Pauses audio but keeps [currentlyPlaying] intact (preview state is preserved).
-  /// Use this when navigating away from settings so the user's selection is remembered.
   Future<void> pause() async {
-    if (_activePlayer == null) {
-      AppLogger.debug('pause ignored - _activePlayer is null', tag: 'MusicPlayer');
+    if (_player == null) {
+      AppLogger.debug('pause ignored - _player is null', tag: 'MusicPlayer');
       return;
     }
     try {
-      AppLogger.debug('pause - pausing active player', tag: 'MusicPlayer');
-      await _activePlayer!.pause();
+      AppLogger.debug('pause - pausing player', tag: 'MusicPlayer');
+      await _player!.pause();
       state = state.copyWith(isPlaying: false);
     } catch (e, stack) {
       AppLogger.error('pause failed', error: e, stackTrace: stack, tag: 'MusicPlayer');
@@ -211,12 +189,7 @@ class MusicPlayerNotifier extends Notifier<PlayerState> {
   Future<void> stop() async {
     AppLogger.debug('stop - stopping playback', tag: 'MusicPlayer');
     try {
-      await _activePlayer?.pause();
-      await _positionSubscription?.cancel();
-      await _durationSubscription?.cancel();
-      _positionSubscription = null;
-      _durationSubscription = null;
-      _activePlayer = null;
+      await _player?.stop();
     } catch (e, stack) {
       AppLogger.error('stop failed', error: e, stackTrace: stack, tag: 'MusicPlayer');
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
+import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
@@ -90,30 +91,11 @@ class ExploreLeaderboardSection extends ConsumerWidget {
               final list = data.leaderboard.content;
 
               if (list.isEmpty) {
-                return SizedBox(
-                  height: 150,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SVG(
-                          'assets/illustrations/crown.svg',
-                          width: 50,
-                          height: 50,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'No rankings yet',
-                          style: TextStyle(
-                            fontFamily: AppTextStyles.fontFamily,
-                            color: AppColors.mutedForeground,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                return const AppEmptyState(
+                  title: 'No Rankings Yet',
+                  description: 'Be the first to complete a focus session and claim top spot!',
+                  iconPath: 'assets/illustrations/crown.svg',
+                  padding: AppPadding.md,
                 );
               }
 
