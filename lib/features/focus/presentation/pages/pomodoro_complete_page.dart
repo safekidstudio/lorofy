@@ -29,7 +29,6 @@ class PomodoroCompletePage extends StatefulWidget {
 }
 
 class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
-
   void _triggerActionWithStreakFlow(VoidCallback defaultAction) {
     if (widget.currentStreak > 0 && widget.streakIncreased) {
       StreakCelebrationPage.show(
@@ -64,11 +63,11 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
         // Rive Confetti falling in the background
         const Positioned.fill(
           child: SafeRiveAnimation.asset(
-            'assets/river/confetti.riv',
+            'assets/rive/confetti.riv',
             fit: BoxFit.cover,
           ),
         ),
-        
+
         // Main content column
         Positioned.fill(
           child: SafeArea(
@@ -79,7 +78,8 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
                 AppHeader(
                   leftActions: CupertinoButton(
                     padding: EdgeInsets.zero,
-                    onPressed: () => _triggerActionWithStreakFlow(widget.onBackToHome),
+                    onPressed: () =>
+                        _triggerActionWithStreakFlow(widget.onBackToHome),
                     child: const Icon(
                       CupertinoIcons.xmark,
                       color: Color(0xFF232321),
@@ -94,7 +94,7 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Spacer(),
-                        
+
                         // Success checkmark illustration
                         Center(
                           child: const SVG(
@@ -127,16 +127,21 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
                             color: Color(0xFF8E8E93),
                           ),
                         ),
-                        
+
                         if (widget.earnedPoints > 0) ...[
                           const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFFD60A).withValues(alpha: 0.2),
+                                  color: const Color(
+                                    0xFFFFD60A,
+                                  ).withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Row(
@@ -170,12 +175,17 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
                               GestureDetector(
                                 onTap: () => _handleManualStreakClick(context),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 8,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: CupertinoColors.activeOrange.withValues(alpha: 0.15),
+                                    color: CupertinoColors.activeOrange
+                                        .withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: CupertinoColors.activeOrange.withValues(alpha: 0.3),
+                                      color: CupertinoColors.activeOrange
+                                          .withValues(alpha: 0.3),
                                       width: 1,
                                     ),
                                   ),
@@ -200,10 +210,15 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
                                       if (widget.streakIncreased) ...[
                                         const SizedBox(width: 6),
                                         Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
                                           decoration: BoxDecoration(
                                             color: CupertinoColors.activeOrange,
-                                            borderRadius: BorderRadius.circular(10),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
                                           ),
                                           child: const Text(
                                             '+1 Today 🎉',
@@ -230,7 +245,9 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage> {
                             width: 180,
                             child: Button.secondary(
                               text: 'Have a rest',
-                              onPressed: () => _triggerActionWithStreakFlow(widget.onHaveARest),
+                              onPressed: () => _triggerActionWithStreakFlow(
+                                widget.onHaveARest,
+                              ),
                             ),
                           ),
                         ),

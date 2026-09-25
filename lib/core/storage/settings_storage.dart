@@ -8,14 +8,23 @@ class SettingsStorage {
 
   SettingsStorage(this._prefs);
 
-  static const _settingsKey = "pomodoro_settings";
+  static const _pomodoroSettingsKey = "pomodoro_settings";
+  static const _systemSettingsKey = "system_settings";
 
   Future<void> saveSettings(String jsonStr) async {
-    await _prefs.setString(_settingsKey, jsonStr);
+    await _prefs.setString(_pomodoroSettingsKey, jsonStr);
   }
 
   String? getSettings() {
-    return _prefs.getString(_settingsKey);
+    return _prefs.getString(_pomodoroSettingsKey);
+  }
+
+  Future<void> saveSystemSettings(String jsonStr) async {
+    await _prefs.setString(_systemSettingsKey, jsonStr);
+  }
+
+  String? getSystemSettings() {
+    return _prefs.getString(_systemSettingsKey);
   }
 }
 

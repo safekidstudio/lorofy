@@ -16,9 +16,9 @@ enum MascotType {
       case MascotType.chicken:
         // Note: Replace with actual chicken.riv path when the asset is added.
         // For now, we fallback to grow-plant.riv to avoid errors.
-        return 'assets/river/grow-plant.riv';
+        return 'assets/rive/grow-plant.riv';
       case MascotType.tree:
-        return 'assets/river/grow-plant.riv';
+        return 'assets/rive/grow-plant.riv';
     }
   }
 

@@ -205,7 +205,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     final settings = ref.read(pomodoroSettingsProvider);
     final systemSettings = ref.read(systemSettingsProvider);
     final isStrict =
-        settings.isDeepFocusMode && settings.blockMode == BlockMode.strict;
+        !settings.isPomodoroMode && settings.blockMode == BlockMode.strict;
     final penaltyPoints = isStrict
         ? systemSettings.penaltyPointsStrict
         : systemSettings.penaltyPointsMedium;
@@ -264,7 +264,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     try {
       final FocusRepository repository = ref.read(focusRepositoryProvider);
       final settings = ref.read(pomodoroSettingsProvider);
-      final activeBlockMode = settings.isDeepFocusMode
+      final activeBlockMode = !settings.isPomodoroMode
           ? settings.blockMode
           : BlockMode.medium;
 
@@ -343,7 +343,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
     final focusMinutes = (state.totalSessionSeconds / 60).round();
     final isStrict =
-        settings.isDeepFocusMode && settings.blockMode == BlockMode.strict;
+        !settings.isPomodoroMode && settings.blockMode == BlockMode.strict;
     final multiplier = isStrict
         ? systemSettings.rewardMultiplierStrict
         : systemSettings.rewardMultiplierMedium;
@@ -411,13 +411,13 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
           .updatePointsState(currentPoints + calculatedPoints);
     }
 
-    final targetRounds = settings.isDeepFocusMode ? 1 : settings.targetRounds;
+    final targetRounds = settings.isPomodoroMode ? settings.targetRounds : 1;
     if (state.currentRound >= targetRounds) {
       state = state.copyWith(phase: PomodoroState.completed);
       // Stop ambient sound on session completion
       ref.read(musicPlayerProvider.notifier).stop();
     } else {
-      final breakMinutes = settings.isDeepFocusMode ? 0 : settings.breakMinutes;
+      final breakMinutes = settings.isPomodoroMode ? settings.breakMinutes : 0;
       startBreak(breakMinutes, isLong: false);
     }
   }

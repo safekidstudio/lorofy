@@ -82,6 +82,7 @@ class MyPointsPage extends ConsumerWidget {
                             description:
                                 'Complete focus sessions or repair streaks to earn points and view your activity log!',
                             iconPath: 'assets/icons/point.svg',
+                            riveSize: 64,
                           ),
                         ],
                       ),
@@ -130,8 +131,10 @@ class MyPointsPage extends ConsumerWidget {
                           vertical: AppPadding.md,
                         ),
                         onPressed: () => ref.invalidate(pointHistoryProvider),
-                        child: const Text('Retry',
-                            style: AppTextStyles.buttonText),
+                        child: const Text(
+                          'Retry',
+                          style: AppTextStyles.buttonText,
+                        ),
                       ),
                     ],
                   ),
@@ -144,4 +147,3 @@ class MyPointsPage extends ConsumerWidget {
     );
   }
 }
-

@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Divider, Colors, Material;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/layout/app_header.dart';
-// import 'package:lorofy/components/ui/app_switch.dart';
+import 'package:lorofy/components/ui/app_switch.dart';
 import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
@@ -98,6 +97,7 @@ class SettingsPage extends ConsumerWidget {
   Widget _buildRow({
     required String title,
     String? subtitle,
+    String? description,
     Widget? trailing,
     VoidCallback? onTap,
     Color? titleColor,
@@ -105,19 +105,37 @@ class SettingsPage extends ConsumerWidget {
     return CardActionArea(
       onTap: onTap,
       child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        constraints: const BoxConstraints(minHeight: 56),
         child: Row(
           children: [
             Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: titleColor ?? AppColors.foreground,
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: AppTextStyles.fontFamily,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: titleColor ?? AppColors.foreground,
+                    ),
+                  ),
+                  if (description != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: const TextStyle(
+                        fontFamily: AppTextStyles.fontFamily,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.mutedForeground,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             if (subtitle != null) ...[
@@ -143,6 +161,34 @@ class SettingsPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> _confirmTurnOffReminders(BuildContext context) async {
+    final result = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text(
+          'Turn Off Focus Reminders?',
+          style: TextStyle(fontFamily: AppTextStyles.fontFamily),
+        ),
+        content: const Text(
+          'If disabled, you will not receive warning notifications when leaving Lorofy during focus sessions, which may cause your session to fail unintentionally.',
+          style: TextStyle(fontFamily: AppTextStyles.fontFamily),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Keep On'),
+            onPressed: () => Navigator.pop(context, false),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: const Text('Turn Off'),
+            onPressed: () => Navigator.pop(context, true),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   @override
@@ -196,9 +242,8 @@ class SettingsPage extends ConsumerWidget {
                         ),
                       ),
 
-                      // Section 2: GENERAL SETTINGS (Temporarily commented out until API integration)
-                      /*
-                      _buildSectionHeader('GENERAL SETTINGS'),
+                      // Section 2: NOTIFICATIONS
+                      _buildSectionHeader('NOTIFICATIONS'),
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
@@ -208,27 +253,19 @@ class SettingsPage extends ConsumerWidget {
                         child: Column(
                           children: [
                             _buildRow(
-                              title: 'Push Notifications',
+                              title: 'Focus Reminders',
+                              description: 'Remind before session starts',
                               trailing: AppSwitch(
-                                value: settings.pushNotifications,
-                                onChanged: (val) {
-                                  ref.read(pomodoroSettingsProvider.notifier).updateSettings(
-                                        settings.copyWith(pushNotifications: val),
-                                      );
-                                },
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Divider(height: 1, color: AppColors.border),
-                            ),
-                            _buildRow(
-                              title: 'Background Process',
-                              trailing: AppSwitch(
-                                value: settings.backgroundProcess,
-                                onChanged: (val) {
-                                  ref.read(pomodoroSettingsProvider.notifier).updateSettings(
-                                        settings.copyWith(backgroundProcess: val),
+                                value: settings.timedReminder,
+                                onChanged: (val) async {
+                                  if (!val) {
+                                    final confirm = await _confirmTurnOffReminders(context);
+                                    if (!confirm) return;
+                                  }
+                                  ref
+                                      .read(pomodoroSettingsProvider.notifier)
+                                      .updateSettings(
+                                        settings.copyWith(timedReminder: val),
                                       );
                                 },
                               ),
@@ -237,21 +274,6 @@ class SettingsPage extends ConsumerWidget {
                         ),
                       ),
 
-                      // Section 3: ACCOUNT
-                      _buildSectionHeader('ACCOUNT'),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: CupertinoColors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: _buildRow(
-                          title: 'Deactivate Account',
-                          titleColor: AppColors.destructive,
-                          onTap: () => _confirmDeactivate(context),
-                        ),
-                      ),
-                      */
                       const SizedBox(height: 40),
                     ],
                   ),

@@ -14,7 +14,6 @@ class DeepFocusSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(pomodoroSettingsProvider);
-    final isPomodoroMode = !settings.isDeepFocusMode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,17 +31,17 @@ class DeepFocusSection extends ConsumerWidget {
               ),
             ),
             AppSwitch(
-              value: isPomodoroMode,
+              value: settings.isPomodoroMode,
               onChanged: (val) {
                 ref
                     .read(pomodoroSettingsProvider.notifier)
-                    .updateSettings(settings.copyWith(isDeepFocusMode: !val));
+                    .updateSettings(settings.copyWith(isPomodoroMode: val));
               },
             ),
           ],
         ),
         AnimatedCollapse(
-          isExpanded: isPomodoroMode,
+          isExpanded: settings.isPomodoroMode,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

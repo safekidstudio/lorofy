@@ -303,9 +303,8 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
     return AnimatedSize(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
-      child: settings.isDeepFocusMode
-          ? const SizedBox.shrink()
-          : Column(
+      child: settings.isPomodoroMode
+          ? Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildBreakOptionsRow(
@@ -330,7 +329,8 @@ class _BreaksAndRoundsSectionState extends ConsumerState<BreaksAndRoundsSection>
                 ),
                 const SizedBox(height: 24),
               ],
-            ),
+            )
+          : const SizedBox.shrink(),
     );
   }
 }

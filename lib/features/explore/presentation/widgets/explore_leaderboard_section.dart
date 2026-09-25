@@ -93,8 +93,9 @@ class ExploreLeaderboardSection extends ConsumerWidget {
               if (list.isEmpty) {
                 return const AppEmptyState(
                   title: 'No Rankings Yet',
-                  description: 'Be the first to complete a focus session and claim top spot!',
-                  iconPath: 'assets/illustrations/crown.svg',
+                  description:
+                      'Be the first to complete a focus session and claim top spot!',
+                  rivePath: 'assets/rive/cat-not-track.riv',
                   padding: AppPadding.md,
                 );
               }
@@ -115,14 +116,16 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                             name: second.displayName,
                             points: second.points,
                             rank: 2,
-                            avatarUrl: second.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
+                            avatarUrl: second.avatarUrl ??
+                                'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
                             highlightColor: const Color(0xFFD5DEEA),
                             isYou: data.currentUserRank != null &&
-                                second.profileId == data.currentUserRank!.profileId,
+                                second.profileId ==
+                                    data.currentUserRank!.profileId,
                           )
                         : const SizedBox(height: 130),
                   ),
-                  
+
                   // Rank 1
                   Expanded(
                     child: first != null
@@ -130,15 +133,17 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                             name: first.displayName,
                             points: first.points,
                             rank: 1,
-                            avatarUrl: first.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png',
+                            avatarUrl: first.avatarUrl ??
+                                'https://res.cloudinary.com/ikupgdru/image/upload/v1784619376/64_d4fo1k_wnebqr.png',
                             highlightColor: const Color(0xFFFFB61D),
                             isCenter: true,
                             isYou: data.currentUserRank != null &&
-                                first.profileId == data.currentUserRank!.profileId,
+                                first.profileId ==
+                                    data.currentUserRank!.profileId,
                           )
                         : const SizedBox(height: 150),
                   ),
-                  
+
                   // Rank 3
                   Expanded(
                     child: third != null
@@ -146,10 +151,12 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                             name: third.displayName,
                             points: third.points,
                             rank: 3,
-                            avatarUrl: third.avatarUrl ?? 'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/02_aus2zc_tfpypg.png',
+                            avatarUrl: third.avatarUrl ??
+                                'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/02_aus2zc_tfpypg.png',
                             highlightColor: const Color(0xFFD96806),
                             isYou: data.currentUserRank != null &&
-                                third.profileId == data.currentUserRank!.profileId,
+                                third.profileId ==
+                                    data.currentUserRank!.profileId,
                           )
                         : const SizedBox(height: 130),
                   ),

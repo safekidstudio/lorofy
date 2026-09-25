@@ -45,18 +45,15 @@ class TimeDurationSection extends ConsumerWidget {
               trackShape: const FullWidthSliderTrackShape(),
             ),
             child: Slider(
-              value: settings.focusMinutes.toDouble().clamp(1.0, 180.0),
-              min: 1.0,
+              value: settings.focusMinutes.toDouble().clamp(5.0, 180.0),
+              min: 5.0,
               max: 180.0,
               onChanged: (val) {
                 ref
                     .read(pomodoroSettingsProvider.notifier)
-                    .updateSettingsStateOnly(
+                    .updateSettings(
                       settings.copyWith(focusMinutes: val.round()),
                     );
-              },
-              onChangeEnd: (val) {
-                ref.read(pomodoroSettingsProvider.notifier).saveToStorage();
               },
             ),
           ),

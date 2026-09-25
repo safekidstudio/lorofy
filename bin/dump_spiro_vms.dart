@@ -1,7 +1,7 @@
 import 'dart:io';
 
 void main() {
-  final bytes = File('assets/river/spiro-streak.riv').readAsBytesSync();
+  final bytes = File('assets/rive/spiro-streak.riv').readAsBytesSync();
   final asciiStrings = <String>[];
   final buffer = <int>[];
 

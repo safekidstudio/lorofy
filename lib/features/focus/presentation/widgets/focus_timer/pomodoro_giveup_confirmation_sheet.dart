@@ -16,7 +16,7 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(pomodoroSettingsProvider);
     final systemSettings = ref.watch(systemSettingsProvider);
-    final isStrict = settings.isDeepFocusMode && settings.blockMode == BlockMode.strict;
+    final isStrict = !settings.isPomodoroMode && settings.blockMode == BlockMode.strict;
     final penaltyPoints = isStrict
         ? systemSettings.penaltyPointsStrict
         : systemSettings.penaltyPointsMedium;

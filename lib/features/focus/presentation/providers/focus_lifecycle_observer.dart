@@ -68,15 +68,17 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
 
     final settings = ref.read(pomodoroSettingsProvider);
     final activeBlockMode =
-        settings.isDeepFocusMode ? settings.blockMode : BlockMode.medium;
+        !settings.isPomodoroMode ? settings.blockMode : BlockMode.medium;
 
     if (state == AppLifecycleState.paused) {
       _cancelGraceTimer();
 
       if (activeBlockMode == BlockMode.strict) {
         final seconds = widget.strictGracePeriodSeconds;
-        // Strict Mode: Send warning notification and start grace period timer
-        NotificationService().showStrictWarningNotification(seconds: seconds);
+        // Strict Mode: Send warning notification and start grace period timer if reminders enabled
+        if (settings.timedReminder) {
+          NotificationService().showStrictWarningNotification(seconds: seconds);
+        }
 
         _gracePeriodTimer = Timer(Duration(seconds: seconds), () {
           if (mounted) {
@@ -113,6 +115,7 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
         return;
       }
 
+      final settings = ref.read(pomodoroSettingsProvider);
       final fgPackage = await ForegroundAppService().getForegroundAppPackage();
 
       // Case A: User is in Lorofy OR in a Whitelisted app (e.g. Hive, Spotify)
@@ -144,14 +147,16 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
         return;
       }
 
-      // Send warning notification ONLY ONCE when entering an unallowed app!
+      // Send warning notification ONLY ONCE when entering an unallowed app (if reminders enabled)!
       if (_lastNotifiedStatus != 'unallowed') {
         _lastNotifiedStatus = 'unallowed';
-        NotificationService().showStrictWarningNotification(
-          seconds: maxAllowedSeconds,
-          title: 'Warning: Unallowed App Detected! 🥀',
-          body: 'Return to Lorofy or your whitelisted apps before your session fails.',
-        );
+        if (settings.timedReminder) {
+          NotificationService().showStrictWarningNotification(
+            seconds: maxAllowedSeconds,
+            title: 'Warning: Unallowed App Detected! 🥀',
+            body: 'Return to Lorofy or your whitelisted apps before your session fails.',
+          );
+        }
       }
     });
   }

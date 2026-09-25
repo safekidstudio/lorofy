@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 void main() {
-  final bytes = File('assets/river/grow-plant.riv').readAsBytesSync();
+  final bytes = File('assets/rive/grow-plant.riv').readAsBytesSync();
   print('\n======================================================');
   print('FILE: grow-plant.riv (${bytes.length} bytes)');
   print('======================================================');

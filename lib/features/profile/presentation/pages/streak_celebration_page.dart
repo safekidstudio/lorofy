@@ -213,7 +213,7 @@ class _StreakCelebrationPageState extends State<StreakCelebrationPage>
           // 1. Rive Background Animation (Pure background, no overlay tint/dimming)
           Positioned.fill(
             child: SafeRiveAnimation.asset(
-              'assets/river/fire-streak.riv',
+              'assets/rive/fire-streak.riv',
               onInitController: _onRiveControllerInit,
               onInitFile: _setupRiveDataBinding,
               fit: BoxFit.cover,

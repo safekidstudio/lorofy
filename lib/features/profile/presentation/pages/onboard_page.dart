@@ -238,7 +238,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
               // Rive Confetti falling behind content
               const Positioned.fill(
                 child: SafeRiveAnimation.asset(
-                  'assets/river/confetti.riv',
+                  'assets/rive/confetti.riv',
                   fit: BoxFit.cover,
                 ),
               ),

@@ -246,9 +246,9 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                         pomodoroState: phase,
                         displaySeconds: displaySeconds,
                         currentRound: timerState.currentRound,
-                        targetRounds: settings.isDeepFocusMode
-                            ? 1
-                            : settings.targetRounds,
+                        targetRounds: settings.isPomodoroMode
+                            ? settings.targetRounds
+                            : 1,
                         isLongBreak: timerState.isLongBreak,
                       ),
                     ),

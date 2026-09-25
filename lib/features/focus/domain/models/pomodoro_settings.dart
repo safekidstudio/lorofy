@@ -10,7 +10,7 @@ class PomodoroSettings {
   final AmbientSound ambientSound;
   final FocusCategory? selectedCategory;
   final bool timedReminder;
-  final bool isDeepFocusMode;
+  final bool isPomodoroMode;
   final BlockMode blockMode;
   final Set<String> allowedAppPackages;
   final bool autoStartBreak;
@@ -25,7 +25,7 @@ class PomodoroSettings {
     this.ambientSound = AmbientSound.none,
     this.selectedCategory,
     this.timedReminder = true,
-    this.isDeepFocusMode = false,
+    this.isPomodoroMode = true,
     this.blockMode = BlockMode.medium,
     this.allowedAppPackages = const {},
     this.autoStartBreak = true,
@@ -41,7 +41,7 @@ class PomodoroSettings {
     AmbientSound? ambientSound,
     FocusCategory? selectedCategory,
     bool? timedReminder,
-    bool? isDeepFocusMode,
+    bool? isPomodoroMode,
     BlockMode? blockMode,
     Set<String>? allowedAppPackages,
     bool? autoStartBreak,
@@ -61,7 +61,7 @@ class PomodoroSettings {
       ambientSound: ambientSound ?? this.ambientSound,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       timedReminder: timedReminder ?? this.timedReminder,
-      isDeepFocusMode: isDeepFocusMode ?? this.isDeepFocusMode,
+      isPomodoroMode: isPomodoroMode ?? this.isPomodoroMode,
       blockMode: blockMode ?? this.blockMode,
       allowedAppPackages: allowedAppPackages ?? this.allowedAppPackages,
       autoStartBreak: autoStartBreak ?? this.autoStartBreak,
@@ -78,7 +78,7 @@ class PomodoroSettings {
         'ambientSound': ambientSound.name,
         'selectedCategory': selectedCategory?.toJson(),
         'timedReminder': timedReminder,
-        'isDeepFocusMode': isDeepFocusMode,
+        'isPomodoroMode': isPomodoroMode,
         'blockMode': blockMode.name,
         'allowedAppPackages': allowedAppPackages.toList(),
         'autoStartBreak': autoStartBreak,
@@ -101,7 +101,7 @@ class PomodoroSettings {
               json['selectedCategory'] as Map<String, dynamic>)
           : null,
       timedReminder: json['timedReminder'] as bool? ?? true,
-      isDeepFocusMode: json['isDeepFocusMode'] as bool? ?? false,
+      isPomodoroMode: json['isPomodoroMode'] as bool? ?? true,
       blockMode: BlockMode.values.firstWhere(
         (e) => e.name == json['blockMode'] || e.value == json['blockMode'],
         orElse: () => BlockMode.medium,
@@ -113,6 +113,46 @@ class PomodoroSettings {
       autoStartBreak: json['autoStartBreak'] as bool? ?? true,
       autoStartFocus: json['autoStartFocus'] as bool? ?? true,
       isLoaded: json['isLoaded'] as bool? ?? true,
+    );
+  }
+
+  /// Convert settings to remote payload for multi-platform sync API endpoint
+  Map<String, dynamic> toRemoteJson() => {
+        'focusDurationMinutes': focusMinutes,
+        'breakDurationMinutes': breakMinutes,
+        'longBreakDurationMinutes': longBreakMinutes,
+        'targetRounds': targetRounds,
+        'ambientSound': ambientSound.name,
+        'timedReminder': timedReminder,
+        'isPomodoroMode': isPomodoroMode,
+        'blockMode': blockMode.name.toUpperCase(),
+        'autoStartBreak': autoStartBreak,
+        'autoStartFocus': autoStartFocus,
+      };
+
+  /// Parse from remote payload retrieved from multi-platform sync API endpoint
+  factory PomodoroSettings.fromRemoteJson(Map<String, dynamic> json) {
+    final rawBlockMode = json['blockMode']?.toString().toLowerCase();
+    final bool pomodoro = (json['isPomodoroMode'] ?? json['pomodoroMode'] ?? true) as bool;
+
+    return PomodoroSettings(
+      focusMinutes: (json['focusDurationMinutes'] ?? json['focusMinutes'] ?? 25) as int,
+      breakMinutes: (json['breakDurationMinutes'] ?? json['breakMinutes'] ?? 5) as int,
+      longBreakMinutes: (json['longBreakDurationMinutes'] ?? json['longBreakMinutes'] ?? 10) as int,
+      targetRounds: (json['targetRounds'] ?? 4) as int,
+      ambientSound: AmbientSound.values.firstWhere(
+        (e) => e.name == json['ambientSound'],
+        orElse: () => AmbientSound.none,
+      ),
+      timedReminder: json['timedReminder'] as bool? ?? true,
+      isPomodoroMode: pomodoro,
+      blockMode: BlockMode.values.firstWhere(
+        (e) => e.name.toLowerCase() == rawBlockMode || e.value.toLowerCase() == rawBlockMode,
+        orElse: () => BlockMode.medium,
+      ),
+      autoStartBreak: json['autoStartBreak'] as bool? ?? true,
+      autoStartFocus: json['autoStartFocus'] as bool? ?? true,
+      isLoaded: true,
     );
   }
 }

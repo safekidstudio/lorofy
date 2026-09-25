@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:lorofy/components/ui/button.dart';
+import 'package:lorofy/components/ui/safe_rive_animation.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
@@ -9,6 +10,8 @@ class AppEmptyState extends StatelessWidget {
   final String? description;
   final String? iconPath;
   final Widget? iconWidget;
+  final String? rivePath;
+  final double riveSize;
   final String? actionText;
   final VoidCallback? onActionPressed;
   final double padding;
@@ -19,6 +22,8 @@ class AppEmptyState extends StatelessWidget {
     this.description,
     this.iconPath,
     this.iconWidget,
+    this.rivePath = 'assets/rive/cat-not-track.riv',
+    this.riveSize = 140.0,
     this.actionText,
     this.onActionPressed,
     this.padding = AppPadding.xl,
@@ -28,53 +33,36 @@ class AppEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: padding, vertical: AppPadding.lg),
+        padding: EdgeInsets.symmetric(
+          horizontal: padding,
+          vertical: AppPadding.lg,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Icon / Illustration
+            // Icon / Illustration / Rive
             if (iconWidget != null)
               iconWidget!
             else if (iconPath != null)
-              Container(
-                width: 80,
-                height: 80,
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.card,
-                  border: Border.all(color: AppColors.border, width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: CupertinoColors.black.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: SVG(
-                  iconPath!,
-                  width: 44,
-                  height: 44,
-                  color: AppColors.primary,
-                ),
+              SVG(
+                iconPath!,
+                width: riveSize,
+                height: riveSize,
+                color: AppColors.primary,
+              )
+            else if (rivePath != null && rivePath!.isNotEmpty)
+              SizedBox(
+                width: riveSize,
+                height: riveSize,
+                child: SafeRiveAnimation.asset(rivePath!, fit: BoxFit.contain),
               )
             else
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.card,
-                  border: Border.all(color: AppColors.border, width: 1.5),
-                ),
-                child: const Icon(
-                  CupertinoIcons.square_grid_2x2,
-                  size: 36,
-                  color: AppColors.mutedForeground,
-                ),
+              Icon(
+                CupertinoIcons.square_grid_2x2,
+                size: riveSize > 80 ? 64 : riveSize,
+                color: AppColors.mutedForeground,
               ),
 
             const SizedBox(height: AppPadding.lg),
@@ -85,8 +73,8 @@ class AppEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontFamily: AppTextStyles.fontFamily,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
                 color: AppColors.primary,
               ),
             ),
@@ -98,7 +86,7 @@ class AppEmptyState extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 13,
+                  fontSize: 14,
                   height: 1.4,
                   color: AppColors.mutedForeground,
                 ),

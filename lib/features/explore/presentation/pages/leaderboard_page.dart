@@ -136,7 +136,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                     title: 'No Rankings Yet',
                                     description:
                                         'Be the first to complete a focus session and claim the top spot!',
-                                    iconPath: 'assets/illustrations/crown.svg',
+                                    rivePath: 'assets/rive/cat-not-track.riv',
                                   ),
                                 );
                               }
