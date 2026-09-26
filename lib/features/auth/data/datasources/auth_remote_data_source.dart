@@ -109,6 +109,7 @@ class AuthRemoteDataSource {
   Future<UserProfile> updateProfile({
     String? displayName,
     String? timezone,
+    String? countryCode,
     String? avatarAssetId,
   }) async {
     final response = await _dio.patch(
@@ -116,6 +117,7 @@ class AuthRemoteDataSource {
       data: {
         'displayName': ?displayName,
         'timezone': ?timezone,
+        'countryCode': ?countryCode,
         'avatarAssetId': ?avatarAssetId,
       },
       options: ApiOptions.protected,

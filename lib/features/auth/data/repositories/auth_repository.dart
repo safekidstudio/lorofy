@@ -142,12 +142,14 @@ class AuthRepository {
   Future<UserProfile> updateProfile({
     String? displayName,
     String? timezone,
+    String? countryCode,
     String? avatarAssetId,
   }) async {
     try {
       final profile = await _remoteDataSource.updateProfile(
         displayName: displayName,
         timezone: timezone,
+        countryCode: countryCode,
         avatarAssetId: avatarAssetId,
       );
 

@@ -147,11 +147,14 @@ class _HomePageState extends ConsumerState<HomePage>
     final double velocity = details.primaryVelocity ?? 0.0;
     final double progress = _dragController.value;
 
-    // Trigger transition if dragged more than 50% or swiped up fast
-    if (progress > 0.5 || velocity < -300) {
-      context.push('/explore');
-      _dragController.value = 0.0; // Reset offset for when they return
-      _bounceController.repeat(reverse: true);
+    // Trigger transition immediately if dragged more than 30% or swiped up fast
+    if (progress > 0.3 || velocity < -200) {
+      context.push('/explore').then((_) {
+        if (mounted) {
+          _dragController.value = 0.0;
+          _bounceController.repeat(reverse: true);
+        }
+      });
     } else {
       // Spring back to original position
       _dragController.animateTo(0.0, curve: Curves.easeOutBack).then((_) {
@@ -172,10 +175,10 @@ class _HomePageState extends ConsumerState<HomePage>
             AnimatedBuilder(
               animation: _dragController,
               builder: (context, child) {
-                final double scale = 1.0 - _dragController.value * 0.04;
-                final double opacity = (1.0 - _dragController.value * 0.5)
+                final double scale = 1.0 - _dragController.value * 0.05;
+                final double opacity = (1.0 - _dragController.value * 0.4)
                     .clamp(0.0, 1.0);
-                final double translationY = _dragController.value * -30.0;
+                final double translationY = _dragController.value * -60.0;
 
                 return Transform.translate(
                   offset: Offset(0, translationY),

@@ -337,7 +337,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     });
   }
 
-  void _onFocusCompleted() async {
+  void _onFocusCompleted() {
     final settings = ref.read(pomodoroSettingsProvider);
     final systemSettings = ref.read(systemSettingsProvider);
 
@@ -353,18 +353,41 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     final calculatedCoins =
         (focusMinutes * systemSettings.rewardBaseCoinsPerMin * multiplier).round();
 
-    // Record daily streak update
-    final streakResult = await ref
-        .read(authProvider.notifier)
-        .recordFocusCompletionStreak();
+    final userProfileStreak =
+        ref.read(authProvider).userProfile?.currentStreak ?? 0;
 
-    // Optimistically set earned points & coins based on settings conversion formula
+    final targetRounds = settings.isPomodoroMode ? settings.targetRounds : 1;
+    final isFinalRound = state.currentRound >= targetRounds;
+
+    // Immediately update completion state so screen transition triggers instantly without delay
     state = state.copyWith(
       earnedPoints: calculatedPoints,
       earnedCoins: calculatedCoins,
-      currentStreak: streakResult.currentStreak,
-      streakIncreased: streakResult.streakIncreased,
+      currentStreak: userProfileStreak,
+      streakIncreased: false,
+      phase: isFinalRound ? PomodoroState.completed : state.phase,
     );
+
+    if (isFinalRound) {
+      // Stop ambient sound on session completion
+      ref.read(musicPlayerProvider.notifier).stop();
+    } else {
+      final breakMinutes = settings.isPomodoroMode ? settings.breakMinutes : 0;
+      startBreak(breakMinutes, isLong: false);
+    }
+
+    // Record daily streak update asynchronously in background
+    ref
+        .read(authProvider.notifier)
+        .recordFocusCompletionStreak()
+        .then((streakResult) {
+      if (state.phase == PomodoroState.completed) {
+        state = state.copyWith(
+          currentStreak: streakResult.currentStreak,
+          streakIncreased: streakResult.streakIncreased,
+        );
+      }
+    });
 
     // Call API completeSession
     final sessionId = state.backendSessionId;
@@ -409,16 +432,6 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
       ref
           .read(authProvider.notifier)
           .updatePointsState(currentPoints + calculatedPoints);
-    }
-
-    final targetRounds = settings.isPomodoroMode ? settings.targetRounds : 1;
-    if (state.currentRound >= targetRounds) {
-      state = state.copyWith(phase: PomodoroState.completed);
-      // Stop ambient sound on session completion
-      ref.read(musicPlayerProvider.notifier).stop();
-    } else {
-      final breakMinutes = settings.isPomodoroMode ? settings.breakMinutes : 0;
-      startBreak(breakMinutes, isLong: false);
     }
   }
 

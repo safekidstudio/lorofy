@@ -7,6 +7,7 @@ import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/input.dart';
 import 'package:lorofy/components/ui/toast.dart';
+import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
@@ -14,6 +15,7 @@ import 'package:reactive_forms/reactive_forms.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/components/ui/global_loading_overlay.dart';
 import 'package:lorofy/features/profile/presentation/widgets/avatar_select_sheet.dart';
+import 'package:lorofy/features/profile/presentation/widgets/country_select_sheet.dart';
 import 'package:lorofy/core/constants/app_constants.dart';
 import 'package:lorofy/features/profile/data/repositories/profile_repository_impl.dart';
 
@@ -29,26 +31,32 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
   bool _isLoading = true;
   bool _isUpdating = false;
 
-  // Selected avatar state (supports gallery selection / custom upload)
+  // Selected avatar state
   String? _selectedAvatarUrl;
   String? _uploadedImagePath;
   bool _isUploading = false;
 
+  // Profile data state
   String _originalDisplayName = '';
+  String _originalCountryCode = 'VN';
+  String _originalCountryName = 'Vietnam';
+  String _originalTimezone = 'Asia/Ho_Chi_Minh';
   String? _originalAvatarUrl;
+
+  String _selectedCountryCode = 'VN';
+  String _selectedCountryName = 'Vietnam';
+  String _selectedTimezone = 'Asia/Ho_Chi_Minh';
 
   @override
   void initState() {
     super.initState();
 
-    // Initialize the Reactive form group
     _form = FormGroup({
       'username': FormControl<String>(value: '', disabled: true),
       'displayName': FormControl<String>(
         value: '',
         validators: [Validators.required, Validators.minLength(3)],
       ),
-      'avatarId': FormControl<String>(value: null),
     });
 
     _loadProfile();
@@ -61,13 +69,18 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
         setState(() {
           _originalDisplayName = profile.displayName ?? '';
           _originalAvatarUrl = profile.avatarUrl;
+          _originalCountryCode = profile.countryCode;
+          _originalCountryName = profile.countryName;
+          _originalTimezone = profile.timezone;
 
-          // Reset the form state with loaded data to clear dirty states
+          _selectedCountryCode = _originalCountryCode;
+          _selectedCountryName = _originalCountryName;
+          _selectedTimezone = _originalTimezone;
+          _selectedAvatarUrl = _originalAvatarUrl;
+
           _form.control('username').reset(value: profile.username);
           _form.control('displayName').reset(value: _originalDisplayName);
-          _form.control('avatarId').reset(value: null);
 
-          _selectedAvatarUrl = _originalAvatarUrl;
           _isLoading = false;
         });
       }
@@ -108,6 +121,33 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
     );
   }
 
+  void _showCountryOptions() {
+    Navigator.push(
+      context,
+      CupertinoModalSheetRoute(
+        builder: (context) => Sheet(
+          decoration: const MaterialSheetDecoration(
+            size: SheetSize.fit,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+            color: Color(0xFFF6F6F6),
+          ),
+          child: CountrySelectSheet(
+            currentCountryCode: _selectedCountryCode,
+            onSelect: (country) {
+              setState(() {
+                _selectedCountryCode = country.code;
+                _selectedCountryName = country.name;
+              });
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _updateAvatarDirectly(String assetId, String url) async {
     AppLoading.show(ref, 'Updating avatar...');
     setState(() {
@@ -120,6 +160,8 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       final displayName = (_form.value['displayName'] as String?)?.trim() ?? _originalDisplayName;
       await ref.read(authRepositoryProvider).updateProfile(
         displayName: displayName,
+        countryCode: _selectedCountryCode,
+        timezone: _selectedTimezone,
         avatarAssetId: assetId,
       );
 
@@ -127,7 +169,6 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
         AppLoading.showSuccess(ref, 'Avatar updated!');
         setState(() {
           _originalAvatarUrl = url;
-          _form.control('avatarId').reset(value: null);
         });
       }
     } catch (e) {
@@ -148,7 +189,6 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       if (image == null) return;
 
       AppLoading.show(ref, 'Uploading avatar...');
-      // Optimistic UI: immediately show local image preview & set uploading status
       setState(() {
         _uploadedImagePath = image.path;
         _selectedAvatarUrl = null;
@@ -162,6 +202,8 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       final displayName = (_form.value['displayName'] as String?)?.trim() ?? _originalDisplayName;
       final profile = await ref.read(authRepositoryProvider).updateProfile(
         displayName: displayName,
+        countryCode: _selectedCountryCode,
+        timezone: _selectedTimezone,
         avatarAssetId: assetId,
       );
 
@@ -171,15 +213,12 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
           _originalAvatarUrl = profile.avatarUrl;
           _selectedAvatarUrl = profile.avatarUrl;
           _uploadedImagePath = null;
-          _form.control('avatarId').reset(value: null);
         });
       }
     } catch (e) {
-      // Revert optimistic UI on upload/update failure
       setState(() {
         _uploadedImagePath = null;
         _selectedAvatarUrl = _originalAvatarUrl;
-        _form.control('avatarId').reset(value: null);
       });
       if (!mounted) return;
       AppLoading.showError(ref, 'Failed to upload avatar');
@@ -205,15 +244,21 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
     setState(() => _isUpdating = true);
 
     try {
-      await ref
-          .read(authRepositoryProvider)
-          .updateProfile(
-            displayName: displayName,
-          );
+      final updatedProfile = await ref.read(authRepositoryProvider).updateProfile(
+        displayName: displayName,
+        countryCode: _selectedCountryCode,
+        timezone: _selectedTimezone,
+      );
 
       if (mounted) {
+        setState(() {
+          _originalDisplayName = updatedProfile.displayName ?? displayName;
+          _originalCountryCode = updatedProfile.countryCode;
+          _originalCountryName = updatedProfile.countryName;
+          _originalTimezone = updatedProfile.timezone;
+        });
         AppLoading.showSuccess(ref, 'Profile updated!');
-        Navigator.pop(context); // Go back to profile page
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -226,6 +271,83 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
     }
   }
 
+  Widget _buildSelectorTile({
+    required String label,
+    required String value,
+    required String countryCode,
+    required String iconPath,
+    required VoidCallback onTap,
+  }) {
+    final resolvedBg = CupertinoDynamicColor.resolve(
+      AppColors.input,
+      context,
+    );
+
+    // Compute flag emoji from 2-letter country code
+    String flagEmoji = '🏳️';
+    if (countryCode.length == 2) {
+      final int firstLetter = countryCode.toUpperCase().codeUnitAt(0) - 0x41 + 0x1F1E6;
+      final int secondLetter = countryCode.toUpperCase().codeUnitAt(1) - 0x41 + 0x1F1E6;
+      flagEmoji = String.fromCharCode(firstLetter) + String.fromCharCode(secondLetter);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.label,
+        ),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: onTap,
+          child: DrawingContainer(
+            fillColor: resolvedBg,
+            borderColor: CupertinoColors.transparent,
+            borderWidth: 0.0,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+              child: Row(
+                children: [
+                  SVG(
+                    iconPath,
+                    width: 20,
+                    height: 20,
+                    color: AppColors.mutedForeground,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      value,
+                      style: AppTextStyles.body.copyWith(
+                        fontSize: 16,
+                        color: AppColors.foreground,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Text(
+                    flagEmoji,
+                    style: const TextStyle(fontSize: 22),
+                  ),
+                  const SizedBox(width: 8),
+                  const SVG(
+                    'assets/icons/chevron-right.svg',
+                    width: 18,
+                    height: 18,
+                    color: AppColors.mutedForeground,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSkeleton() {
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
@@ -234,31 +356,17 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 32),
-          // Circular Avatar Skeleton
-          Center(
-            child: ShimmerPlaceholder.circular(size: 100),
-          ),
+          Center(child: ShimmerPlaceholder.circular(size: 100)),
           const SizedBox(height: 36),
-          // Username Input Skeleton
-          ShimmerPlaceholder.rectangular(
-            height: 54,
-            borderRadius: BorderRadius.circular(16),
-          ),
+          ShimmerPlaceholder.rectangular(height: 54, borderRadius: BorderRadius.circular(16)),
           const SizedBox(height: 16),
-          // Display Name Input Skeleton
-          ShimmerPlaceholder.rectangular(
-            height: 54,
-            borderRadius: BorderRadius.circular(16),
-          ),
+          ShimmerPlaceholder.rectangular(height: 54, borderRadius: BorderRadius.circular(16)),
+          const SizedBox(height: 16),
+          ShimmerPlaceholder.rectangular(height: 60, borderRadius: BorderRadius.circular(16)),
+          const SizedBox(height: 16),
+          ShimmerPlaceholder.rectangular(height: 60, borderRadius: BorderRadius.circular(16)),
           const SizedBox(height: 32),
-          // Button Skeleton
-          Center(
-            child: ShimmerPlaceholder.rectangular(
-              width: 180,
-              height: 51,
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
+          Center(child: ShimmerPlaceholder.rectangular(width: 180, height: 51, borderRadius: BorderRadius.circular(20))),
         ],
       ),
     );
@@ -300,6 +408,11 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                       formGroup: _form,
                       child: ReactiveFormConsumer(
                         builder: (context, form, child) {
+                          final currentDisplayName =
+                              (_form.value['displayName'] as String?)?.trim() ?? '';
+                          final isChanged = currentDisplayName != _originalDisplayName ||
+                              _selectedCountryCode != _originalCountryCode;
+
                           return SingleChildScrollView(
                             physics: const BouncingScrollPhysics(),
                             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -308,7 +421,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                               children: [
                                 const SizedBox(height: 32),
 
-                                // Blob Avatar Stack
+                                // Avatar Stack
                                 Center(
                                   child: Stack(
                                     clipBehavior: Clip.none,
@@ -358,7 +471,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
 
                                 const SizedBox(height: 36),
 
-                                  // Username Input (Disabled/Read-only)
+                                // Username Input (Disabled)
                                 const Input(
                                   placeholder: 'Username',
                                   formControlName: 'username',
@@ -372,7 +485,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
 
                                 const SizedBox(height: 16),
 
-                                // Display Name Input (Editable)
+                                // Display Name Input
                                 const Input(
                                   placeholder: 'Display Name',
                                   formControlName: 'displayName',
@@ -384,6 +497,17 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                   ),
                                 ),
 
+                                const SizedBox(height: 16),
+
+                                // Country / Region Tile
+                                _buildSelectorTile(
+                                  label: 'Country / Region',
+                                  value: _selectedCountryName,
+                                  countryCode: _selectedCountryCode,
+                                  iconPath: 'assets/icons/global.svg',
+                                  onTap: _showCountryOptions,
+                                ),
+
                                 const SizedBox(height: 32),
 
                                 // Update Button
@@ -392,7 +516,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                     width: 180,
                                     child: Button.primary(
                                       text: 'Update',
-                                      onPressed: (form.valid && form.dirty && !_isUpdating)
+                                      onPressed: (form.valid && isChanged && !_isUpdating)
                                           ? _updateProfile
                                           : null,
                                       isLoading: _isUpdating,

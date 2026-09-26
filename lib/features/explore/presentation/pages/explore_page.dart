@@ -74,55 +74,57 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
 
             // Scrollable content fills remaining space
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // land.svg decorator scrolls with content
-                    Transform.translate(
-                      offset: const Offset(0, -12),
-                      child: const SVG(
-                        'assets/illustrations/land.svg',
-                        width: double.infinity,
-                        height: 82,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(
-                        0,
-                        -12,
-                      ), // Overlap 1px to prevent gaps
-                      child: const Padding(
-                        padding: EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          bottom: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // 1. Focus & Kill Stats overview section
-                            ExploreStatsSection(),
-                            SizedBox(height: 24),
-
-                            // 2. Leaderboard podium section
-                            ExploreLeaderboardSection(),
-                            SizedBox(height: 24),
-
-                            // 3. Recent focus statistics chart section
-                            ExploreChartSection(),
-                            SizedBox(height: 24),
-
-                            // 4. Detailed focus records list section
-                            ExploreRecordSection(),
-                            SizedBox(height: 32),
-                          ],
+              child: RepaintBoundary(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // land.svg decorator scrolls with content
+                      Transform.translate(
+                        offset: const Offset(0, -12),
+                        child: const SVG(
+                          'assets/illustrations/land.svg',
+                          width: double.infinity,
+                          height: 82,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                    ),
-                  ],
+                      Transform.translate(
+                        offset: const Offset(
+                          0,
+                          -12,
+                        ), // Overlap 1px to prevent gaps
+                        child: const Padding(
+                          padding: EdgeInsets.only(
+                            left: 16,
+                            right: 16,
+                            bottom: 16,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // 1. Focus & Kill Stats overview section
+                              ExploreStatsSection(),
+                              SizedBox(height: 24),
+
+                              // 2. Leaderboard podium section
+                              ExploreLeaderboardSection(),
+                              SizedBox(height: 24),
+
+                              // 3. Recent focus statistics chart section
+                              ExploreChartSection(),
+                              SizedBox(height: 24),
+
+                              // 4. Detailed focus records list section
+                              ExploreRecordSection(),
+                              SizedBox(height: 32),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

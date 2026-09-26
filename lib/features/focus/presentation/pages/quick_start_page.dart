@@ -310,27 +310,59 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
     }
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 450),
       switchInCurve: Curves.easeOutCubic,
       switchOutCurve: Curves.easeInCubic,
+      layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+        return Stack(
+          alignment: Alignment.topCenter,
+          fit: StackFit.expand,
+          children: <Widget>[
+            ...previousChildren,
+            ?currentChild,
+          ],
+        );
+      },
       transitionBuilder: (Widget child, Animation<double> animation) {
+        final Key? key = child.key;
+        final bool isTargetPage = key == const ValueKey('completed_page') ||
+            key == const ValueKey('giveup_page');
+
         final curveAnimation = CurvedAnimation(
           parent: animation,
           curve: Curves.easeOutCubic,
           reverseCurve: Curves.easeInCubic,
         );
-        return FadeTransition(
-          opacity: animation,
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.98, end: 1.0).animate(curveAnimation),
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.0, 0.03),
-                end: Offset.zero,
-              ).animate(curveAnimation),
-              child: child,
+
+        if (isTargetPage) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.0, 0.15),
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutBack,
+              ),
             ),
-          ),
+            child: FadeTransition(
+              opacity: curveAnimation,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.88, end: 1.0).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutBack,
+                  ),
+                ),
+                child: child,
+              ),
+            ),
+          );
+        }
+
+        return FadeTransition(
+          opacity: curveAnimation,
+          child: child,
         );
       },
       child: currentScreen,
