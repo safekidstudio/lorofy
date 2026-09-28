@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/sound_clickable.dart';
-import 'package:lorofy/features/focus/presentation/widgets/session_settings/settings_sound_tab.dart';
+import 'package:lorofy/features/focus/presentation/widgets/settings/settings_sound_tab.dart';
 
 class SoundSettingsPage extends StatelessWidget {
   const SoundSettingsPage({super.key});

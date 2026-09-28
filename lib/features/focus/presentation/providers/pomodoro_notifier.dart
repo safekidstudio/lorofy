@@ -195,7 +195,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     _runTicker(PomodoroState.focus, onComplete: _onFocusCompleted);
   }
 
-  void confirmGiveUp() async {
+  void confirmGiveUp({String? failureReason}) async {
     _cancelTicker();
     state = state.copyWith(phase: PomodoroState.giveup);
 
@@ -229,7 +229,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
             .failSession(
               sessionId: sessionId,
               actualMinutes: elapsedMins,
-              failureReason: 'User clicked Give Up',
+              failureReason: failureReason ?? 'User gave up manually',
             );
         state = state.copyWith(earnedPoints: session.earnedPoints);
         // Refresh fresh profile details & rank points from backend

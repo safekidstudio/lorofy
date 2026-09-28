@@ -33,6 +33,30 @@ class AppDateFormatter {
     }
   }
 
+  /// Formats Date with dots: dd.MM.yyyy (e.g. 20.09.2026)
+  static String formatDotDate(dynamic input) {
+    final dt = input is String ? parse(input) : (input is DateTime ? input.toLocal() : null);
+    if (dt == null) return '';
+    try {
+      return DateFormat('dd.MM.yyyy').format(dt);
+    } catch (_) {
+      return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
+    }
+  }
+
+  /// Formats Date & Time with dots: dd.MM.yyyy • HH:mm (e.g. 20.09.2026 • 14:30)
+  static String formatDotDateTime(dynamic input) {
+    final dt = input is String ? parse(input) : (input is DateTime ? input.toLocal() : null);
+    if (dt == null) return '';
+    try {
+      return DateFormat('dd.MM.yyyy • HH:mm').format(dt);
+    } catch (_) {
+      final hourStr = dt.hour.toString().padLeft(2, '0');
+      final minStr = dt.minute.toString().padLeft(2, '0');
+      return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year} • $hourStr:$minStr';
+    }
+  }
+
   /// Formats Date readable: Sep 12, 2026
   static String formatDateMedium(dynamic input) {
     final dt = input is String ? parse(input) : (input is DateTime ? input.toLocal() : null);

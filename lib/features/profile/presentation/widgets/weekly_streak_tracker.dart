@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
@@ -20,6 +19,12 @@ class WeeklyStreakTracker extends StatelessWidget {
     final now = DateTime.now();
     final todayIndex = now.weekday - 1; // 0 for Mon, 6 for Sun
 
+    // Duolingo Anchor Streak calculation:
+    // If user has a current streak of N, the active streak anchor started (N-1) days ago.
+    final int streakAnchorIndex = currentStreak > 0
+        ? (todayIndex - (currentStreak - 1))
+        : todayIndex + 1;
+
     return DrawingContainer(
       fillColor: Colors.black.withValues(alpha: 0.45),
       borderColor: Colors.white.withValues(alpha: 0.15),
@@ -28,20 +33,28 @@ class WeeklyStreakTracker extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(7, (index) {
-          final daysAgo = todayIndex - index;
           final isToday = index == todayIndex;
-
-          final isActive = daysAgo >= 0 && daysAgo < currentStreak;
-          final isMissed = daysAgo >= currentStreak;
+          final isActive = currentStreak > 0 &&
+              index >= streakAnchorIndex &&
+              index <= todayIndex;
+          final isTodayPending = isToday && !isActive;
 
           Widget dayIcon;
           if (isActive) {
+            // 1. Completed streak day: Glowing Orange Checkmark
             dayIcon = Container(
               width: 38,
               height: 38,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color.fromARGB(255, 241, 113, 28),
+                color: Color(0xFFF1711C),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x66F1711C),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
               child: const Center(
                 child: SVG(
@@ -52,30 +65,48 @@ class WeeklyStreakTracker extends StatelessWidget {
                 ),
               ),
             );
-          } else if (isMissed) {
-            dayIcon = Container(
-              width: 38,
-              height: 38,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color.fromARGB(255, 241, 76, 68),
-              ),
-              child: const Center(
-                child: SVG(
-                  'assets/icons/cancel.svg',
-                  color: Colors.white,
-                  width: 20,
-                  height: 20,
-                ),
-              ),
-            );
-          } else {
+          } else if (isTodayPending) {
+            // 2. Today pending (uncompleted): Duolingo pulsing orange outline encouraging action
             dayIcon = Container(
               width: 38,
               height: 38,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.secondaryForeground,
+                color: Colors.transparent,
+                border: Border.all(
+                  color: const Color(0xFFF1711C),
+                  width: 2.5,
+                ),
+              ),
+              child: Center(
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFF1711C),
+                  ),
+                ),
+              ),
+            );
+          } else {
+            // 3. Neutral days: Past days before streak anchor OR future days
+            dayIcon = Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.12),
+              ),
+              child: Center(
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
+                ),
               ),
             );
           }
@@ -89,7 +120,7 @@ class WeeklyStreakTracker extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: isToday ? FontWeight.bold : FontWeight.w500,
                   color: isToday
-                      ? CupertinoColors.activeOrange
+                      ? const Color(0xFFF1711C)
                       : AppColors.mutedForeground,
                 ),
               ),

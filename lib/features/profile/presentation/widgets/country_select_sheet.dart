@@ -47,7 +47,7 @@ class _CountrySelectSheetState extends ConsumerState<CountrySelectSheet> {
         height: MediaQuery.of(context).size.height * 0.75,
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
         decoration: const BoxDecoration(
-          color: Color(0xFFF6F6F6),
+          color: AppColors.background,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
@@ -72,7 +72,7 @@ class _CountrySelectSheetState extends ConsumerState<CountrySelectSheet> {
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD1D1D6),
+                        color: AppColors.border,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -200,9 +200,9 @@ class _SheetHeader extends StatelessWidget {
               minimumSize: Size.zero,
               onPressed: onClose,
               child: const SVG(
-                'assets/icons/x.svg',
-                width: 22,
-                height: 22,
+                'assets/icons/cancel.svg',
+                width: 20,
+                height: 20,
                 color: AppColors.mutedForeground,
               ),
             ),

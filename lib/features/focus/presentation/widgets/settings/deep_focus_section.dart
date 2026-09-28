@@ -6,7 +6,7 @@ import 'package:lorofy/components/ui/app_switch.dart';
 import 'package:lorofy/components/ui/animated_collapse.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
-import 'edit_breaks_and_rounds_sheet.dart';
+import '../modals/edit_breaks_and_rounds_sheet.dart';
 
 class DeepFocusSection extends ConsumerWidget {
   const DeepFocusSection({super.key});

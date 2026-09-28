@@ -5,8 +5,8 @@ import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
-import 'block_mode_selection_sheet.dart';
-import 'select_allowed_apps_sheet.dart';
+import '../modals/block_mode_selection_sheet.dart';
+import '../app_whitelist/select_allowed_apps_sheet.dart';
 
 class AdvancedModeSection extends ConsumerWidget {
   const AdvancedModeSection({super.key});
@@ -78,7 +78,7 @@ class AdvancedModeSection extends ConsumerWidget {
                 height: 32,
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(
-                  color: Color(0xFFE5E5EA),
+                  color: AppColors.secondary,
                   shape: BoxShape.circle,
                 ),
                 child: const SVG(
@@ -96,16 +96,17 @@ class AdvancedModeSection extends ConsumerWidget {
         // Active Mode Card
         GestureDetector(
           onTap: () => _openBlockModeSelection(context),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF071B12),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Column(
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -148,7 +149,7 @@ class AdvancedModeSection extends ConsumerWidget {
                               fontFamily: AppTextStyles.fontFamily,
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF071B12),
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -156,44 +157,46 @@ class AdvancedModeSection extends ConsumerWidget {
                     ],
                   ],
                 ),
-                if (isStrict)
-                  Positioned(
-                    top: -1,
-                    right: -1,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: CupertinoColors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'x1.5',
-                            style: TextStyle(
-                              fontFamily: AppTextStyles.fontFamily,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF071B12),
-                            ),
-                          ),
-                          SizedBox(width: 4),
-                          SVG(
-                            'assets/icons/point.svg',
-                            width: 10,
-                            height: 10,
-                            color: CupertinoColors.systemRed,
-                          ),
-                        ],
+              ),
+              if (isStrict)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: CupertinoColors.white,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(16),
+                        bottomLeft: Radius.circular(12),
                       ),
                     ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'x1.5',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        SVG(
+                          'assets/icons/point.svg',
+                          width: 10,
+                          height: 10,
+                        ),
+                      ],
+                    ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ],

@@ -8,8 +8,8 @@ import 'package:lorofy/components/ui/sound_clickable.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
-import 'package:lorofy/features/focus/presentation/widgets/session_settings/edit_breaks_and_rounds_sheet.dart';
-import 'package:lorofy/features/focus/presentation/widgets/session_settings/block_mode_selection_sheet.dart';
+import 'package:lorofy/features/focus/presentation/widgets/modals/edit_breaks_and_rounds_sheet.dart';
+import 'package:lorofy/features/focus/presentation/widgets/modals/block_mode_selection_sheet.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});

@@ -7,7 +7,7 @@ import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/domain/models/focus_category.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
-import 'create_category_sheet.dart';
+import '../modals/create_category_sheet.dart';
 
 class TagSection extends ConsumerWidget {
   final AsyncValue<List<FocusCategory>> categoriesAsync;

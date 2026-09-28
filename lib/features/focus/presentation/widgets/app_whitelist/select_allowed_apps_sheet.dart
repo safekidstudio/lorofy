@@ -7,8 +7,8 @@ import 'package:lorofy/core/services/installed_apps_service.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'allowed_apps_grid_view.dart';
-import 'app_picker_dialog.dart';
-import 'usage_permission_dialog.dart';
+import '../modals/app_picker_dialog.dart';
+import '../modals/usage_permission_dialog.dart';
 import 'whitelist_intro_view.dart';
 
 enum WhitelistStep { intro, grid }

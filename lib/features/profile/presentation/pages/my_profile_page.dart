@@ -107,7 +107,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            color: Color(0xFFF6F6F6),
+            color: AppColors.background,
           ),
           child: AvatarSelectSheet(
             defaultAvatars: AppConstants.defaultAvatars,
@@ -132,7 +132,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
-            color: Color(0xFFF6F6F6),
+            color: AppColors.background,
           ),
           child: CountrySelectSheet(
             currentCountryCode: _selectedCountryCode,
@@ -388,7 +388,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: const BoxDecoration(
-                    color: Color(0xFFE4E4E6),
+                    color: AppColors.secondary,
                     shape: BoxShape.circle,
                   ),
                   child: const SVG(
@@ -443,7 +443,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                               color: CupertinoColors.white,
                                               shape: BoxShape.circle,
                                               border: Border.all(
-                                                color: const Color(0xFFE4E4E6),
+                                                color: AppColors.secondary,
                                                 width: 2,
                                               ),
                                               boxShadow: [
@@ -460,7 +460,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                               'assets/icons/image.svg',
                                               width: 18,
                                               height: 18,
-                                              color: Color(0xFF232321),
+                                              color: AppColors.foreground,
                                             ),
                                           ),
                                         ),

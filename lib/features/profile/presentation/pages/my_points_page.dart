@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/app_empty_state.dart';
+import 'package:lorofy/components/ui/app_refresh_control.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
@@ -45,99 +46,117 @@ class MyPointsPage extends ConsumerWidget {
               title: 'My Points',
             ),
 
-            // Points Card Header
-            const MyPointsBalanceCard(),
-
-            const Padding(
-              padding: EdgeInsets.fromLTRB(
-                AppPadding.lg,
-                AppPadding.md,
-                AppPadding.lg,
-                AppPadding.xs,
-              ),
-              child: Text(
-                'Point History',
-                style: AppTextStyles.titleMedium,
-              ),
-            ),
-
-            // History Transactions List
+            // Scrollable Content
             Expanded(
-              child: historyAsync.when(
-                data: (items) {
-                  if (items.isEmpty) {
-                    return RefreshIndicator(
+              child: CupertinoScrollbar(
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
+                  slivers: [
+                    // Pull To Refresh Control
+                    AppRefreshControl(
                       onRefresh: () async {
                         ref.invalidate(pointHistoryProvider);
                         await ref.read(authProvider.notifier).refreshProfile();
                       },
-                      child: ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.08,
-                          ),
-                          const AppEmptyState(
-                            title: 'No Point History Yet',
-                            description:
-                                'Complete focus sessions or repair streaks to earn points and view your activity log!',
-                            iconPath: 'assets/icons/point.svg',
-                            riveSize: 64,
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      ref.invalidate(pointHistoryProvider);
-                      await ref.read(authProvider.notifier).refreshProfile();
-                    },
-                    child: ListView.separated(
-                      padding: const EdgeInsets.all(AppPadding.lg),
-                      physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
-                      itemCount: items.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: AppPadding.md),
-                      itemBuilder: (context, index) {
-                        return PointHistoryItemTile(item: items[index]);
-                      },
                     ),
-                  );
-                },
-                loading: () => const PointHistorySkeleton(),
-                error: (err, stack) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        CupertinoIcons.exclamationmark_triangle_fill,
-                        color: AppColors.destructive,
-                        size: 44,
-                      ),
-                      const SizedBox(height: AppPadding.md),
-                      Text(
-                        'Failed to load point history: $err',
-                        style: AppTextStyles.placeholder,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: AppPadding.lg),
-                      CupertinoButton.filled(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppPadding.xl,
-                          vertical: AppPadding.md,
+
+                    // Points Card Header
+                    const SliverToBoxAdapter(
+                      child: MyPointsBalanceCard(),
+                    ),
+
+                    // Section Title
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          AppPadding.lg,
+                          AppPadding.md,
+                          AppPadding.lg,
+                          AppPadding.xs,
                         ),
-                        onPressed: () => ref.invalidate(pointHistoryProvider),
-                        child: const Text(
-                          'Retry',
-                          style: AppTextStyles.buttonText,
+                        child: Text(
+                          'Point History',
+                          style: AppTextStyles.titleMedium,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+
+                    // History Transactions List Slivers
+                    historyAsync.when(
+                      data: (items) {
+                        if (items.isEmpty) {
+                          return const SliverToBoxAdapter(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 32, bottom: 48),
+                              child: AppEmptyState(
+                                title: 'No Point History Yet',
+                                description:
+                                    'Complete focus sessions or repair streaks to earn points and view your activity log!',
+                                iconPath: 'assets/icons/point.svg',
+                                riveSize: 64,
+                              ),
+                            ),
+                          );
+                        }
+
+                        return SliverPadding(
+                          padding: const EdgeInsets.all(AppPadding.lg),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                if (index.isOdd) {
+                                  return const SizedBox(height: AppPadding.md);
+                                }
+                                final itemIndex = index ~/ 2;
+                                return PointHistoryItemTile(item: items[itemIndex]);
+                              },
+                              childCount: items.length * 2 - 1,
+                            ),
+                          ),
+                        );
+                      },
+                      loading: () => const SliverToBoxAdapter(
+                        child: PointHistorySkeleton(),
+                      ),
+                      error: (err, stack) => SliverToBoxAdapter(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(AppPadding.xl),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  CupertinoIcons.exclamationmark_triangle_fill,
+                                  color: AppColors.destructive,
+                                  size: 44,
+                                ),
+                                const SizedBox(height: AppPadding.md),
+                                Text(
+                                  'Failed to load point history: $err',
+                                  style: AppTextStyles.placeholder,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: AppPadding.lg),
+                                CupertinoButton.filled(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppPadding.xl,
+                                    vertical: AppPadding.md,
+                                  ),
+                                  onPressed: () => ref.invalidate(pointHistoryProvider),
+                                  child: const Text(
+                                    'Retry',
+                                    style: AppTextStyles.buttonText,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

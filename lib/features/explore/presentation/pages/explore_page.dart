@@ -15,7 +15,9 @@ import 'package:lorofy/features/explore/presentation/widgets/explore_record_sect
 import 'package:lorofy/features/profile/presentation/pages/profile_page.dart';
 
 class ExplorePage extends ConsumerStatefulWidget {
-  const ExplorePage({super.key});
+  final VoidCallback? onClose;
+
+  const ExplorePage({super.key, this.onClose});
 
   @override
   ConsumerState<ExplorePage> createState() => _ExplorePageState();
@@ -46,7 +48,13 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
             AppHeader(
               leftActions: CupertinoButton(
                 padding: EdgeInsets.zero,
-                onPressed: () => context.pop(),
+                onPressed: () {
+                  if (widget.onClose != null) {
+                    widget.onClose!();
+                  } else if (context.canPop()) {
+                    context.pop();
+                  }
+                },
                 child: const SVG(
                   'assets/icons/cancel.svg',
                   height: 24,
@@ -72,60 +80,53 @@ class _ExplorePageState extends ConsumerState<ExplorePage> {
               ),
             ),
 
-            // Scrollable content fills remaining space
+            // Scrollable content with CustomScrollView & Slivers for 60fps performance
             Expanded(
-              child: RepaintBoundary(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // land.svg decorator scrolls with content
-                      Transform.translate(
-                        offset: const Offset(0, -12),
-                        child: const SVG(
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Transform.translate(
+                      offset: const Offset(0, -12),
+                      child: const RepaintBoundary(
+                        child: SVG(
                           'assets/illustrations/land.svg',
                           width: double.infinity,
                           height: 82,
                           fit: BoxFit.cover,
                         ),
                       ),
-                      Transform.translate(
-                        offset: const Offset(
-                          0,
-                          -12,
-                        ), // Overlap 1px to prevent gaps
-                        child: const Padding(
-                          padding: EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            bottom: 16,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // 1. Focus & Kill Stats overview section
-                              ExploreStatsSection(),
-                              SizedBox(height: 24),
-
-                              // 2. Leaderboard podium section
-                              ExploreLeaderboardSection(),
-                              SizedBox(height: 24),
-
-                              // 3. Recent focus statistics chart section
-                              ExploreChartSection(),
-                              SizedBox(height: 24),
-
-                              // 4. Detailed focus records list section
-                              ExploreRecordSection(),
-                              SizedBox(height: 32),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  SliverPadding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 32,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        const RepaintBoundary(
+                          child: ExploreStatsSection(),
+                        ),
+                        const SizedBox(height: 24),
+                        const RepaintBoundary(
+                          child: ExploreLeaderboardSection(),
+                        ),
+                        const SizedBox(height: 24),
+                        const RepaintBoundary(
+                          child: ExploreChartSection(),
+                        ),
+                        const SizedBox(height: 24),
+                        const RepaintBoundary(
+                          child: ExploreRecordSection(),
+                        ),
+                      ]),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/auth/data/models/user_profile.dart';
 import 'package:lorofy/features/profile/presentation/widgets/streak_repair_dialog.dart';
@@ -19,15 +20,11 @@ class StreakRepairBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppPadding.md),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [CupertinoColors.activeOrange, CupertinoColors.systemRed],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(AppRadius.md),
           boxShadow: [
             BoxShadow(
-              color: CupertinoColors.activeOrange.withValues(alpha: 0.3),
+              color: CupertinoColors.black.withValues(alpha: 0.12),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -64,10 +61,11 @@ class StreakRepairBanner extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(
-              CupertinoIcons.chevron_right,
+            const SVG(
+              'assets/icons/chevron-right.svg',
+              width: 20,
+              height: 20,
               color: CupertinoColors.white,
-              size: 20,
             ),
           ],
         ),

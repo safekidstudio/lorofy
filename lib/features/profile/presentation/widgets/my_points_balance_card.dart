@@ -24,7 +24,7 @@ class MyPointsBalanceCard extends ConsumerWidget {
       ),
       padding: const EdgeInsets.all(AppPadding.xl),
       decoration: BoxDecoration(
-        color: const Color(0xFF072013),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -42,23 +42,23 @@ class MyPointsBalanceCard extends ConsumerWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF133626),
+                decoration: BoxDecoration(
+                  color: CupertinoColors.white.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: const SVG(
-                  'assets/illustrations/flower.svg',
+                  'assets/icons/point.svg',
                   width: 24,
                   height: 24,
                 ),
               ),
               const SizedBox(width: 10),
-              const Text(
+              Text(
                 'Total Points Balance',
                 style: TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 14,
-                  color: Color(0xB3FFFFFF),
+                  color: CupertinoColors.white.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -89,10 +89,10 @@ class MyPointsBalanceCard extends ConsumerWidget {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1B3D2C),
+                  color: CupertinoColors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: CupertinoColors.white.withValues(alpha: 0.1),
+                    color: CupertinoColors.white.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Row(
@@ -100,7 +100,7 @@ class MyPointsBalanceCard extends ConsumerWidget {
                   children: [
                     const Icon(
                       CupertinoIcons.money_dollar_circle_fill,
-                      color: Color(0xFFFFCA28),
+                      color: CupertinoColors.white,
                       size: 18,
                     ),
                     const SizedBox(width: 6),
@@ -136,10 +136,10 @@ class MyPointsBalanceCard extends ConsumerWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1B3D2C),
+                    color: CupertinoColors.white.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: CupertinoColors.white.withValues(alpha: 0.1),
+                      color: CupertinoColors.white.withValues(alpha: 0.15),
                     ),
                   ),
                   child: Row(
@@ -147,7 +147,7 @@ class MyPointsBalanceCard extends ConsumerWidget {
                     children: [
                       const Icon(
                         CupertinoIcons.flame_fill,
-                        color: Color(0xFFFF6D00),
+                        color: CupertinoColors.white,
                         size: 18,
                       ),
                       const SizedBox(width: 6),

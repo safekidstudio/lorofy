@@ -8,7 +8,6 @@ import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.d
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/settings/presentation/providers/system_settings_provider.dart';
 
-
 class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
   const PomodoroGiveupConfirmationSheet({super.key});
 
@@ -24,7 +23,6 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
     final timerState = ref.watch(pomodoroTimerProvider);
     final elapsedSeconds = timerState.totalSessionSeconds - timerState.countdownSeconds;
     final isGracePeriod = elapsedSeconds < 60;
-
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),

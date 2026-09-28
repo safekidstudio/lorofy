@@ -61,27 +61,43 @@ GoRouter appRouter(Ref ref) {
       ),
       // 7. Home screen
       GoRoute(path: '/', builder: (context, state) => const HomePage()),
-      // 7a. Explore screen (Slide up transition)
+      // 7a. Explore screen (iOS Card Modal Presentation)
       GoRoute(
         path: '/explore',
         pageBuilder: (context, state) {
           return CustomTransitionPage(
             key: state.pageKey,
             child: const ExplorePage(),
-            transitionDuration: const Duration(milliseconds: 300),
-            reverseTransitionDuration: const Duration(milliseconds: 250),
+            transitionDuration: const Duration(milliseconds: 320),
+            reverseTransitionDuration: const Duration(milliseconds: 260),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               final curveAnimation = CurvedAnimation(
                 parent: animation,
                 curve: Curves.fastOutSlowIn,
                 reverseCurve: Curves.easeInCubic,
               );
+
+              final slideAnimation = Tween<Offset>(
+                begin: const Offset(0.0, 1.0),
+                end: Offset.zero,
+              ).animate(curveAnimation);
+
               return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.0, 1.0),
-                  end: Offset.zero,
-                ).animate(curveAnimation),
-                child: RepaintBoundary(child: child),
+                position: slideAnimation,
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 24,
+                        offset: Offset(0, -4),
+                      ),
+                    ],
+                  ),
+                  child: RepaintBoundary(child: child),
+                ),
               );
             },
           );

@@ -6,7 +6,7 @@ import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
-import 'select_allowed_apps_sheet.dart';
+import 'package:lorofy/features/focus/presentation/widgets/app_whitelist/select_allowed_apps_sheet.dart';
 
 class BlockModeSelectionSheet extends ConsumerWidget {
   const BlockModeSelectionSheet({super.key});
@@ -158,15 +158,16 @@ class BlockModeSelectionSheet extends ConsumerWidget {
             ),
           ),
           Positioned(
-            top: -1,
-            right: -1,
+            top: 0,
+            right: 0,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? CupertinoColors.white
-                    : CupertinoColors.white,
-                borderRadius: BorderRadius.circular(12),
+                color: CupertinoColors.white,
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(16),
+                  bottomLeft: Radius.circular(12),
+                ),
                 border: isSelected
                     ? null
                     : Border.all(color: AppColors.border, width: 1.5),
@@ -190,7 +191,6 @@ class BlockModeSelectionSheet extends ConsumerWidget {
                     'assets/icons/point.svg',
                     width: 10,
                     height: 10,
-                    color: CupertinoColors.systemRed,
                   ),
                 ],
               ),

@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/auth/data/models/user_profile.dart';
+import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
+import 'package:lorofy/features/explore/presentation/pages/explore_page.dart';
 import 'package:lorofy/features/focus/data/repositories/focus_repository_impl.dart';
 import 'package:lorofy/features/focus/presentation/pages/quick_start_page.dart';
-import 'package:lorofy/features/focus/presentation/widgets/focus_timer/active_session_dialog.dart';
+import 'package:lorofy/features/focus/presentation/widgets/modals/active_session_dialog.dart';
+import 'package:lorofy/features/profile/presentation/widgets/streak_repair_dialog.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -14,79 +17,73 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage>
-    with TickerProviderStateMixin {
-  late final AnimationController _bounceController;
-  late final Animation<Offset> _slideAnimation;
-
-  // Animation controller for drag feedback
-  late final AnimationController _dragController;
-
+class _HomePageState extends ConsumerState<HomePage> {
+  late final PageController _pageController;
   bool _isFocusLocked = false;
-  double _dragStartY = 0.0;
-  bool _isDragging = false;
+  bool _hasCheckedStreakRepair = false;
 
   @override
   void initState() {
     super.initState();
 
-    _bounceController = AnimationController(
-      duration: const Duration(milliseconds: 1600),
-      vsync: this,
-    )..repeat(reverse: true);
+    _pageController = PageController();
 
-    _slideAnimation =
-        Tween<Offset>(
-          begin: Offset.zero,
-          end: const Offset(0.0, -0.15),
-        ).animate(
-          CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
-        );
-
-    _dragController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-    );
-
-    // Silently check active session state on app launch
+    // Silently check active session state & streak repair on app launch
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkActiveSession();
     });
+  }
+
+  void _checkStreakRepairPrompt(UserProfile? profile) {
+    if (_hasCheckedStreakRepair || profile == null) return;
+    if (profile.canRepairStreak && profile.repairableStreak > 0) {
+      _hasCheckedStreakRepair = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          StreakRepairDialog.show(context, profile);
+        }
+      });
+    }
   }
 
   Future<void> _checkActiveSession() async {
     try {
       final currentData =
           await ref.read(focusRepositoryProvider).getCurrentSession();
-      if (!mounted ||
-          !currentData.hasActiveSession ||
-          currentData.session == null) {
-        return;
-      }
+      if (mounted &&
+          currentData.hasActiveSession &&
+          currentData.session != null) {
+        // Case 1: Session completed while device was inactive (isOverdue == true)
+        if (currentData.isOverdue) {
+          final session = currentData.session!;
+          await ref.read(focusRepositoryProvider).completeSession(
+                session.id,
+                session.plannedMinutes,
+              );
+          if (mounted) {
+            _showSessionCompletedBanner(session.plannedMinutes);
+          }
+          return;
+        }
 
-      // Case 1: Session completed while device was inactive (isOverdue == true)
-      if (currentData.isOverdue) {
-        final session = currentData.session!;
-        await ref.read(focusRepositoryProvider).completeSession(
-              session.id,
-              session.plannedMinutes,
-            );
+        // Case 2: Session still has remaining time -> Prompt user to resume
         if (mounted) {
-          _showSessionCompletedBanner(session.plannedMinutes);
+          showActiveSessionDialog(
+            context: context,
+            ref: ref,
+            activeState: currentData,
+          );
         }
         return;
       }
-
-      // Case 2: Session still has remaining time -> Prompt user to resume
-      if (mounted) {
-        showActiveSessionDialog(
-          context: context,
-          ref: ref,
-          activeState: currentData,
-        );
-      }
     } catch (e) {
       debugPrint('Background session check failed (offline or not logged in): $e');
+    }
+
+    // Prompt streak repair if eligible and no active session running
+    if (mounted) {
+      final authStatus = ref.read(authProvider);
+      _checkStreakRepairPrompt(authStatus.userProfile);
     }
   }
 
@@ -113,78 +110,65 @@ class _HomePageState extends ConsumerState<HomePage>
 
   @override
   void dispose() {
-    _bounceController.dispose();
-    _dragController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
-  void _onDragStart(DragStartDetails details) {
-    if (_isFocusLocked) return;
-    _dragStartY = details.globalPosition.dy;
-    _isDragging = true;
-    _bounceController.stop(); // Pause bounce animation during user interaction
-  }
-
-  void _onDragUpdate(DragUpdateDetails details) {
-    if (!_isDragging) return;
-    final double currentY = details.globalPosition.dy;
-    final double deltaY = currentY - _dragStartY;
-
-    // Only allow dragging upwards (negative deltaY)
-    if (deltaY < 0) {
-      // Max drag height is 150.0 pixels
-      final double progress = (deltaY.abs() / 150.0).clamp(0.0, 1.0);
-      _dragController.value = progress;
-    } else {
-      _dragController.value = 0.0;
-    }
-  }
-
-  void _onDragEnd(DragEndDetails details) {
-    if (!_isDragging) return;
-    _isDragging = false;
-
-    final double velocity = details.primaryVelocity ?? 0.0;
-    final double progress = _dragController.value;
-
-    // Trigger transition immediately if dragged more than 30% or swiped up fast
-    if (progress > 0.3 || velocity < -200) {
-      context.push('/explore').then((_) {
-        if (mounted) {
-          _dragController.value = 0.0;
-          _bounceController.repeat(reverse: true);
-        }
-      });
-    } else {
-      // Spring back to original position
-      _dragController.animateTo(0.0, curve: Curves.easeOutBack).then((_) {
-        if (mounted && !_isDragging) {
-          _bounceController.repeat(reverse: true);
-        }
-      });
-    }
+  void _navigateToExplore() {
+    HapticFeedback.lightImpact();
+    _pageController.animateToPage(
+      1,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.fastOutSlowIn,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AuthStatus>(authProvider, (previous, next) {
+      _checkStreakRepairPrompt(next.userProfile);
+    });
+
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
       child: SafeArea(
-        child: Stack(
+        child: PageView(
+          controller: _pageController,
+          scrollDirection: Axis.vertical,
+          physics: _isFocusLocked
+              ? const NeverScrollableScrollPhysics()
+              : const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+          onPageChanged: (index) {
+            HapticFeedback.selectionClick();
+          },
           children: [
+            // Page 0: QuickStart Focus Page with Fade & Parallax Scale Depth
             AnimatedBuilder(
-              animation: _dragController,
+              animation: _pageController,
               builder: (context, child) {
-                final double scale = 1.0 - _dragController.value * 0.05;
-                final double opacity = (1.0 - _dragController.value * 0.4)
-                    .clamp(0.0, 1.0);
-                final double translationY = _dragController.value * -60.0;
+                double progress = 0.0;
+                if (_pageController.hasClients &&
+                    _pageController.position.haveDimensions) {
+                  progress = (_pageController.page ?? 0.0).clamp(0.0, 1.0);
+                }
+
+                // Stronger Scale: 1.0 -> 0.85
+                final double scale = 1.0 - (progress * 0.15);
+                // Stronger Opacity: 1.0 -> 0.15
+                final double opacity = (1.0 - (progress * 0.85)).clamp(0.0, 1.0);
+                // Enhanced downward parallax offset as page recedes
+                final double translateY = progress * 80.0;
 
                 return Transform.translate(
-                  offset: Offset(0, translationY),
+                  offset: Offset(0, translateY),
                   child: Transform.scale(
                     scale: scale,
-                    child: Opacity(opacity: opacity, child: child),
+                    child: Opacity(
+                      opacity: opacity,
+                      child: child,
+                    ),
                   ),
                 );
               },
@@ -194,67 +178,21 @@ class _HomePageState extends ConsumerState<HomePage>
                     _isFocusLocked = isLocked;
                   });
                 },
+                onExploreTap: _navigateToExplore,
               ),
             ),
-            // Bottom "swipe to explore" nudge (hidden when focused/locked)
-            if (!_isFocusLocked)
-              Positioned(
-                bottom: 16,
-                left: 0,
-                right: 0,
-                child: AnimatedBuilder(
-                  animation: _dragController,
-                  builder: (context, child) {
-                    final double translationY = _dragController.value * -100.0;
-                    final double opacity = (1.0 - _dragController.value).clamp(
-                      0.0,
-                      1.0,
-                    );
 
-                    return Transform.translate(
-                      offset: Offset(0, translationY),
-                      child: Opacity(opacity: opacity, child: child),
-                    );
-                  },
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onVerticalDragStart: _onDragStart,
-                    onVerticalDragUpdate: _onDragUpdate,
-                    onVerticalDragEnd: _onDragEnd,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: const RepaintBoundary(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 20,
-                          ), // Enlarged hit area
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SVG(
-                                'assets/icons/arrows-up.svg',
-                                width: 20,
-                                height: 20,
-                                color: AppColors.mutedForeground,
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                'swipe to explore',
-                                style: TextStyle(
-                                  fontFamily: AppTextStyles.titleFontFamily,
-                                  fontSize: 16,
-                                  color: AppColors.mutedForeground,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            // Page 1: Explore Page (Normal full page)
+            ExplorePage(
+              onClose: () {
+                HapticFeedback.lightImpact();
+                _pageController.animateToPage(
+                  0,
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeOutCubic,
+                );
+              },
+            ),
           ],
         ),
       ),

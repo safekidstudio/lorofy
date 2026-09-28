@@ -95,18 +95,18 @@ class _SoundButtonState extends State<SoundButton>
                 clipBehavior: Clip.none,
                 children: [
                   DrawingContainer(
-                    fillColor: const Color(0xFFEBEBEB),
+                    fillColor: AppColors.secondary,
                     padding: const EdgeInsets.only(
                       left: 12,
                       right: 18,
                       top: 8,
                       bottom: 8,
                     ),
-                    child: Text(
+                    child: const Text(
                       'Click to change music',
                       style: TextStyle(
                         fontFamily: AppTextStyles.fontFamily,
-                        color: const Color(0xFF7E7E7E),
+                        color: AppColors.mutedForeground,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         decoration: TextDecoration.none,
@@ -118,7 +118,7 @@ class _SoundButtonState extends State<SoundButton>
                     child: CustomPaint(
                       size: const Size(6, 10),
                       painter: _TrianglePainter(
-                        color: const Color(0xFFEBEBEB),
+                        color: AppColors.secondary,
                       ),
                     ),
                   ),

@@ -82,7 +82,9 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
 
         _gracePeriodTimer = Timer(Duration(seconds: seconds), () {
           if (mounted) {
-            ref.read(pomodoroTimerProvider.notifier).confirmGiveUp();
+            ref.read(pomodoroTimerProvider.notifier).confirmGiveUp(
+                  failureReason: 'Exited app in Strict Mode',
+                );
             NotificationService().showSessionFailedNotification();
           }
         });
@@ -139,7 +141,11 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
 
       if (remainingSeconds <= 0) {
         _cancelGraceTimer();
-        ref.read(pomodoroTimerProvider.notifier).confirmGiveUp();
+        ref.read(pomodoroTimerProvider.notifier).confirmGiveUp(
+              failureReason: fgPackage != null
+                  ? 'Accessed unallowed app ($fgPackage)'
+                  : 'Accessed unallowed app',
+            );
         NotificationService().showSessionFailedNotification(
           title: 'Focus Session Failed',
           body: 'Your focus session failed because you stayed in an unallowed app.',

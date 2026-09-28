@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Material, Colors;
 import 'package:lorofy/components/layout/app_header.dart';
 import 'package:lorofy/components/ui/sound_clickable.dart';
-import 'package:lorofy/features/focus/presentation/widgets/session_settings/settings_session_tab.dart';
+import 'package:lorofy/features/focus/presentation/widgets/settings/settings_session_tab.dart';
 
 class SessionSettingsPage extends StatelessWidget {
   const SessionSettingsPage({super.key});

@@ -1,31 +1,33 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:lorofy/components/layout/app_header.dart';
-import 'package:lorofy/components/ui/logo.dart';
-import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/toast.dart';
-import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/features/focus/presentation/widgets/focus_timer/sound_button.dart';
 import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/focus/presentation/providers/categories_provider.dart';
 import 'package:lorofy/features/focus/presentation/pages/pomodoro_complete_page.dart';
 import 'package:lorofy/features/focus/presentation/pages/pomodoro_giveup_page.dart';
-import 'package:lorofy/features/focus/presentation/widgets/focus_timer/pomodoro_action_buttons.dart';
-import 'package:lorofy/features/focus/presentation/widgets/focus_timer/pomodoro_giveup_confirmation_sheet.dart';
-import 'package:lorofy/features/focus/presentation/widgets/focus_timer/pomodoro_timer_display.dart';
+import 'package:lorofy/features/focus/presentation/widgets/timer/quick_start_header.dart';
+import 'package:lorofy/features/focus/presentation/widgets/timer/pomodoro_action_buttons.dart';
+import 'package:lorofy/features/focus/presentation/widgets/modals/pomodoro_giveup_confirmation_sheet.dart';
+import 'package:lorofy/features/focus/presentation/widgets/timer/pomodoro_timer_display.dart';
+import 'package:lorofy/features/focus/presentation/widgets/timer/swipe_to_explore_nudge.dart';
 import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.dart';
 import 'package:lorofy/features/mascot/presentation/widgets/mascot_graphic.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 
 class QuickStartPage extends ConsumerStatefulWidget {
   final ValueChanged<bool> onFocusStateChanged;
+  final VoidCallback? onExploreTap;
 
-  const QuickStartPage({super.key, required this.onFocusStateChanged});
+  const QuickStartPage({
+    super.key,
+    required this.onFocusStateChanged,
+    this.onExploreTap,
+  });
 
   @override
   ConsumerState<QuickStartPage> createState() => _QuickStartPageState();
@@ -36,9 +38,10 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
   @override
   bool get wantKeepAlive => true;
 
-  // ── Navigation helpers ──────────────────────────────────────────────────
+  // ── Navigation & Sheet Helpers ─────────────────────────────────────────
 
   Future<void> _handleGiveUp(BuildContext context, WidgetRef ref) async {
+    HapticFeedback.mediumImpact();
     final notifier = ref.read(pomodoroTimerProvider.notifier);
     notifier.pauseTicker();
 
@@ -67,79 +70,19 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
     }
   }
 
-  // ── Header builder ──────────────────────────────────────────────────────
-
-  Widget _buildHeader(
-    BuildContext context,
-    WidgetRef ref,
-    PomodoroState phase,
-    VoidCallback onReset,
-  ) {
-    return AppHeader(
-      leftActions: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: phase == PomodoroState.completed
-            ? CupertinoButton(
-                key: const ValueKey('close_btn'),
-                padding: EdgeInsets.zero,
-                onPressed: onReset,
-                child: const Icon(
-                  CupertinoIcons.xmark,
-                  color: AppColors.foreground,
-                  size: 24,
-                ),
-              )
-            : const Logo(key: ValueKey('logo_text')),
-      ),
-      rightActions: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: switch (phase) {
-          PomodoroState.idle => CupertinoButton(
-            key: const ValueKey('settings_btn'),
-            padding: EdgeInsets.zero,
-            onPressed: () => context.push('/session-settings'),
-            child: const SVG(
-              'assets/icons/settings_drawing.svg',
-              width: 24,
-              height: 24,
-            ),
-          ),
-          PomodoroState.giveup => CupertinoButton(
-            key: const ValueKey('giveup_close_btn'),
-            padding: EdgeInsets.zero,
-            onPressed: onReset,
-            child: const Icon(
-              CupertinoIcons.multiply,
-              color: AppColors.foreground,
-              size: 24,
-            ),
-          ),
-          PomodoroState.completed => const SizedBox.shrink(
-            key: ValueKey('empty_right'),
-          ),
-          _ => const KeyedSubtree(
-            key: ValueKey('sound_button'),
-            child: SoundButton(),
-          ),
-        },
-      ),
-    );
-  }
-
   // ── Build ───────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     super.build(context); // Keep the state alive via mixin
 
-    final timerState = ref.watch(pomodoroTimerProvider);
+    final phase = ref.watch(pomodoroTimerProvider.select((s) => s.phase));
     final settings = ref.watch(pomodoroSettingsProvider);
     final notifier = ref.read(pomodoroTimerProvider.notifier);
-    final phase = timerState.phase;
 
     // Automatically select the first category as default if none is selected
     ref.watch(focusCategoriesProvider).whenData((categories) {
-      if (settings.isLoaded && categories.isNotEmpty && settings.selectedCategory == null) {
+      if (categories.isNotEmpty && settings.selectedCategory == null) {
         Future.microtask(() {
           ref
               .read(pomodoroSettingsProvider.notifier)
@@ -150,12 +93,8 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
       }
     });
 
-    final int displaySeconds =
-        (phase == PomodoroState.focus || phase == PomodoroState.breakTime)
-        ? timerState.countdownSeconds
-        : settings.focusMinutes * 60;
-
     void onReset() {
+      HapticFeedback.lightImpact();
       notifier.resetToIdle();
       widget.onFocusStateChanged(false);
     }
@@ -168,6 +107,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
     Widget currentScreen;
     if (phase == PomodoroState.completed) {
       final userProfileStreak = ref.watch(authProvider).userProfile?.currentStreak ?? 0;
+      final timerState = ref.read(pomodoroTimerProvider);
       currentScreen = PomodoroCompletePage(
         key: const ValueKey('completed_page'),
         onBackToHome: onReset,
@@ -182,6 +122,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
         key: const ValueKey('giveup_page'),
         onBackToHome: onReset,
         onRestart: () {
+          HapticFeedback.mediumImpact();
           notifier.restartFocus();
           widget.onFocusStateChanged(true);
         },
@@ -192,16 +133,16 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Header
-            _buildHeader(context, ref, phase, onReset),
+            // Modular Clean Header
+            QuickStartHeader(phase: phase, onReset: onReset),
 
-            // Plant + timer + buttons — all centered as one block
+            // Main focus content (Mascot + Timer + Action buttons)
             Expanded(
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Mascot graphic (driven by active mascot from provider)
+                    // 1. Mascot Graphic
                     Consumer(
                       builder: (context, ref, child) {
                         final mascotState = ref.watch(mascotProvider);
@@ -209,53 +150,69 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                         if (activeMascot == null) {
                           return const SizedBox.shrink();
                         }
+                        final focusProgressRatio = ref.watch(
+                          pomodoroTimerProvider.select(
+                            (s) => s.progressRatio,
+                          ),
+                        );
                         return MascotGraphic(
                           mascot: activeMascot,
                           isFocusing: phase == PomodoroState.focus,
-                          focusProgressRatio: timerState.progressRatio,
+                          focusProgressRatio: focusProgressRatio,
                         );
                       },
                     ),
 
                     const SizedBox(height: 24),
 
-                    // Timer / description text
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      transitionBuilder:
-                          (Widget child, Animation<double> animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position:
-                                    Tween<Offset>(
-                                      begin: const Offset(0.0, 0.15),
-                                      end: Offset.zero,
-                                    ).animate(
-                                      CurvedAnimation(
-                                        parent: animation,
-                                        curve: Curves.easeOutBack,
-                                      ),
-                                    ),
-                                child: child,
-                              ),
-                            );
-                          },
-                      child: PomodoroTimerDisplay(
-                        key: ValueKey(phase),
-                        pomodoroState: phase,
-                        displaySeconds: displaySeconds,
-                        currentRound: timerState.currentRound,
-                        targetRounds: settings.isPomodoroMode
-                            ? settings.targetRounds
-                            : 1,
-                        isLongBreak: timerState.isLongBreak,
-                      ),
+                    // 2. Pomodoro Timer Display (Isolated tick rebuilds)
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final timerState = ref.watch(pomodoroTimerProvider);
+                        final int displaySeconds =
+                            (phase == PomodoroState.focus ||
+                                    phase == PomodoroState.breakTime)
+                                ? timerState.countdownSeconds
+                                : settings.focusMinutes * 60;
+
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: SlideTransition(
+                                    position:
+                                        Tween<Offset>(
+                                          begin: const Offset(0.0, 0.15),
+                                          end: Offset.zero,
+                                        ).animate(
+                                          CurvedAnimation(
+                                            parent: animation,
+                                            curve: Curves.easeOutBack,
+                                          ),
+                                        ),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                          child: PomodoroTimerDisplay(
+                            key: ValueKey(phase),
+                            pomodoroState: phase,
+                            displaySeconds: displaySeconds,
+                            currentRound: timerState.currentRound,
+                            targetRounds: settings.isPomodoroMode
+                                ? settings.targetRounds
+                                : 1,
+                            isLongBreak: timerState.isLongBreak,
+                          ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 32),
 
-                    // Action buttons
+                    // 3. Pomodoro Action Buttons
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 400),
                       transitionBuilder:
@@ -278,11 +235,13 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                         key: ValueKey(phase),
                         pomodoroState: phase,
                         onStart: () {
+                          HapticFeedback.mediumImpact();
                           notifier.startFocus(settings.focusMinutes);
                           widget.onFocusStateChanged(true);
                         },
                         onGiveUp: () => _handleGiveUp(context, ref),
                         onSkip: () {
+                          HapticFeedback.lightImpact();
                           notifier.skipBreak();
                           AppToast.show(
                             context,
@@ -292,6 +251,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                         },
                         onRest: onReset,
                         onRestart: () {
+                          HapticFeedback.mediumImpact();
                           notifier.restartFocus();
                           widget.onFocusStateChanged(true);
                         },
@@ -303,7 +263,11 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
               ),
             ),
 
-            const SizedBox(height: 80), // space for "swipe to explore"
+            // 4. Swipe to explore nudge at bottom (only in idle state)
+            if (phase == PomodoroState.idle && widget.onExploreTap != null)
+              SwipeToExploreNudge(onTap: widget.onExploreTap)
+            else
+              const SizedBox(height: 24),
           ],
         ),
       );
