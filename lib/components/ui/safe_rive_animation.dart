@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lorofy/core/utils/logger.dart';
 import 'package:rive/rive.dart';
 
 /// Clean Rive Animation Wrapper for Rive 0.14+ Native Renderer.
@@ -98,12 +99,15 @@ class _SafeRiveAnimationState extends State<SafeRiveAnimation> {
           final file = await _fileLoader.file();
           widget.onInitFile?.call(file);
         } catch (e) {
-          debugPrint('SafeRiveAnimation onLoaded file error: $e');
+          AppLogger.error('SafeRiveAnimation onLoaded file error: $e', tag: 'SafeRiveAnimation');
         }
       },
       onFailed: (error, stackTrace) {
-        debugPrint(
-          'SafeRiveAnimation failed loading asset [${widget.assetPath}]: $error',
+        AppLogger.error(
+          'SafeRiveAnimation failed loading asset [${widget.assetPath}]',
+          error: error,
+          stackTrace: stackTrace,
+          tag: 'SafeRiveAnimation',
         );
       },
       builder: (context, state) {

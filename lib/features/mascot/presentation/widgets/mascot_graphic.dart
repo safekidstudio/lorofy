@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/cupertino.dart';
 import 'package:lorofy/features/mascot/domain/models/mascot.dart';
 import 'package:lorofy/features/mascot/domain/models/mascot_stage.dart';

@@ -29,11 +29,38 @@ GoRouter appRouter(Ref ref) {
     refreshListenable: GoRouterRefreshNotifier(ref),
     routes: [
       // 1. Splash screen
-      GoRoute(path: '/splash', builder: (context, state) => const SplashPage()),
+      GoRoute(
+        path: '/splash',
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const SplashPage(),
+            transitionDuration: const Duration(milliseconds: 400),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          );
+        },
+      ),
       // 2. Landing/Overview screen
       GoRoute(
         path: '/overview',
-        builder: (context, state) => const OverviewPage(),
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const OverviewPage(),
+            transitionDuration: const Duration(milliseconds: 400),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          );
+        },
       ),
       // 3. Login screen
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
@@ -59,8 +86,23 @@ GoRouter appRouter(Ref ref) {
           return CreatePasswordPage(signupToken: signupToken, email: email);
         },
       ),
-      // 7. Home screen
-      GoRoute(path: '/', builder: (context, state) => const HomePage()),
+      // 7. Home screen (Smooth Fade In from Splash/Auth)
+      GoRoute(
+        path: '/',
+        pageBuilder: (context, state) {
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: const HomePage(),
+            transitionDuration: const Duration(milliseconds: 450),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          );
+        },
+      ),
       // 7a. Explore screen (iOS Card Modal Presentation)
       GoRoute(
         path: '/explore',

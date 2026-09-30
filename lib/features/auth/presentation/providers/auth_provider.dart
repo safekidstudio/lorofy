@@ -85,6 +85,15 @@ class Auth extends _$Auth {
 
   // Check initial auth state
   Future<void> _checkInitialAuth() async {
+    final stopwatch = Stopwatch()..start();
+
+    Future<void> ensureMinimumSplashDelay() async {
+      final elapsed = stopwatch.elapsedMilliseconds;
+      if (elapsed < 800) {
+        await Future.delayed(Duration(milliseconds: 800 - elapsed));
+      }
+    }
+
     try {
       final token = await _authStorage.getAccessToken();
       if (token != null) {
@@ -92,6 +101,8 @@ class Auth extends _$Auth {
         final cachedDisplayName = await _authStorage.getDisplayName();
         final cachedAvatarUrl = await _authStorage.getAvatarUrl();
         final cachedUsername = await _authStorage.getUsername();
+
+        await ensureMinimumSplashDelay();
 
         if (cachedIsOnboarded != null) {
           // Optimistic: instantly login with cached data for instant feed/homepage
@@ -128,9 +139,11 @@ class Auth extends _$Auth {
           userProfile: profile,
         );
       } else {
+        await ensureMinimumSplashDelay();
         state = AuthStatus(state: AuthState.unauthenticated);
       }
     } catch (e) {
+      await ensureMinimumSplashDelay();
       final statusCode = e is DioException ? e.response?.statusCode : null;
       final isAuthError = statusCode == 401 || statusCode == 403;
       if (isAuthError) {
@@ -298,6 +311,8 @@ class Auth extends _$Auth {
         final updatedProfile = profile.copyWith(
           currentStreak: newStreak,
           longestStreak: newLongest,
+          canRepairStreak: false,
+          repairableStreak: 0,
         );
         state = state.copyWith(userProfile: updatedProfile);
       }

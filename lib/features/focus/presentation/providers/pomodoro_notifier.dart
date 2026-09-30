@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/core/utils/logger.dart';
 import 'package:lorofy/features/focus/domain/models/pomodoro_state.dart';
 import 'package:lorofy/features/focus/domain/models/ambient_sound.dart';
 import 'package:lorofy/features/focus/domain/models/ambient_sound_meta.dart';
@@ -184,7 +185,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
       try {
         await ref.read(focusRepositoryProvider).pauseSession(sessionId);
       } catch (e) {
-        debugPrint('Error pausing backend session: $e');
+        AppLogger.warning('Error pausing backend session: $e', tag: 'PomodoroNotifier');
       }
     }
   }
@@ -236,7 +237,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
         ref.read(authProvider.notifier).refreshProfile();
         ref.invalidate(filteredActivitiesProvider);
       } catch (e) {
-        debugPrint('Error failing backend session: $e');
+        AppLogger.warning('Error failing backend session: $e', tag: 'PomodoroNotifier');
       }
     }
 
@@ -284,8 +285,9 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
                 errStr.contains('in progress') ||
                 errStr.contains('conflict') ||
                 errStr.contains('409'))) {
-          debugPrint(
+          AppLogger.info(
             'Active session conflict detected on backend. Retrying atomically with force=true...',
+            tag: 'PomodoroNotifier',
           );
           // Automatically force start to supersede old session and create a new one in a single atomic transaction
           session = await repository.startSession(
@@ -301,10 +303,10 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
       if (state.phase == PomodoroState.focus) {
         state = state.copyWith(backendSessionId: session.id);
-        debugPrint('Backend session started successfully: ${session.id}');
+        AppLogger.info('Backend session started successfully: ${session.id}', tag: 'PomodoroNotifier');
       }
     } catch (e) {
-      debugPrint('Error starting backend session: $e');
+      AppLogger.error('Error starting backend session: $e', tag: 'PomodoroNotifier');
     }
   }
 
@@ -419,7 +421,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
             ref.invalidate(filteredActivitiesProvider);
           })
           .catchError((e) {
-            debugPrint('Error completing backend session: $e');
+            AppLogger.error('Error completing backend session: $e', tag: 'PomodoroNotifier');
             ref.read(mascotProvider.notifier).addGrowthPoints(calculatedPoints);
             final currentPoints = ref.read(authProvider).rankPoints ?? 0;
             ref

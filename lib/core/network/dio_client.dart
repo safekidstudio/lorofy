@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:lorofy/core/config/app_config.dart';
+import 'package:lorofy/core/utils/logger.dart';
 import 'package:lorofy/core/network/interceptors/auth_interceptor.dart';
 import 'package:lorofy/core/network/interceptors/error_interceptor.dart';
 import 'package:lorofy/core/network/interceptors/idempotency_interceptor.dart';
@@ -29,7 +30,7 @@ Dio dio(Ref ref) {
       LogInterceptor(
         requestBody: true,
         responseBody: true,
-        logPrint: (object) => debugPrint(object.toString()),
+        logPrint: (object) => AppLogger.debug(object.toString(), tag: 'DIO'),
       ),
     );
   }

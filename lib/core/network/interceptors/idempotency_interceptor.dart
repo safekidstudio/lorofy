@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
+import 'package:lorofy/core/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 
 /// Constants for Idempotency
@@ -46,7 +46,10 @@ class IdempotencyInterceptor extends Interceptor {
 
       // Attach key to header
       options.headers[kIdempotencyHeaderName] = key;
-      debugPrint('IdempotencyInterceptor: Attached Key [$key] to ${options.path}');
+      AppLogger.debug(
+        'Attached Key [$key] to ${options.path}',
+        tag: 'IdempotencyInterceptor',
+      );
     }
 
     return handler.next(options);

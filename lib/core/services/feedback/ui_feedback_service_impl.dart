@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:lorofy/core/utils/logger.dart';
 import 'feedback_service.dart';
 
 /// Infrastructure/Data implementation of [FeedbackService] using [AudioPool] and [HapticFeedback].
@@ -38,11 +39,11 @@ class UIFeedbackServiceImpl implements FeedbackService {
         ),
       );
       if (kDebugMode) {
-        print('UIFeedbackServiceImpl: AudioPool initialized successfully');
+        AppLogger.info('AudioPool initialized successfully', tag: 'UIFeedbackService');
       }
     } catch (e, stack) {
       if (kDebugMode) {
-        print('UIFeedbackServiceImpl: Preload warning: $e\n$stack');
+        AppLogger.error('Preload warning', error: e, stackTrace: stack, tag: 'UIFeedbackService');
       }
     }
   }
@@ -74,7 +75,7 @@ class UIFeedbackServiceImpl implements FeedbackService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('UIFeedbackServiceImpl: playClick error: $e');
+        AppLogger.error('playClick error: $e', tag: 'UIFeedbackService');
       }
       try {
         await SystemSound.play(SystemSoundType.click);

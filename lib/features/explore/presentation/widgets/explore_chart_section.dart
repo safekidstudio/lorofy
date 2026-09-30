@@ -89,6 +89,7 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
             : 0;
 
         return Container(
+          height: 230,
           decoration: BoxDecoration(
             color: CupertinoColors.white,
             borderRadius: BorderRadius.circular(AppRadius.md),
@@ -190,86 +191,89 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
           children: [
             SizedBox(
               height: 170,
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceEvenly,
-                  maxY: maxY,
-                  gridData: const FlGridData(show: false),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: const Border(
-                      bottom: BorderSide(color: Color(0xFF232321), width: 2.0),
-                    ),
-                  ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    leftTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 32,
-                        getTitlesWidget: (double value, TitleMeta meta) {
-                          final int index = value.toInt();
-                          if (index < 0 || index >= weeklyProgress.length) {
-                            return const SizedBox();
-                          }
-                          final String day = _formatDate(weeklyProgress[index].date);
-                          return SideTitleWidget(
-                            meta: meta,
-                            space: 8,
-                            child: Text(
-                              day,
-                              style: const TextStyle(
-                                fontFamily: AppTextStyles.fontFamily,
-                                color: AppColors.primary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          );
-                        },
+              child: RepaintBoundary(
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceEvenly,
+                    maxY: maxY,
+                    gridData: const FlGridData(show: false),
+                    borderData: FlBorderData(
+                      show: true,
+                      border: const Border(
+                        bottom: BorderSide(color: Color(0xFF232321), width: 2.0),
                       ),
                     ),
-                  ),
-                  barGroups: List.generate(weeklyProgress.length, (index) {
-                    final data = weeklyProgress[index];
-                    final double val = data.minutes.toDouble();
-                    final bool isActive = val > 0;
-                    return BarChartGroupData(
-                      x: index,
-                      barRods: [
-                        BarChartRodData(
-                          toY: val,
-                          color: isActive
-                              ? const Color(0xFF072013)
-                              : const Color(0xFFE5E5EA),
-                          width: 30,
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(8),
-                          ),
+                    titlesData: FlTitlesData(
+                      show: true,
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      leftTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 32,
+                          getTitlesWidget: (double value, TitleMeta meta) {
+                            final int index = value.toInt();
+                            if (index < 0 || index >= weeklyProgress.length) {
+                              return const SizedBox();
+                            }
+                            final String day = _formatDate(weeklyProgress[index].date);
+                            return SideTitleWidget(
+                              meta: meta,
+                              space: 8,
+                              child: Text(
+                                day,
+                                style: const TextStyle(
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  color: AppColors.primary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      ],
-                    );
-                  }),
-                  barTouchData: BarTouchData(
-                    enabled: !isAllZero,
-                    handleBuiltInTouches: false,
-                    touchCallback: (FlTouchEvent event, BarTouchResponse? response) {
-                      if (!isAllZero && response != null && response.spot != null) {
-                        setState(() {
-                          _selectedIndex = response.spot!.touchedBarGroupIndex;
-                        });
-                      }
-                    },
+                      ),
+                    ),
+                    barGroups: List.generate(weeklyProgress.length, (index) {
+                      final data = weeklyProgress[index];
+                      final double val = data.minutes.toDouble();
+                      final bool isActive = val > 0;
+                      return BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          BarChartRodData(
+                            toY: val,
+                            color: isActive
+                                ? const Color(0xFF072013)
+                                : const Color(0xFFE5E5EA),
+                            width: 30,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(8),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                    barTouchData: BarTouchData(
+                      enabled: !isAllZero,
+                      handleBuiltInTouches: false,
+                      touchCallback: (FlTouchEvent event, BarTouchResponse? response) {
+                        if (!isAllZero && response != null && response.spot != null) {
+                          setState(() {
+                            _selectedIndex = response.spot!.touchedBarGroupIndex;
+                          });
+                        }
+                      },
+                    ),
                   ),
+                  duration: Duration.zero,
                 ),
               ),
             ),

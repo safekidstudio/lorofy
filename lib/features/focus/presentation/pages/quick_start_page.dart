@@ -19,14 +19,18 @@ import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.da
 import 'package:lorofy/features/mascot/presentation/widgets/mascot_graphic.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 
+import 'package:flutter/foundation.dart';
+
 class QuickStartPage extends ConsumerStatefulWidget {
   final ValueChanged<bool> onFocusStateChanged;
   final VoidCallback? onExploreTap;
+  final ValueListenable<bool>? isFullyVisibleListenable;
 
   const QuickStartPage({
     super.key,
     required this.onFocusStateChanged,
     this.onExploreTap,
+    this.isFullyVisibleListenable,
   });
 
   @override
@@ -263,9 +267,19 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
               ),
             ),
 
-            // 4. Swipe to explore nudge at bottom (only in idle state)
+            // 4. Swipe to explore nudge at bottom (only in idle state AND when 100% fully visible)
             if (phase == PomodoroState.idle && widget.onExploreTap != null)
-              SwipeToExploreNudge(onTap: widget.onExploreTap)
+              ValueListenableBuilder<bool>(
+                valueListenable: widget.isFullyVisibleListenable ?? ValueNotifier<bool>(true),
+                builder: (context, isVisible, child) {
+                  return AnimatedOpacity(
+                    duration: const Duration(milliseconds: 180),
+                    opacity: isVisible ? 1.0 : 0.0,
+                    child: child,
+                  );
+                },
+                child: SwipeToExploreNudge(onTap: widget.onExploreTap),
+              )
             else
               const SizedBox(height: 24),
           ],
