@@ -85,6 +85,7 @@ class AuthRemoteDataSource {
 
   // UPDATE PROFILE
   Future<UserProfile> onboardProfile({
+    String? username,
     required String displayName,
     required String countryCode,
     required String timezone,
@@ -93,6 +94,7 @@ class AuthRemoteDataSource {
     final response = await _dio.put(
       '/profiles/onboard',
       data: {
+        'username': ?username,
         'displayName': displayName,
         'countryCode': countryCode,
         'timezone': timezone,

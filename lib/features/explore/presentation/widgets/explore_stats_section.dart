@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
@@ -47,32 +48,21 @@ class ExploreStatsSection extends ConsumerWidget {
 
     return statsAsync.when(
       loading: () => const _ExploreStatsSkeleton(),
-      error: (err, stack) => SizedBox(
-        height: 200,
-        child: Center(
-          child: Text(
-            'Error loading statistics: $err',
-            style: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              color: CupertinoColors.systemRed,
-            ),
-          ),
-        ),
+      error: (err, stack) => AppEmptyState.error(
+        title: 'Unable to Load Statistics',
+        onRetry: () {
+          ref.invalidate(exploreStatsProvider);
+          ref.invalidate(todayActivitiesProvider);
+        },
+        padding: AppPadding.md,
       ),
       data: (stats) {
         return todayActivitiesAsync.when(
           loading: () => const _ExploreStatsSkeleton(),
-          error: (err, stack) => SizedBox(
-            height: 200,
-            child: Center(
-              child: Text(
-                'Error loading activities: $err',
-                style: TextStyle(
-                  fontFamily: AppTextStyles.fontFamily,
-                  color: CupertinoColors.systemRed,
-                ),
-              ),
-            ),
+          error: (err, stack) => AppEmptyState.error(
+            title: 'Unable to Load Activities',
+            onRetry: () => ref.invalidate(todayActivitiesProvider),
+            padding: AppPadding.md,
           ),
           data: (todayActivities) {
             // Compute values dynamically

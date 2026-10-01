@@ -137,6 +137,24 @@ class ProfileRepositoryImpl implements ProfileRepository {
       throw e.toFailure();
     }
   }
+
+  @override
+  Future<bool> checkUsernameAvailable(String username) async {
+    try {
+      final response = await _dio.get(
+        '/profiles/check-username',
+        queryParameters: {'username': username},
+        options: ApiOptions.public,
+      );
+      final data = response.data['data'];
+      if (data != null && data['available'] != null) {
+        return data['available'] as bool;
+      }
+      return false;
+    } catch (e) {
+      throw e.toFailure();
+    }
+  }
 }
 
 

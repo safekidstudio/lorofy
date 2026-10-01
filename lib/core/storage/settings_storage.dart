@@ -19,6 +19,10 @@ class SettingsStorage {
     return _prefs.getString(_pomodoroSettingsKey);
   }
 
+  Future<void> clearSettings() async {
+    await _prefs.remove(_pomodoroSettingsKey);
+  }
+
   Future<void> saveSystemSettings(String jsonStr) async {
     await _prefs.setString(_systemSettingsKey, jsonStr);
   }

@@ -27,10 +27,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     super.initState();
     _form = FormGroup({
       'email': FormControl<String>(
-        validators: [Validators.required, Validators.email],
+        validators: [Validators.required, Validators.email, Validators.maxLength(50)],
       ),
       'password': FormControl<String>(
-        validators: [Validators.required, Validators.minLength(6)],
+        validators: [Validators.required, Validators.minLength(6), Validators.maxLength(32)],
       ),
     });
   }
@@ -106,6 +106,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         placeholder: 'example@lorofy.com',
                         formControlName: 'email',
                         keyboardType: TextInputType.emailAddress,
+                        maxLength: 50,
                         disabled: loginState.isLoading,
                       ),
                       const SizedBox(height: 16),
@@ -113,6 +114,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         placeholder: '****************',
                         formControlName: 'password',
                         obscureText: true,
+                        maxLength: 32,
                         disabled: loginState.isLoading,
                       ),
                       const SizedBox(height: 28),

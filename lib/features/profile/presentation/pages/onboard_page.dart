@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,7 +16,8 @@ import '../providers/onboard_controller.dart';
 import 'package:lorofy/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:lorofy/features/profile/presentation/widgets/onboard/onboard_avatar_step.dart';
 import 'package:lorofy/features/profile/presentation/widgets/onboard/onboard_country_step.dart';
-import 'package:lorofy/features/profile/presentation/widgets/onboard/onboard_name_step.dart';
+import 'package:lorofy/features/profile/presentation/widgets/onboard/onboard_username_step.dart';
+import 'package:lorofy/features/profile/presentation/widgets/onboard/onboard_display_name_step.dart';
 
 class OnboardPage extends ConsumerStatefulWidget {
   const OnboardPage({super.key});
@@ -26,7 +28,7 @@ class OnboardPage extends ConsumerStatefulWidget {
 
 class _OnboardPageState extends ConsumerState<OnboardPage> {
   int _currentStep = 0;
-  final int _totalSteps = 3;
+  final int _totalSteps = 4;
   bool _isSuccess = false;
 
   // Selected avatar state (supports default seeds and custom uploads)
@@ -38,6 +40,13 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
   String _selectedCountryCode = 'VN';
   late FormGroup _form;
 
+  // Username availability check state
+  String? _initialUsername;
+  Timer? _usernameDebounce;
+  bool _isCheckingUsername = false;
+  bool? _isUsernameAvailable;
+  String? _usernameError;
+
   int _selectedAvatarIndex = 2;
   late final PageController _pageController;
   bool _preCached = false;
@@ -47,10 +56,28 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
     super.initState();
 
     _form = FormGroup({
+      'username': FormControl<String>(
+        value: '',
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(30),
+          Validators.pattern(RegExp(r'^[a-zA-Z0-9_]+$')),
+        ],
+      ),
       'displayName': FormControl<String>(
         value: '',
-        validators: [Validators.required, Validators.minLength(3)],
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(30),
+        ],
       ),
+    });
+
+    _form.control('username').valueChanges.listen((val) {
+      final username = (val as String?)?.trim() ?? '';
+      _onUsernameInputChanged(username);
     });
 
     // Default to the 3rd avatar from the list, matching the mockup selected item
@@ -65,11 +92,79 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
     _prefillUsername();
   }
 
+  void _onUsernameInputChanged(String username) {
+    _usernameDebounce?.cancel();
+    if (username.length < 3) {
+      setState(() {
+        _isCheckingUsername = false;
+        _isUsernameAvailable = null;
+        _usernameError = null;
+      });
+      return;
+    }
+
+    if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(username)) {
+      setState(() {
+        _isCheckingUsername = false;
+        _isUsernameAvailable = false;
+        _usernameError = 'Only letters, numbers, and underscores allowed.';
+      });
+      return;
+    }
+
+    // If username is unchanged from user's own current prefilled username
+    if (_initialUsername != null &&
+        username.toLowerCase() == _initialUsername!.toLowerCase()) {
+      setState(() {
+        _isCheckingUsername = false;
+        _isUsernameAvailable = true;
+        _usernameError = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isCheckingUsername = true;
+      _isUsernameAvailable = null;
+      _usernameError = null;
+    });
+
+    _usernameDebounce = Timer(const Duration(milliseconds: 400), () async {
+      try {
+        final available = await ref
+            .read(profileRepositoryProvider)
+            .checkUsernameAvailable(username);
+        if (mounted) {
+          setState(() {
+            _isCheckingUsername = false;
+            _isUsernameAvailable = available;
+            _usernameError = available ? null : 'Username is already taken';
+          });
+        }
+      } catch (_) {
+        if (mounted) {
+          setState(() {
+            _isCheckingUsername = false;
+            _isUsernameAvailable = false;
+            _usernameError = 'Failed to verify username';
+          });
+        }
+      }
+    });
+  }
+
   Future<void> _prefillUsername() async {
     try {
       final profile = await ref.read(authRepositoryProvider).getMe();
       if (mounted) {
-        _form.control('displayName').value = profile.username;
+        final initialUsername = profile.username;
+        _initialUsername = initialUsername;
+        final initialDisplayName = profile.displayName ?? initialUsername;
+        _form.control('username').value = initialUsername;
+        _form.control('displayName').value = initialDisplayName;
+        if (initialUsername.length >= 3) {
+          _onUsernameInputChanged(initialUsername);
+        }
       }
     } catch (e) {
       // Ignore errors silently
@@ -92,10 +187,43 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
     }
   }
 
+  Timer? _redirectTimer;
+  int _countdownSeconds = 3;
+
   @override
   void dispose() {
+    _redirectTimer?.cancel();
+    _usernameDebounce?.cancel();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _startCountdown() {
+    _redirectTimer?.cancel();
+    setState(() {
+      _isSuccess = true;
+      _countdownSeconds = 3;
+    });
+    _redirectTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted && _countdownSeconds > 1) {
+        setState(() {
+          _countdownSeconds--;
+        });
+      } else {
+        timer.cancel();
+        _goToHome();
+      }
+    });
+  }
+
+  void _goToHome() {
+    _redirectTimer?.cancel();
+    if (!mounted) return;
+    final displayName = (_form.value['displayName'] as String?)?.trim() ?? '';
+    ref.read(authProvider.notifier).updateOnboardedState(
+      onboarded: true,
+      displayName: displayName,
+    );
   }
 
   void _nextStep() {
@@ -109,6 +237,15 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
   void _prevStep() {
     if (_currentStep > 0) {
       setState(() => _currentStep--);
+      if (_currentStep == 0) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_pageController.hasClients) {
+            final int targetPage =
+                1000 * AppConstants.defaultAvatars.length + _selectedAvatarIndex;
+            _pageController.jumpToPage(targetPage);
+          }
+        });
+      }
     }
   }
 
@@ -118,7 +255,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
       if (image == null) return;
 
-      // Optimistic UI: immediately show local image preview & set uploading status
       setState(() {
         _uploadedImagePath = image.path;
         _selectedAvatarUrl = null;
@@ -132,7 +268,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
         _selectedAvatarId = assetId;
       });
     } catch (e) {
-      // Revert optimistic UI on upload failure
       setState(() {
         _uploadedImagePath = null;
         _selectedAvatarId = AppConstants.defaultAvatars[_selectedAvatarIndex]['id'];
@@ -169,12 +304,14 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
   }
 
   Future<void> _submitOnboarding() async {
+    final username = (_form.value['username'] as String?)?.trim() ?? '';
     final displayName = (_form.value['displayName'] as String?)?.trim() ?? '';
-    if (displayName.length < 3) return;
+    if (username.length < 3 || displayName.length < 3) return;
 
     await ref
         .read(onboardControllerProvider.notifier)
         .onboard(
+          username: username,
           displayName: displayName,
           countryCode: _selectedCountryCode,
           timezone: _getTimezoneForCountry(_selectedCountryCode),
@@ -194,26 +331,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
           );
         },
         data: (_) {
-          setState(() {
-            _isSuccess = true;
-          });
           AppToast.show(
             context,
             message: 'Your profile has been created successfully!',
             type: ToastType.success,
           );
-          // Auto-redirect to home page after a 3-second delay
-          Future.delayed(const Duration(seconds: 3), () {
-            if (mounted && _isSuccess) {
-              final displayName = (_form.value['displayName'] as String?)?.trim() ?? '';
-              ref
-                  .read(authProvider.notifier)
-                  .updateOnboardedState(
-                    onboarded: true,
-                    displayName: displayName,
-                  );
-            }
-          });
+          _startCountdown();
         },
       );
     });
@@ -235,14 +358,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
         child: SafeArea(
           child: Stack(
             children: [
-              // Rive Confetti falling behind content
               const Positioned.fill(
                 child: SafeRiveAnimation.asset(
                   'assets/rive/confetti.riv',
                   fit: BoxFit.cover,
                 ),
               ),
-              // Main content
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -252,7 +373,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Spacer(),
-                    // Success animated checkmark blob
                     Center(
                       child: TweenAnimationBuilder<double>(
                         tween: Tween<double>(begin: 0.0, end: 1.0),
@@ -269,7 +389,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                       ),
                     ),
                     const SizedBox(height: 48),
-                    // Congrats title
                     Text(
                       'Ready to Grow!',
                       style: TextStyle(
@@ -282,7 +401,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
-                    // Subtitle
                     Text(
                       'Congratulations! Your profile has been set up successfully. Let\'s start your focus journey with Lorofy.',
                       style: TextStyle(
@@ -294,19 +412,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const Spacer(flex: 2),
-                    // Action button: calls updateOnboardedState which triggers redirect
+                    const Spacer(),
                     Button.primary(
-                      text: 'Get Started',
-                      onPressed: () {
-                        final displayName = (_form.value['displayName'] as String?)?.trim() ?? '';
-                        ref
-                            .read(authProvider.notifier)
-                            .updateOnboardedState(
-                              onboarded: true,
-                              displayName: displayName,
-                            );
-                      },
+                      text: "Let's Go (${_countdownSeconds}s)",
+                      onPressed: _goToHome,
                     ),
                   ],
                 ),
@@ -318,31 +427,43 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
     } else {
       content = CupertinoPageScaffold(
         backgroundColor: AppColors.background,
-        resizeToAvoidBottomInset: true,
-        child: SafeArea(
-          child: ReactiveForm(
-            formGroup: _form,
+        child: ReactiveForm(
+          formGroup: _form,
+          child: SafeArea(
             child: Column(
               children: [
                 _buildProgressBar(),
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 16,
-                    ),
-                    physics: const BouncingScrollPhysics(),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: _buildStepContent(isLoading),
-                    ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: IntrinsicHeight(
+                            child: Column(
+                              children: [
+                                const Spacer(),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 300),
+                                    child: _buildStepContent(isLoading),
+                                  ),
+                                ),
+                                const Spacer(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -450,18 +571,26 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
           },
         );
       case 1:
-        return OnboardCountryStep(
+        return OnboardUsernameStep(
           key: const ValueKey(1),
+          isDisabled: isDisabled,
+          isChecking: _isCheckingUsername,
+          isAvailable: _isUsernameAvailable,
+          errorMessage: _usernameError,
+        );
+      case 2:
+        return OnboardDisplayNameStep(
+          key: const ValueKey(2),
+          isDisabled: isDisabled,
+        );
+      case 3:
+        return OnboardCountryStep(
+          key: const ValueKey(3),
           isDisabled: isDisabled,
           selectedCountryCode: _selectedCountryCode,
           onCountryChanged: (code) {
             setState(() => _selectedCountryCode = code);
           },
-        );
-      case 2:
-        return OnboardNameStep(
-          key: const ValueKey(2),
-          isDisabled: isDisabled,
         );
       default:
         return const SizedBox.shrink();
@@ -476,6 +605,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
         onPressed: isLoading ? null : _nextStep,
       );
     } else if (_currentStep == 1) {
+      final isUsernameValid = _form.control('username').valid &&
+          _isUsernameAvailable == true &&
+          !_isCheckingUsername;
+
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -483,7 +616,27 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
           Button.primary(
             text: 'Next',
             isLoading: isLoading,
-            onPressed: isLoading ? null : _nextStep,
+            onPressed: (isUsernameValid && !isLoading) ? _nextStep : null,
+          ),
+          const SizedBox(height: 12),
+          Button.secondary(
+            text: 'Back',
+            disabled: isLoading,
+            onPressed: isLoading ? null : _prevStep,
+          ),
+        ],
+      );
+    } else if (_currentStep == 2) {
+      final isDisplayNameValid = _form.control('displayName').valid;
+
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Button.primary(
+            text: 'Next',
+            isLoading: isLoading,
+            onPressed: (isDisplayNameValid && !isLoading) ? _nextStep : null,
           ),
           const SizedBox(height: 12),
           Button.secondary(
@@ -503,8 +656,8 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
               return Button.primary(
                 text: 'Complete',
                 isLoading: isLoading,
-                onPressed: (form.valid && !isLoading)
-                    ? _nextStep
+                onPressed: (form.valid && _isUsernameAvailable == true && !isLoading)
+                    ? _submitOnboarding
                     : null,
               );
             },
@@ -525,8 +678,11 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
     if (msg.contains('Country code')) {
       return 'Invalid country selected.';
     }
+    if (msg.contains('Username')) {
+      return 'Username is invalid or already taken.';
+    }
     if (msg.contains('Display name')) {
-      return 'Display name must be between 3 and 100 characters.';
+      return 'Display name must be between 3 and 30 characters.';
     }
     return msg;
   }

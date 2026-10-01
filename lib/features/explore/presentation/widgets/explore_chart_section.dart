@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/utils/app_date_formatter.dart';
@@ -65,15 +66,10 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-        height: 230,
-        child: Center(
-          child: Text(
-            'Error loading chart: $err',
-            style: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              color: CupertinoColors.systemRed,
-            ),
-          ),
+        child: AppEmptyState.error(
+          title: 'Unable to Load Chart',
+          onRetry: () => ref.invalidate(exploreStatsProvider),
+          padding: AppPadding.md,
         ),
       ),
       data: (stats) {
@@ -89,7 +85,7 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
             : 0;
 
         return Container(
-          height: 230,
+          height: 236,
           decoration: BoxDecoration(
             color: CupertinoColors.white,
             borderRadius: BorderRadius.circular(AppRadius.md),

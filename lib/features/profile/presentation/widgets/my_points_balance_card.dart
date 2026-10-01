@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
@@ -13,6 +14,19 @@ class MyPointsBalanceCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authStatus = ref.watch(authProvider);
     final profile = authStatus.userProfile;
+
+    if (authStatus.state == AuthState.initial && profile == null) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppPadding.lg,
+          vertical: AppPadding.sm,
+        ),
+        child: ShimmerPlaceholder.rectangular(
+          height: 170,
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+      );
+    }
     final int rankPoints = profile?.rankPoints ?? authStatus.rankPoints ?? 0;
     final int goldCoins = profile?.goldCoins ?? 0;
     final int currentStreak = profile?.currentStreak ?? 0;

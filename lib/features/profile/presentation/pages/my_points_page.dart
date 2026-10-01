@@ -121,38 +121,11 @@ class MyPointsPage extends ConsumerWidget {
                         child: PointHistorySkeleton(),
                       ),
                       error: (err, stack) => SliverToBoxAdapter(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(AppPadding.xl),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  CupertinoIcons.exclamationmark_triangle_fill,
-                                  color: AppColors.destructive,
-                                  size: 44,
-                                ),
-                                const SizedBox(height: AppPadding.md),
-                                Text(
-                                  'Failed to load point history: $err',
-                                  style: AppTextStyles.placeholder,
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: AppPadding.lg),
-                                CupertinoButton.filled(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: AppPadding.xl,
-                                    vertical: AppPadding.md,
-                                  ),
-                                  onPressed: () => ref.invalidate(pointHistoryProvider),
-                                  child: const Text(
-                                    'Retry',
-                                    style: AppTextStyles.buttonText,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        child: AppEmptyState.error(
+                          title: 'Unable to Load Point History',
+                          description:
+                              'Please check your internet connection and tap anywhere to reload.',
+                          onRetry: () => ref.invalidate(pointHistoryProvider),
                         ),
                       ),
                     ),

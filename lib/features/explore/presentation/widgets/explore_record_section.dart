@@ -5,6 +5,7 @@ import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/core/utils/app_date_formatter.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/sliding_segmented_control.dart';
+import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
 import 'package:lorofy/features/focus/domain/models/focus_session.dart';
@@ -55,22 +56,20 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
               ? todayAsync.when(
                   loading: () =>
                       const _RecordListSkeleton(itemCount: 3, isDay: true),
-                  error: (err, stack) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Center(
-                      child: Text('Error loading today records: $err'),
-                    ),
+                  error: (err, stack) => AppEmptyState.error(
+                    title: 'Unable to Load Records',
+                    onRetry: () => ref.invalidate(todayActivitiesProvider),
+                    padding: AppPadding.md,
                   ),
                   data: (sessions) => _buildDayRecordList(sessions),
                 )
               : monthAsync.when(
                   loading: () =>
                       const _RecordListSkeleton(itemCount: 4, isDay: false),
-                  error: (err, stack) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Center(
-                      child: Text('Error loading month records: $err'),
-                    ),
+                  error: (err, stack) => AppEmptyState.error(
+                    title: 'Unable to Load Records',
+                    onRetry: () => ref.invalidate(monthActivitiesProvider),
+                    padding: AppPadding.md,
                   ),
                   data: (sessions) => _buildMonthRecordList(sessions),
                 ),

@@ -23,7 +23,6 @@ class OnboardCountryStep extends ConsumerWidget {
 
     return Column(
       children: [
-        const SizedBox(height: 20),
         Text('Where are you from?', style: AppTextStyles.titleLarge),
         const SizedBox(height: 8),
         Text(

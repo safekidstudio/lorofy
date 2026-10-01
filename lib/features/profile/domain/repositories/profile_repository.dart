@@ -7,5 +7,6 @@ abstract class ProfileRepository {
   Future<List<CountryModel>> getCountries();
   Future<List<PointHistoryModel>> getPointHistory({int page = 0, int size = 20});
   Future<UserProfile> repairStreak({required bool useFreezeItem, required bool useCoins});
+  Future<bool> checkUsernameAvailable(String username);
 }
 

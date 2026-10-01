@@ -29,7 +29,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     super.initState();
     _form = FormGroup({
       'email': FormControl<String>(
-        validators: [Validators.required, Validators.email],
+        validators: [
+          Validators.required,
+          Validators.email,
+          Validators.maxLength(50),
+        ],
       ),
     });
   }
@@ -85,9 +89,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -114,6 +116,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         placeholder: 'example@lorofy.com',
                         formControlName: 'email',
                         keyboardType: TextInputType.emailAddress,
+                        maxLength: 50,
                         disabled: isLoading,
                         errorMessage: errorMessage,
                       ),
@@ -128,7 +131,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               return Button.primary(
                                 text: 'Continue',
                                 isLoading: isLoading,
-                                onPressed: (form.valid && !isLoading) ? _onContinue : null,
+                                onPressed: (form.valid && !isLoading)
+                                    ? _onContinue
+                                    : null,
                               );
                             },
                           ),
@@ -158,8 +163,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             onPressed: isLoading
                                 ? null
                                 : () => ref
-                                    .read(loginControllerProvider.notifier)
-                                    .loginWithGoogle(),
+                                      .read(loginControllerProvider.notifier)
+                                      .loginWithGoogle(),
                           ),
                         ],
                       ),

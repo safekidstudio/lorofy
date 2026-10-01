@@ -53,7 +53,7 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
         ambientSound: AmbientSound.none,
         selectedCategory: null,
         timedReminder: true,
-        isPomodoroMode: true,
+        isPomodoroMode: false,
         blockMode: BlockMode.medium,
         autoStartBreak: true,
         autoStartFocus: true,

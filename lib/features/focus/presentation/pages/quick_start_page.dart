@@ -142,128 +142,140 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
 
             // Main focus content (Mascot + Timer + Action buttons)
             Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 1. Mascot Graphic
-                    Consumer(
-                      builder: (context, ref, child) {
-                        final mascotState = ref.watch(mascotProvider);
-                        final activeMascot = mascotState.activeMascot;
-                        if (activeMascot == null) {
-                          return const SizedBox.shrink();
-                        }
-                        final focusProgressRatio = ref.watch(
-                          pomodoroTimerProvider.select(
-                            (s) => s.progressRatio,
-                          ),
-                        );
-                        return MascotGraphic(
-                          mascot: activeMascot,
-                          isFocusing: phase == PomodoroState.focus,
-                          focusProgressRatio: focusProgressRatio,
-                        );
-                      },
-                    ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 1. Mascot Graphic
+                            Consumer(
+                              builder: (context, ref, child) {
+                                final mascotState = ref.watch(mascotProvider);
+                                final activeMascot = mascotState.activeMascot;
+                                if (activeMascot == null) {
+                                  return const SizedBox.shrink();
+                                }
+                                final focusProgressRatio = ref.watch(
+                                  pomodoroTimerProvider.select(
+                                    (s) => s.progressRatio,
+                                  ),
+                                );
+                                return MascotGraphic(
+                                  mascot: activeMascot,
+                                  isFocusing: phase == PomodoroState.focus,
+                                  focusProgressRatio: focusProgressRatio,
+                                );
+                              },
+                            ),
 
-                    const SizedBox(height: 24),
+                            const SizedBox(height: 24),
 
-                    // 2. Pomodoro Timer Display (Isolated tick rebuilds)
-                    Consumer(
-                      builder: (context, ref, child) {
-                        final timerState = ref.watch(pomodoroTimerProvider);
-                        final int displaySeconds =
-                            (phase == PomodoroState.focus ||
-                                    phase == PomodoroState.breakTime)
-                                ? timerState.countdownSeconds
-                                : settings.focusMinutes * 60;
+                            // 2. Pomodoro Timer Display (Isolated tick rebuilds)
+                            Consumer(
+                              builder: (context, ref, child) {
+                                final timerState = ref.watch(pomodoroTimerProvider);
+                                final int displaySeconds =
+                                    (phase == PomodoroState.focus ||
+                                            phase == PomodoroState.breakTime)
+                                        ? timerState.countdownSeconds
+                                        : settings.focusMinutes * 60;
 
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 400),
-                          transitionBuilder:
-                              (Widget child, Animation<double> animation) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: SlideTransition(
-                                    position:
-                                        Tween<Offset>(
-                                          begin: const Offset(0.0, 0.15),
-                                          end: Offset.zero,
-                                        ).animate(
-                                          CurvedAnimation(
-                                            parent: animation,
-                                            curve: Curves.easeOutBack,
+                                return AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 400),
+                                  transitionBuilder:
+                                      (Widget child, Animation<double> animation) {
+                                        return FadeTransition(
+                                          opacity: animation,
+                                          child: SlideTransition(
+                                            position:
+                                                Tween<Offset>(
+                                                  begin: const Offset(0.0, 0.15),
+                                                  end: Offset.zero,
+                                                ).animate(
+                                                  CurvedAnimation(
+                                                    parent: animation,
+                                                    curve: Curves.easeOutBack,
+                                                  ),
+                                                ),
+                                            child: child,
                                           ),
-                                        ),
-                                    child: child,
+                                        );
+                                      },
+                                  child: PomodoroTimerDisplay(
+                                    key: ValueKey(phase),
+                                    pomodoroState: phase,
+                                    displaySeconds: displaySeconds,
+                                    currentRound: timerState.currentRound,
+                                    targetRounds: settings.isPomodoroMode
+                                        ? settings.targetRounds
+                                        : 1,
+                                    isLongBreak: timerState.isLongBreak,
                                   ),
                                 );
                               },
-                          child: PomodoroTimerDisplay(
-                            key: ValueKey(phase),
-                            pomodoroState: phase,
-                            displaySeconds: displaySeconds,
-                            currentRound: timerState.currentRound,
-                            targetRounds: settings.isPomodoroMode
-                                ? settings.targetRounds
-                                : 1,
-                            isLongBreak: timerState.isLongBreak,
-                          ),
-                        );
-                      },
-                    ),
+                            ),
 
-                    const SizedBox(height: 32),
+                            const SizedBox(height: 32),
 
-                    // 3. Pomodoro Action Buttons
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      transitionBuilder:
-                          (Widget child, Animation<double> animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: ScaleTransition(
-                                scale: Tween<double>(begin: 0.9, end: 1.0)
-                                    .animate(
-                                      CurvedAnimation(
-                                        parent: animation,
-                                        curve: Curves.easeOutBack,
+                            // 3. Pomodoro Action Buttons
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 400),
+                              transitionBuilder:
+                                  (Widget child, Animation<double> animation) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: ScaleTransition(
+                                        scale: Tween<double>(begin: 0.9, end: 1.0)
+                                            .animate(
+                                              CurvedAnimation(
+                                                parent: animation,
+                                                curve: Curves.easeOutBack,
+                                              ),
+                                            ),
+                                        child: child,
                                       ),
-                                    ),
-                                child: child,
+                                    );
+                                  },
+                              child: PomodoroActionButtons(
+                                key: ValueKey(phase),
+                                pomodoroState: phase,
+                                onStart: () {
+                                  HapticFeedback.mediumImpact();
+                                  notifier.startFocus(settings.focusMinutes);
+                                  widget.onFocusStateChanged(true);
+                                },
+                                onGiveUp: () => _handleGiveUp(context, ref),
+                                onSkip: () {
+                                  HapticFeedback.lightImpact();
+                                  notifier.skipBreak();
+                                  AppToast.show(
+                                    context,
+                                    message: 'Break skipped! Starting next round... 🌿',
+                                    type: ToastType.info,
+                                  );
+                                },
+                                onRest: onReset,
+                                onRestart: () {
+                                  HapticFeedback.mediumImpact();
+                                  notifier.restartFocus();
+                                  widget.onFocusStateChanged(true);
+                                },
+                                onHome: onReset,
                               ),
-                            );
-                          },
-                      child: PomodoroActionButtons(
-                        key: ValueKey(phase),
-                        pomodoroState: phase,
-                        onStart: () {
-                          HapticFeedback.mediumImpact();
-                          notifier.startFocus(settings.focusMinutes);
-                          widget.onFocusStateChanged(true);
-                        },
-                        onGiveUp: () => _handleGiveUp(context, ref),
-                        onSkip: () {
-                          HapticFeedback.lightImpact();
-                          notifier.skipBreak();
-                          AppToast.show(
-                            context,
-                            message: 'Break skipped! Starting next round... 🌿',
-                            type: ToastType.info,
-                          );
-                        },
-                        onRest: onReset,
-                        onRestart: () {
-                          HapticFeedback.mediumImpact();
-                          notifier.restartFocus();
-                          widget.onFocusStateChanged(true);
-                        },
-                        onHome: onReset,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
 

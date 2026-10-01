@@ -121,6 +121,7 @@ class AuthRepository {
   }
 
   Future<UserProfile> onboardProfile({
+    String? username,
     required String displayName,
     required String countryCode,
     required String timezone,
@@ -128,6 +129,7 @@ class AuthRepository {
   }) async {
     try {
       final profile = await _remoteDataSource.onboardProfile(
+        username: username,
         displayName: displayName,
         countryCode: countryCode,
         timezone: timezone,

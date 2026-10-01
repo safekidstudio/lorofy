@@ -31,7 +31,6 @@ class OnboardAvatarStep extends StatelessWidget {
 
     return Column(
       children: [
-        const SizedBox(height: 20),
         Center(
           child: Stack(
             children: [
@@ -102,17 +101,19 @@ class OnboardAvatarStep extends StatelessWidget {
             itemBuilder: (context, index) {
               final mappedIndex = index % AppConstants.defaultAvatars.length;
               final avatar = AppConstants.defaultAvatars[mappedIndex];
-              final int initialPage =
-                  1000 * AppConstants.defaultAvatars.length + selectedAvatarIndex;
 
               return AnimatedBuilder(
                 animation: pageController,
                 builder: (context, child) {
                   double distance = 0.0;
-                  if (pageController.position.haveDimensions) {
+                  if (pageController.hasClients &&
+                      pageController.position.haveDimensions &&
+                      pageController.page != null) {
                     distance = (pageController.page! - index).abs();
                   } else {
-                    distance = (index - initialPage).abs().toDouble();
+                    final int targetPage =
+                        1000 * AppConstants.defaultAvatars.length + selectedAvatarIndex;
+                    distance = (index - targetPage).abs().toDouble();
                   }
 
                   double scale = 1.0;

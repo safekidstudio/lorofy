@@ -75,17 +75,12 @@ class ExploreLeaderboardSection extends ConsumerWidget {
           // Leaderboard Podium
           leaderboardAsync.when(
             loading: () => const _ExploreLeaderboardSkeleton(),
-            error: (err, stack) => SizedBox(
-              height: 150,
-              child: Center(
-                child: Text(
-                  'Error: $err',
-                  style: TextStyle(
-                    fontFamily: AppTextStyles.fontFamily,
-                    color: CupertinoColors.systemRed,
-                  ),
-                ),
-              ),
+            error: (err, stack) => AppEmptyState.error(
+              title: 'Unable to Load Leaderboard',
+              description: 'Tap retry to reload rankings.',
+              onRetry: () =>
+                  ref.invalidate(leaderboardProvider(timeframe: 'ALL')),
+              padding: AppPadding.md,
             ),
             data: (data) {
               final list = data.leaderboard.content;

@@ -14,7 +14,7 @@ import 'package:lorofy/core/services/feedback/feedback_provider.dart';
 import 'package:lorofy/core/services/feedback/ui_feedback_service_impl.dart';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:rive/rive.dart';
+import 'package:lorofy/core/network/network_connectivity_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,8 +54,6 @@ void main() async {
   final feedbackService = UIFeedbackServiceImpl();
   await feedbackService.init();
 
-  await RiveNative.init();
-
   runApp(
     ProviderScope(
       overrides: [
@@ -72,6 +70,9 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Activate network auto-retry listener across the entire app
+    ref.watch(networkRetryNotifierProvider);
+
     final router = ref.watch(appRouterProvider);
 
     return CupertinoApp.router(

@@ -4,7 +4,7 @@ import 'package:lorofy/components/ui/safe_rive_animation.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
-/// Reusable empty state component for Lorofy application.
+/// Reusable empty state and error state component for Lorofy application.
 class AppEmptyState extends StatelessWidget {
   final String title;
   final String? description;
@@ -29,9 +29,44 @@ class AppEmptyState extends StatelessWidget {
     this.padding = AppPadding.xl,
   });
 
+  /// Dedicated error state variant for network failures or application errors.
+  /// Tapping anywhere on the error view automatically reloads/refetches data!
+  factory AppEmptyState.error({
+    Key? key,
+    required String title,
+    String? description,
+    VoidCallback? onRetry,
+    double padding = AppPadding.xl,
+  }) {
+    return AppEmptyState(
+      key: key,
+      title: title,
+      description:
+          description ?? 'Something went wrong. Tap anywhere to reload.',
+      rivePath: null,
+      iconWidget: Container(
+        width: 68,
+        height: 68,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.12),
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: const Icon(
+          CupertinoIcons.exclamationmark_triangle_fill,
+          color: AppColors.primary,
+          size: 32,
+        ),
+      ),
+      actionText: null, // No button rendered, tap anywhere to reload
+      onActionPressed: onRetry,
+      padding: padding,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
+    Widget content = Center(
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: padding,
@@ -74,8 +109,8 @@ class AppEmptyState extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: AppTextStyles.fontFamily,
                 fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+                color: AppColors.foreground,
               ),
             ),
 
@@ -107,5 +142,16 @@ class AppEmptyState extends StatelessWidget {
         ),
       ),
     );
+
+    // If onActionPressed is provided without actionText, tap anywhere reloads
+    if (onActionPressed != null && actionText == null) {
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onActionPressed,
+        child: content,
+      );
+    }
+
+    return content;
   }
 }

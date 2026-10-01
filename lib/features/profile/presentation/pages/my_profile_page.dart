@@ -55,7 +55,11 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       'username': FormControl<String>(value: '', disabled: true),
       'displayName': FormControl<String>(
         value: '',
-        validators: [Validators.required, Validators.minLength(3)],
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(30),
+        ],
       ),
     });
 
@@ -157,13 +161,17 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
     });
 
     try {
-      final displayName = (_form.value['displayName'] as String?)?.trim() ?? _originalDisplayName;
-      await ref.read(authRepositoryProvider).updateProfile(
-        displayName: displayName,
-        countryCode: _selectedCountryCode,
-        timezone: _selectedTimezone,
-        avatarAssetId: assetId,
-      );
+      final displayName =
+          (_form.value['displayName'] as String?)?.trim() ??
+          _originalDisplayName;
+      await ref
+          .read(authRepositoryProvider)
+          .updateProfile(
+            displayName: displayName,
+            countryCode: _selectedCountryCode,
+            timezone: _selectedTimezone,
+            avatarAssetId: assetId,
+          );
 
       if (mounted) {
         AppLoading.showSuccess(ref, 'Avatar updated!');
@@ -196,16 +204,22 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       });
 
       final bytes = await image.readAsBytes();
-      final uploadResult = await ref.read(profileRepositoryProvider).uploadAvatar(bytes, image.name);
+      final uploadResult = await ref
+          .read(profileRepositoryProvider)
+          .uploadAvatar(bytes, image.name);
       final assetId = uploadResult.id;
 
-      final displayName = (_form.value['displayName'] as String?)?.trim() ?? _originalDisplayName;
-      final profile = await ref.read(authRepositoryProvider).updateProfile(
-        displayName: displayName,
-        countryCode: _selectedCountryCode,
-        timezone: _selectedTimezone,
-        avatarAssetId: assetId,
-      );
+      final displayName =
+          (_form.value['displayName'] as String?)?.trim() ??
+          _originalDisplayName;
+      final profile = await ref
+          .read(authRepositoryProvider)
+          .updateProfile(
+            displayName: displayName,
+            countryCode: _selectedCountryCode,
+            timezone: _selectedTimezone,
+            avatarAssetId: assetId,
+          );
 
       if (mounted) {
         AppLoading.showSuccess(ref, 'Avatar uploaded!');
@@ -244,11 +258,13 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
     setState(() => _isUpdating = true);
 
     try {
-      final updatedProfile = await ref.read(authRepositoryProvider).updateProfile(
-        displayName: displayName,
-        countryCode: _selectedCountryCode,
-        timezone: _selectedTimezone,
-      );
+      final updatedProfile = await ref
+          .read(authRepositoryProvider)
+          .updateProfile(
+            displayName: displayName,
+            countryCode: _selectedCountryCode,
+            timezone: _selectedTimezone,
+          );
 
       if (mounted) {
         setState(() {
@@ -278,27 +294,24 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
     required String iconPath,
     required VoidCallback onTap,
   }) {
-    final resolvedBg = CupertinoDynamicColor.resolve(
-      AppColors.input,
-      context,
-    );
+    final resolvedBg = CupertinoDynamicColor.resolve(AppColors.input, context);
 
     // Compute flag emoji from 2-letter country code
     String flagEmoji = '🏳️';
     if (countryCode.length == 2) {
-      final int firstLetter = countryCode.toUpperCase().codeUnitAt(0) - 0x41 + 0x1F1E6;
-      final int secondLetter = countryCode.toUpperCase().codeUnitAt(1) - 0x41 + 0x1F1E6;
-      flagEmoji = String.fromCharCode(firstLetter) + String.fromCharCode(secondLetter);
+      final int firstLetter =
+          countryCode.toUpperCase().codeUnitAt(0) - 0x41 + 0x1F1E6;
+      final int secondLetter =
+          countryCode.toUpperCase().codeUnitAt(1) - 0x41 + 0x1F1E6;
+      flagEmoji =
+          String.fromCharCode(firstLetter) + String.fromCharCode(secondLetter);
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: AppTextStyles.label,
-        ),
+        Text(label, style: AppTextStyles.label),
         const SizedBox(height: 6),
         GestureDetector(
           onTap: onTap,
@@ -328,10 +341,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(
-                    flagEmoji,
-                    style: const TextStyle(fontSize: 22),
-                  ),
+                  Text(flagEmoji, style: const TextStyle(fontSize: 22)),
                   const SizedBox(width: 8),
                   const SVG(
                     'assets/icons/chevron-right.svg',
@@ -358,15 +368,33 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
           const SizedBox(height: 32),
           Center(child: ShimmerPlaceholder.circular(size: 100)),
           const SizedBox(height: 36),
-          ShimmerPlaceholder.rectangular(height: 54, borderRadius: BorderRadius.circular(16)),
+          ShimmerPlaceholder.rectangular(
+            height: 54,
+            borderRadius: BorderRadius.circular(16),
+          ),
           const SizedBox(height: 16),
-          ShimmerPlaceholder.rectangular(height: 54, borderRadius: BorderRadius.circular(16)),
+          ShimmerPlaceholder.rectangular(
+            height: 54,
+            borderRadius: BorderRadius.circular(16),
+          ),
           const SizedBox(height: 16),
-          ShimmerPlaceholder.rectangular(height: 60, borderRadius: BorderRadius.circular(16)),
+          ShimmerPlaceholder.rectangular(
+            height: 60,
+            borderRadius: BorderRadius.circular(16),
+          ),
           const SizedBox(height: 16),
-          ShimmerPlaceholder.rectangular(height: 60, borderRadius: BorderRadius.circular(16)),
+          ShimmerPlaceholder.rectangular(
+            height: 60,
+            borderRadius: BorderRadius.circular(16),
+          ),
           const SizedBox(height: 32),
-          Center(child: ShimmerPlaceholder.rectangular(width: 180, height: 51, borderRadius: BorderRadius.circular(20))),
+          Center(
+            child: ShimmerPlaceholder.rectangular(
+              width: 180,
+              height: 51,
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
         ],
       ),
     );
@@ -409,8 +437,10 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                       child: ReactiveFormConsumer(
                         builder: (context, form, child) {
                           final currentDisplayName =
-                              (_form.value['displayName'] as String?)?.trim() ?? '';
-                          final isChanged = currentDisplayName != _originalDisplayName ||
+                              (_form.value['displayName'] as String?)?.trim() ??
+                              '';
+                          final isChanged =
+                              currentDisplayName != _originalDisplayName ||
                               _selectedCountryCode != _originalCountryCode;
 
                           return SingleChildScrollView(
@@ -427,7 +457,9 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                     clipBehavior: Clip.none,
                                     children: [
                                       AppAvatar(
-                                        path: _uploadedImagePath ?? _selectedAvatarUrl,
+                                        path:
+                                            _uploadedImagePath ??
+                                            _selectedAvatarUrl,
                                         size: 100,
                                         isDrawing: true,
                                         isLoading: _isUploading,
@@ -436,7 +468,9 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                         bottom: -10,
                                         right: -5,
                                         child: GestureDetector(
-                                          onTap: _isUploading ? null : _showAvatarOptions,
+                                          onTap: _isUploading
+                                              ? null
+                                              : _showAvatarOptions,
                                           child: Container(
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
@@ -448,18 +482,17 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: CupertinoColors.systemGrey.withValues(
-                                                    alpha: 0.2,
-                                                  ),
+                                                  color: CupertinoColors
+                                                      .systemGrey
+                                                      .withValues(alpha: 0.2),
                                                   blurRadius: 4,
                                                   offset: const Offset(0, 2),
                                                 ),
                                               ],
                                             ),
-                                            child: const SVG(
-                                              'assets/icons/image.svg',
-                                              width: 18,
-                                              height: 18,
+                                            child: const Icon(
+                                              CupertinoIcons.camera_fill,
+                                              size: 18,
                                               color: AppColors.foreground,
                                             ),
                                           ),
@@ -489,6 +522,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                 const Input(
                                   placeholder: 'Display Name',
                                   formControlName: 'displayName',
+                                  maxLength: 30,
                                   prefix: SVG(
                                     'assets/icons/user-square.svg',
                                     width: 20,
@@ -516,7 +550,10 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                     width: 180,
                                     child: Button.primary(
                                       text: 'Update',
-                                      onPressed: (form.valid && isChanged && !_isUpdating)
+                                      onPressed:
+                                          (form.valid &&
+                                              isChanged &&
+                                              !_isUpdating)
                                           ? _updateProfile
                                           : null,
                                       isLoading: _isUpdating,

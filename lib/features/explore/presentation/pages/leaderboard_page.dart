@@ -114,15 +114,14 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
 
                           leaderboardAsync.when(
                             loading: () => const _LeaderboardPageSkeleton(),
-                            error: (err, stack) => SizedBox(
-                              height: 300,
-                              child: Center(
-                                child: Text(
-                                  'Error loading leaderboard: $err',
-                                  style: const TextStyle(
-                                    fontFamily: AppTextStyles.fontFamily,
-                                    color: CupertinoColors.systemRed,
-                                  ),
+                            error: (err, stack) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: AppEmptyState.error(
+                                title: 'Unable to Load Leaderboard',
+                                description:
+                                    'Please check your internet connection and tap anywhere to reload.',
+                                onRetry: () => ref.invalidate(
+                                  leaderboardProvider(timeframe: timeframe),
                                 ),
                               ),
                             ),

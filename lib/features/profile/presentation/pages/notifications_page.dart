@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/layout/app_header.dart';
+import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/profile/presentation/widgets/notification_card.dart';
@@ -81,14 +82,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 loading: () => const Center(
                   child: CupertinoActivityIndicator(),
                 ),
-                error: (error, stack) => Center(
-                  child: Text(
-                    'Failed to load notifications: ${error.toString()}',
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      color: AppColors.mutedForeground,
-                    ),
-                  ),
+                error: (error, stack) => AppEmptyState.error(
+                  title: 'Unable to Load Notifications',
+                  description:
+                      'Please check your internet connection and tap anywhere to reload.',
+                  onRetry: () => ref.invalidate(notificationsProvider),
                 ),
                 data: (notifications) {
                   if (notifications.isEmpty) {

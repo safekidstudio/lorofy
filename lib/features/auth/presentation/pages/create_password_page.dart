@@ -32,7 +32,11 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
     super.initState();
     _form = FormGroup({
       'password': FormControl<String>(
-        validators: [Validators.required, Validators.minLength(8)],
+        validators: [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(32),
+        ],
       ),
     });
   }
@@ -111,6 +115,7 @@ class _CreatePasswordPageState extends ConsumerState<CreatePasswordPage> {
                             placeholder: 'Password',
                             formControlName: 'password',
                             obscureText: true,
+                            maxLength: 32,
                             disabled: isLoading,
                             errorMessage: errorText,
                           );

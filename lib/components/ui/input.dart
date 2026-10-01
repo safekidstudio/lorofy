@@ -4,6 +4,8 @@ import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
+import 'package:flutter/services.dart';
+
 class Input extends StatefulWidget {
   final String? label;
   final String placeholder;
@@ -17,6 +19,8 @@ class Input extends StatefulWidget {
   final Widget? suffix;
   final ValueChanged<String>? onChanged;
   final FocusNode? focusNode;
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
 
   const Input({
     super.key,
@@ -32,6 +36,8 @@ class Input extends StatefulWidget {
     this.suffix,
     this.onChanged,
     this.focusNode,
+    this.maxLength,
+    this.inputFormatters,
   });
 
   @override
@@ -160,63 +166,70 @@ class _InputState extends State<Input> {
         ],
 
         // 2. Ô Input chính
-        Opacity(
-          opacity: isDisabled ? 0.8 : 1.0,
-          child: DrawingContainer(
-            fillColor: fillColor,
-            borderColor: borderColor,
-            borderWidth: borderWidth,
-            child: CupertinoTextField(
-              focusNode: _focusNode,
-              controller: controller,
-              placeholder: widget.placeholder,
-              obscureText: _obscureText,
-              keyboardType: widget.keyboardType,
-              enabled: !isDisabled,
-              onChanged: widget.onChanged,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-              placeholderStyle: AppTextStyles.placeholder.copyWith(
-                fontSize: 16,
-                color: CupertinoColors.placeholderText,
-              ),
-              style: AppTextStyles.body.copyWith(
-                fontSize: 16,
-                color: isDisabled ? AppColors.mutedForeground : AppColors.foreground,
-              ),
-              decoration: const BoxDecoration(
-                color: CupertinoColors.transparent,
-              ),
-              prefix: widget.prefix != null
-                  ? Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: widget.prefix,
-                    )
-                  : null,
-              suffix: widget.suffix != null
-                  ? Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: widget.suffix,
-                    )
-                  : (widget.obscureText
-                      ? GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: SVG(
-                              _obscureText
-                                  ? 'assets/icons/eye-close.svg'
-                                  : 'assets/icons/eye.svg',
-                              width: 20,
-                              height: 20,
-                              color: AppColors.mutedForeground,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+          child: Opacity(
+            opacity: isDisabled ? 0.8 : 1.0,
+            child: DrawingContainer(
+              fillColor: fillColor,
+              borderColor: borderColor,
+              borderWidth: borderWidth,
+              child: CupertinoTextField(
+                focusNode: _focusNode,
+                controller: controller,
+                placeholder: widget.placeholder,
+                obscureText: _obscureText,
+                keyboardType: widget.keyboardType,
+                enabled: !isDisabled,
+                onChanged: widget.onChanged,
+                inputFormatters: [
+                  if (widget.maxLength != null) LengthLimitingTextInputFormatter(widget.maxLength),
+                  ...?widget.inputFormatters,
+                ],
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                placeholderStyle: AppTextStyles.placeholder.copyWith(
+                  fontSize: 16,
+                  color: CupertinoColors.placeholderText,
+                ),
+                style: AppTextStyles.body.copyWith(
+                  fontSize: 16,
+                  color: isDisabled ? AppColors.mutedForeground : AppColors.foreground,
+                ),
+                decoration: const BoxDecoration(
+                  color: CupertinoColors.transparent,
+                ),
+                prefix: widget.prefix != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: widget.prefix,
+                      )
+                    : null,
+                suffix: widget.suffix != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: widget.suffix,
+                      )
+                    : (widget.obscureText
+                        ? GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: SVG(
+                                _obscureText
+                                    ? 'assets/icons/eye-close.svg'
+                                    : 'assets/icons/eye.svg',
+                                width: 20,
+                                height: 20,
+                                color: AppColors.mutedForeground,
+                              ),
                             ),
-                          ),
-                        )
-                      : null),
+                          )
+                        : null),
+              ),
             ),
           ),
         ),

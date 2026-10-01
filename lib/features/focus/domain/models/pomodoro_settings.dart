@@ -25,7 +25,7 @@ class PomodoroSettings {
     this.ambientSound = AmbientSound.none,
     this.selectedCategory,
     this.timedReminder = true,
-    this.isPomodoroMode = true,
+    this.isPomodoroMode = false,
     this.blockMode = BlockMode.medium,
     this.allowedAppPackages = const {},
     this.autoStartBreak = true,
@@ -101,7 +101,7 @@ class PomodoroSettings {
               json['selectedCategory'] as Map<String, dynamic>)
           : null,
       timedReminder: json['timedReminder'] as bool? ?? true,
-      isPomodoroMode: json['isPomodoroMode'] as bool? ?? true,
+      isPomodoroMode: json['isPomodoroMode'] as bool? ?? false,
       blockMode: BlockMode.values.firstWhere(
         (e) => e.name == json['blockMode'] || e.value == json['blockMode'],
         orElse: () => BlockMode.medium,
@@ -133,7 +133,7 @@ class PomodoroSettings {
   /// Parse from remote payload retrieved from multi-platform sync API endpoint
   factory PomodoroSettings.fromRemoteJson(Map<String, dynamic> json) {
     final rawBlockMode = json['blockMode']?.toString().toLowerCase();
-    final bool pomodoro = (json['isPomodoroMode'] ?? json['pomodoroMode'] ?? true) as bool;
+    final bool pomodoro = (json['isPomodoroMode'] ?? json['pomodoroMode'] ?? false) as bool;
 
     return PomodoroSettings(
       focusMinutes: (json['focusDurationMinutes'] ?? json['focusMinutes'] ?? 25) as int,

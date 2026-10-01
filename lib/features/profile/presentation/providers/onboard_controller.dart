@@ -12,6 +12,7 @@ class OnboardController extends _$OnboardController {
   }
 
   Future<void> onboard({
+    String? username,
     required String displayName,
     required String countryCode,
     required String timezone,
@@ -22,6 +23,7 @@ class OnboardController extends _$OnboardController {
       await ref
           .read(authRepositoryProvider)
           .onboardProfile(
+            username: username,
             displayName: displayName,
             countryCode: countryCode,
             timezone: timezone,

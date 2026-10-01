@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/layout/app_header.dart';
+import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/components/ui/sliding_segmented_control.dart';
@@ -301,12 +302,14 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
             Expanded(
               child: activitiesAsync.when(
                 loading: () => _buildSkeleton(),
-                error: (err, stack) => Center(
-                  child: Text(
-                    'Failed to load activities: $err',
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      color: CupertinoColors.systemRed,
+                error: (err, stack) => AppEmptyState.error(
+                  title: 'Unable to Load Activities',
+                  description:
+                      'Please check your internet connection and tap anywhere to reload.',
+                  onRetry: () => ref.invalidate(
+                    filteredActivitiesProvider(
+                      timeframe: _selectedTimeframe,
+                      status: _selectedStatus,
                     ),
                   ),
                 ),

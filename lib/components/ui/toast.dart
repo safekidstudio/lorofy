@@ -1,8 +1,7 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show Material, MaterialType;
-import 'package:lorofy/components/shared/drawing_container.dart';
-import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
 enum ToastType { success, error, info, warning }
@@ -11,18 +10,22 @@ class _ToastItem {
   final String id;
   final String title;
   final String message;
+  final String? subtitle;
+  final String? timeText;
   final Color accentColor;
-  final Color fillColor;
-  final SVG icon;
+  final Color badgeBgColor;
+  final Widget? customAppIcon;
   final Duration duration;
 
   _ToastItem({
     required this.id,
     required this.title,
     required this.message,
+    this.subtitle,
+    this.timeText,
     required this.accentColor,
-    required this.fillColor,
-    required this.icon,
+    required this.badgeBgColor,
+    this.customAppIcon,
     required this.duration,
   });
 }
@@ -30,60 +33,35 @@ class _ToastItem {
 class AppToast {
   static final List<_ToastItem> _activeToasts = [];
   static OverlayEntry? _overlayEntry;
-  static final GlobalKey<_ToastStackOverlayState> _overlayKey = GlobalKey<_ToastStackOverlayState>();
+  static final GlobalKey<_ToastStackOverlayState> _overlayKey =
+      GlobalKey<_ToastStackOverlayState>();
 
   static void show(
     BuildContext context, {
     required String message,
     String? title,
+    String? subtitle,
+    String? timeText,
+    Widget? customAppIcon,
     ToastType type = ToastType.info,
     Duration duration = const Duration(seconds: 3),
   }) {
     final id = DateTime.now().microsecondsSinceEpoch.toString();
 
     Color accentColor;
-    Color fillColor;
-    SVG icon;
+
     switch (type) {
       case ToastType.success:
-        accentColor = const Color(0xFF1EA756); // Green
-        fillColor = const Color(0xFFE3F8EB); // Light green
-        icon = const SVG(
-          'assets/icons/square-check.svg',
-          width: 24,
-          height: 24,
-          color: Color(0xFF1EA756),
-        );
+        accentColor = const Color(0xFF34C759);
         break;
       case ToastType.error:
-        accentColor = const Color(0xFFE02424); // Red
-        fillColor = const Color(0xFFFDE8E8); // Light red
-        icon = const SVG(
-          'assets/icons/square-cancel.svg',
-          width: 24,
-          height: 24,
-          color: Color(0xFFE02424),
-        );
+        accentColor = const Color(0xFFFF3B30);
         break;
       case ToastType.warning:
-        accentColor = const Color(0xFFD97706); // Orange
-        fillColor = const Color(0xFFFEF3C7); // Light orange/yellow
-        icon = const SVG(
-          'assets/icons/square-warning.svg',
-          width: 24,
-          height: 24,
-          color: Color(0xFFD97706),
-        );
+        accentColor = const Color(0xFFFF9500);
         break;
       case ToastType.info:
-        accentColor = const Color(0xFF2563EB); // Blue
-        fillColor = const Color(0xFFE1EFFE); // Light blue
-        icon = const SVG(
-          'assets/icons/square-info.svg',
-          width: 24,
-          height: 24,
-          color: Color(0xFF2563EB),
-        );
+        accentColor = const Color(0xFF007AFF);
         break;
     }
 
@@ -91,20 +69,82 @@ class AppToast {
       id: id,
       title: title ?? _defaultTitle(type),
       message: message,
+      subtitle: subtitle,
+      timeText: timeText ?? 'now',
       accentColor: accentColor,
-      fillColor: fillColor,
-      icon: icon,
+      badgeBgColor: accentColor,
+      customAppIcon: customAppIcon,
       duration: duration,
     );
 
     _activeToasts.add(item);
 
-    // Giới hạn tối đa 3 active toasts
+    // Limit maximum active toasts to 3
     if (_activeToasts.length > 3) {
       _activeToasts.removeAt(0);
     }
 
     _updateOverlay(context);
+  }
+
+  static void success(
+    BuildContext context, {
+    required String message,
+    String? title,
+    String? subtitle,
+  }) {
+    show(
+      context,
+      message: message,
+      title: title,
+      subtitle: subtitle,
+      type: ToastType.success,
+    );
+  }
+
+  static void error(
+    BuildContext context, {
+    required String message,
+    String? title,
+    String? subtitle,
+  }) {
+    show(
+      context,
+      message: message,
+      title: title,
+      subtitle: subtitle,
+      type: ToastType.error,
+    );
+  }
+
+  static void info(
+    BuildContext context, {
+    required String message,
+    String? title,
+    String? subtitle,
+  }) {
+    show(
+      context,
+      message: message,
+      title: title,
+      subtitle: subtitle,
+      type: ToastType.info,
+    );
+  }
+
+  static void warning(
+    BuildContext context, {
+    required String message,
+    String? title,
+    String? subtitle,
+  }) {
+    show(
+      context,
+      message: message,
+      title: title,
+      subtitle: subtitle,
+      type: ToastType.warning,
+    );
   }
 
   static void _dismissItem(String id, BuildContext context) {
@@ -150,11 +190,11 @@ class AppToast {
       case ToastType.success:
         return 'Success';
       case ToastType.error:
-        return 'Error';
+        return 'Notice';
       case ToastType.warning:
         return 'Warning';
       case ToastType.info:
-        return 'Lorofy: Info';
+        return 'Lorofy';
     }
   }
 }
@@ -178,7 +218,7 @@ class _ToastStackOverlayState extends State<_ToastStackOverlay> {
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Positioned(
-      top: topPadding + 28,
+      top: topPadding + 12,
       left: 16,
       right: 16,
       child: Material(
@@ -232,38 +272,26 @@ class _AnimatedToastCardState extends State<_AnimatedToastCard>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 350),
     );
 
-    // Subtle slide: slide down just 10% of its size (very tiny slide)
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -0.1),
+      begin: const Offset(0.0, -0.4),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    // Entrance scale: scale up from 0.9 to 1.0
     _scaleAnimation = Tween<double>(
-      begin: 0.9,
+      begin: 0.88,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
 
-    // Khởi tạo timer tự động dismiss cho card này
     _autoDismissTimer = Timer(widget.item.duration, () {
       _dismiss();
     });
@@ -276,20 +304,39 @@ class _AnimatedToastCardState extends State<_AnimatedToastCard>
     super.dispose();
   }
 
-  Future<_ToastItem?> _dismiss() async {
+  Future<void> _dismiss() async {
     _autoDismissTimer?.cancel();
     if (mounted) {
       await _controller.reverse();
     }
     widget.onDismiss();
-    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    final double scale = 1.0 - (widget.depth * 0.04);
-    final double yOffset = -(widget.depth * 8.0);
+    final double scale = 1.0 - (widget.depth * 0.05);
+    final double yOffset = (widget.depth * 10.0);
     final bool isTop = widget.depth == 0;
+
+    final cardBgColor = CupertinoDynamicColor.resolve(
+      AppColors.card,
+      context,
+    ).withValues(alpha: 0.94);
+
+    final borderColor = CupertinoDynamicColor.resolve(
+      AppColors.border,
+      context,
+    ).withValues(alpha: 0.4);
+
+    final foregroundColor = CupertinoDynamicColor.resolve(
+      AppColors.foreground,
+      context,
+    );
+
+    final mutedColor = CupertinoDynamicColor.resolve(
+      AppColors.mutedForeground,
+      context,
+    );
 
     return SlideTransition(
       position: _slideAnimation,
@@ -299,7 +346,7 @@ class _AnimatedToastCardState extends State<_AnimatedToastCard>
           scale: _scaleAnimation,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
+            curve: Curves.easeOutCubic,
             transform: Matrix4.translationValues(0, yOffset, 0)
               ..setEntry(0, 0, scale)
               ..setEntry(1, 1, scale),
@@ -308,44 +355,219 @@ class _AnimatedToastCardState extends State<_AnimatedToastCard>
               ignoring: !isTop,
               child: GestureDetector(
                 onTap: _dismiss,
-                child: DrawingContainer(
-                  fillColor: widget.item.fillColor,
-                  borderColor: widget.item.accentColor,
-                  borderWidth: 2.0,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
+                onVerticalDragEnd: (details) {
+                  if (details.primaryVelocity != null &&
+                      details.primaryVelocity! < -100) {
+                    _dismiss();
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: CupertinoColors.black.withValues(alpha: 0.08),
+                        blurRadius: 24,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      widget.item.icon,
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cardBgColor,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: borderColor, width: 1.0),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              widget.item.title,
-                              style: AppTextStyles.titleMedium.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF232321),
+                            // App Logo Squircle with Type Badge Dot overlay
+                            SizedBox(
+                              width: 44,
+                              height: 44,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  // App Logo container
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(13),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: CupertinoColors.black
+                                              .withValues(alpha: 0.08),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child:
+                                        widget.item.customAppIcon ??
+                                        Image.asset(
+                                          'assets/logos/logo.png',
+                                          width: 44,
+                                          height: 44,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Image.asset(
+                                                  'assets/logos/lorofy.png',
+                                                  width: 44,
+                                                  height: 44,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) {
+                                                        return Container(
+                                                          color:
+                                                              AppColors.primary,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: const Text(
+                                                            'L',
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  AppTextStyles
+                                                                      .titleFontFamily,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900,
+                                                              fontSize: 22,
+                                                              color:
+                                                                  CupertinoColors
+                                                                      .white,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                );
+                                              },
+                                        ),
+                                  ),
+                                  // Status dot badge floating on bottom-right corner
+                                  Positioned(
+                                    right: -2,
+                                    bottom: -2,
+                                    child: Container(
+                                      width: 13,
+                                      height: 13,
+                                      decoration: BoxDecoration(
+                                        color: widget.item.badgeBgColor,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: cardBgColor,
+                                          width: 2.0,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: CupertinoColors.black
+                                                .withValues(alpha: 0.15),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 1),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              widget.item.message,
-                              style: AppTextStyles.body.copyWith(
-                                fontSize: 14,
-                                color: const Color(0xFF484C52),
+                            const SizedBox(width: 14),
+                            // Content Column
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Title & Time
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          widget.item.title,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontFamily:
+                                                AppTextStyles.fontFamily,
+                                            fontSize: 14.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: foregroundColor,
+                                            letterSpacing: -0.2,
+                                          ),
+                                        ),
+                                      ),
+                                      if (widget.item.timeText != null) ...[
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          widget.item.timeText!,
+                                          style: TextStyle(
+                                            fontFamily:
+                                                AppTextStyles.fontFamily,
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w400,
+                                            color: mutedColor.withValues(
+                                              alpha: 0.7,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  // Optional Subtitle
+                                  if (widget.item.subtitle != null) ...[
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      widget.item.subtitle!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontFamily: AppTextStyles.fontFamily,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: foregroundColor.withValues(
+                                          alpha: 0.9,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  const SizedBox(height: 2),
+                                  // Message Body
+                                  Text(
+                                    widget.item.message,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: AppTextStyles.fontFamily,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400,
+                                      color: mutedColor,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),

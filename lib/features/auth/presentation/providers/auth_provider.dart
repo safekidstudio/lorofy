@@ -2,10 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:lorofy/core/storage/auth_storage.dart';
 import 'package:lorofy/features/auth/data/models/user_profile.dart';
 import 'package:lorofy/features/auth/data/repositories/auth_repository.dart';
+import 'package:lorofy/features/explore/data/repositories/explore_repository_impl.dart';
 import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
 import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
+import 'package:lorofy/features/focus/data/repositories/focus_repository_impl.dart';
 import 'package:lorofy/features/focus/presentation/providers/categories_provider.dart';
+import 'package:lorofy/core/storage/settings_storage.dart';
+import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.dart';
+import 'package:lorofy/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:lorofy/features/profile/presentation/providers/activities_provider.dart';
 import 'package:lorofy/features/profile/presentation/providers/point_history_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -81,6 +86,28 @@ class Auth extends _$Auth {
     ref.invalidate(pointHistoryProvider);
     ref.invalidate(focusCategoriesProvider);
     ref.invalidate(mascotProvider);
+    ref.invalidate(exploreRepositoryProvider);
+    ref.invalidate(profileRepositoryProvider);
+    ref.invalidate(focusRepositoryProvider);
+    ref.invalidate(pomodoroSettingsProvider);
+  }
+
+  // Handle logout
+  Future<void> logout() async {
+    // Clear tokens & cached user profile from Secure Storage
+    await _authStorage.clearTokens();
+    await _authStorage.clearProfileCache();
+
+    // Clear local user settings (Pomodoro settings & App Whitelist)
+    try {
+      await ref.read(settingsStorageProvider).clearSettings();
+    } catch (_) {}
+
+    // Clear all cached RAM providers for user data
+    _clearAllUserSessionProviders();
+
+    // Reset RAM to default unauthenticated state
+    state = AuthStatus(state: AuthState.unauthenticated);
   }
 
   // Check initial auth state
@@ -216,18 +243,6 @@ class Auth extends _$Auth {
       username: username,
       rankPoints: rankPoints,
     );
-  }
-
-  // Handle logout
-  Future<void> logout() async {
-    // Clear from Secure Storage
-    await _authStorage.clearTokens();
-
-    // Clear all cached RAM providers for user data
-    _clearAllUserSessionProviders();
-
-    // Reset RAM to default
-    state = AuthStatus(state: AuthState.unauthenticated);
   }
 
   Future<void> updateOnboardedState({
