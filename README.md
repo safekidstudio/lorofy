@@ -1,139 +1,161 @@
-# Lorofy - Ứng dụng tập trung & Chặn ứng dụng gây xao nhãng
+# 🦉 Lorofy - Gamified Focus Timer & App Blocker
 
-Lorofy là ứng dụng giúp tăng hiệu suất làm việc và học tập bằng cách chặn các ứng dụng, website gây xao nhãng theo thời gian thực hoặc theo lịch trình, được xây dựng trên nền tảng **Flutter** và **Java (Spring Boot) Backend + PostgreSQL**.
+<p align="center">
+  <img src="assets/logos/logo.png" alt="Lorofy Logo" width="120" height="120" />
+</p>
+
+<p align="center">
+  <b>Transform focus sessions into engaging experiences alongside your interactive Mascot companion!</b><br>
+  Boost productivity, build discipline, and eliminate social media distractions.
+</p>
+
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.lorofy.app"><img src="https://img.shields.io/badge/Google%20Play-Live%20Now-brightgreen.svg?logo=googleplay&logoColor=white" alt="Google Play Store"/></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Flutter-3.x-blue.svg" alt="Flutter"/></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Backend-Java%20Spring%20Boot-orange.svg" alt="Spring Boot"/></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Database-PostgreSQL-blue.svg" alt="PostgreSQL"/></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/State-Riverpod%203.x-purple.svg" alt="Riverpod"/></a>
+</p>
+
+<p align="center">
+  👉 <b><a href="https://play.google.com/store/apps/details?id=com.lorofy.app">Get Lorofy on Google Play Store</a></b>
+</p>
 
 ---
 
-## 🚀 Công nghệ sử dụng (Tech Stack)
+## 🌟 About Lorofy
 
-| Hạng mục | Công nghệ | Ghi chú |
+**Lorofy** is a next-generation productivity application combining the **Pomodoro technique**, **Smart App Whitelist & Blocker**, and **Gamification** featuring an interactive real-time Mascot companion.
+
+Lorofy helps students and professionals build consistent study habits, foster self-discipline, and protect focus sessions from annoying notifications and social media distractions.
+
+---
+
+## ✨ Key Features (Completed & Released)
+
+### ⏱️ 1. Advanced Pomodoro Engine
+- **Flexible Session Configuration:** Customize Focus duration, Short Breaks, Long Breaks, and total Rounds.
+- **Deep Focus / Strict Mode:** Block distracting apps and display warning confirmation with point penalties upon premature give-up.
+- **Category Customization:** Categorize focus sessions (Studying, Work, Reading, Creativity, etc.).
+
+### 🛡️ 2. Smart App Whitelist & Blocker
+- **Custom App Whitelist:** Allow essential study apps (Dictionaries, Calculators, Notion, etc.) during active sessions.
+- **Installed App Scanner:** Automatically scan and display installed apps on Android & iOS with intuitive controls.
+- **Permission Flow:** Smooth onboarding for `UsageStatsManager` and system access permissions.
+
+### 🦉 3. Interactive Mascot System
+- **Real-Time Mascot Reactions:** Dynamic animations (powered by Rive & Lottie) responding to user focus state (Focusing, Resting, Celebrating, or Disappointed on give-up).
+- **Mascot Selection:** Choose your favorite companion mascot to accompany your journey.
+
+### 🎶 4. Ambient Soundscapes & Sound Player
+- **Focus Soundscapes:** Calming audio tracks (Rain, Ocean Waves, Cafe Ambiance, Forest Sounds) to optimize brainwave focus.
+- **Explore Tab:** Discover curated playlists and control background audio independently.
+
+### 🏆 5. Gamification, Streak & Leaderboard
+- **Streak Tracking:** Count consecutive focus days with rewarding celebration pages.
+- **Lorofy Rank Points:** Earn reward points after successfully completing sessions.
+- **Global Leaderboard:** Compare daily and weekly focus time and rankings with the community.
+
+### 👤 6. Authentication, Profile & Analytics
+- **Multi-Platform Auth:** Secure Email OTP login/registration, Google Sign-In, and JWT authentication.
+- **Interactive Onboarding:** Seamless step-by-step introduction designed with Cupertino iOS aesthetics.
+- **Comprehensive Analytics:** Interactive charts (`fl_chart`) tracking focus minutes and activity logs.
+
+---
+
+## 🚀 Tech Stack
+
+### Client (Mobile App)
+| Category | Technology / Package | Role |
 |---|---|---|
-| **Framework** | Flutter (Kênh Stable mới nhất) | Dart 3.x, sound null-safety bắt buộc |
-| **Backend** | **Java (Spring Boot)** | JWT Authentication, Spring Security, Spring Data JPA |
-| **Database** | **PostgreSQL** | Cơ sở dữ liệu quan hệ lưu trữ phiên tập trung & profiles |
-| **State Management** | **Riverpod 2.x/3.x** (`riverpod_generator`) | Quản lý state, Dependency Injection |
-| **Routing** | **go_router** | Chuẩn định tuyến của Flutter |
-| **Networking** | **Dio** | Gọi HTTP REST APIs tới Java Server |
-| **Local DB / Cache** | **Drift** (SQLite) hoặc **Hive** | Lưu session offline, cache token JWT |
-| **Push Notification** | Firebase Cloud Messaging (FCM) | Kết nối Firebase Admin SDK từ Backend |
-| **App Blocking (Android)** | `UsageStatsManager` + Foreground Service | Chỉ chạy khi phiên active để tiết kiệm pin |
-| **App Blocking (iOS)** | Apple **Screen Time API** | `FamilyControls`, `DeviceActivity`, `ManagedSettings` viết bằng Swift native |
+| **Framework** | **Flutter 3.x / Dart 3.x** | Sound null-safety, cross-platform iOS & Android |
+| **State Management** | **Riverpod 3.x** (`riverpod_generator`) | Reactive state management & Dependency Injection |
+| **Routing** | **GoRouter 17.x** | Declarative navigation with custom Cupertino transitions |
+| **Networking** | **Dio 5.x** | REST API HTTP Client with JWT Interceptors & Auto Token Refresh |
+| **Storage & Security** | **Flutter Secure Storage** + **Shared Preferences** | Encrypted JWT token storage & app state caching |
+| **Animations** | **Rive 0.14** & **Lottie 3.3** | Real-time interactive Mascot animations & victory visual effects |
+| **Audio Player** | **Audioplayers 6.7** | Ambient background soundscapes & audio controls |
+| **Charts** | **fl_chart 1.2** | Interactive productivity analytics and time distribution charts |
+| **App Management** | **installed_apps** & Platform Channels | Scan installed packages and trigger native app blocking |
+
+### Backend & Infrastructure
+| Category | Technology | Role |
+|---|---|---|
+| **Framework** | **Java (Spring Boot 3.x)** | Spring Security, Spring Data JPA, RESTful API services |
+| **Database** | **PostgreSQL** | Relational database storing users, focus logs, ranks & configurations |
+| **Authentication** | **JWT (JSON Web Token)** | Secure stateless API authentication |
+| **Cloud Infrastructure** | Docker / Render / Neon Postgres | Production-ready serverless and containerized deployment |
 
 ---
 
-## 🏗️ Kiến trúc dự án (Architecture)
+## 🏗️ Architecture
 
-Dự án tuân thủ mô hình **Feature-first Clean Architecture** kết hợp với hệ thống UI components dùng chung mượt mà theo Cupertino Design (iOS).
+The project follows **Feature-first Clean Architecture** integrated with a **Cupertino Adaptive Design System**:
 
-### Cấu trúc thư mục `lib/`
-
-```
+```text
 lib/
-├── core/                           # Cấu hình hệ thống dùng chung toàn ứng dụng
-│   ├── config/                     # Đọc cấu hình môi trường qua --dart-define
-│   ├── constants/                  # Hằng số toàn cục (AppConstants)
-│   ├── errors/                     # Xử lý ngoại lệ & thông điệp lỗi
-│   ├── network/                    # Dio HTTP client, Interceptors xử lý auth/token
-│   ├── router/                     # Cấu hình go_router định tuyến màn hình
-│   ├── storage/                    # Lưu trữ cục bộ (JWT, cache)
-│   └── theme/                      # Design tokens, màu sắc & kiểu chữ (AppTheme)
-├── components/                     # Hệ thống UI components dùng chung
-│   ├── layout/                     # Bố cục trang (AppHeader, PageWrapper)
-│   ├── ui/                         # Các widget giao diện cơ bản (Button, Input, AppAvatar...)
-│   └── shared/                     # Các widget dùng chung giữa các màn hình
-├── features/                       # Quản lý theo từng module tính năng (Feature-first Clean Architecture)
-│   ├── auth/                       # Đăng ký, đăng nhập, quên mật khẩu
-│   ├── explore/                    # Khám phá các nội dung học tập, nhạc tập trung
-│   ├── focus/                      # Quản lý phiên tập trung và chặn ứng dụng
-│   ├── home/                       # Màn hình chính của ứng dụng
-│   ├── mascot/                     # Chọn lựa và tương tác với thú cưng đồng hành
-│   ├── profile/                    # Thông tin cá nhân, biểu đồ thống kê & thông báo
-│   └── settings/                   # Cấu hình ứng dụng cài đặt chung
-└── main.dart                       # Entry point khởi tạo và chạy ứng dụng
+├── core/                           # System-wide core configurations
+│   ├── config/                     # Environment config via --dart-define-from-file
+│   ├── constants/                  # AppConstants & Design Tokens
+│   ├── network/                    # Dio Client & Token Interceptors
+│   ├── router/                     # GoRouter configuration & Redirect Guards
+│   └── theme/                      # Cupertino Themes & Color Palettes
+├── features/                       # Feature modules (Feature-first Clean Arch)
+│   ├── auth/                       # Login, Register, OTP Verification, Password setup
+│   ├── explore/                    # Soundscapes discovery & Leaderboard
+│   ├── focus/                      # Core Pomodoro Engine & App Whitelist Blocker
+│   ├── home/                       # Main Dashboard Page
+│   ├── mascot/                     # Mascot state notifier & Interactive UI
+│   ├── profile/                    # User Profile, Activity Logs & Streak Celebration
+│   └── settings/                   # Session & Audio settings
+└── main.dart                       # Application entry point
 ```
 
-Mỗi module trong `features/` được chia thành 3 lớp chuẩn:
-1. **Domain:** Chứa entities, repository interfaces đại diện cho nghiệp vụ cốt lõi.
-2. **Data:** Chứa datasources (remote/local) và các triển khai cụ thể của repositories.
-3. **Presentation:** Chứa UI pages, widgets và Riverpod providers để quản lý trạng thái.
-
 ---
 
-## 📊 Database Schema (PostgreSQL)
+## 🛠️ Installation & Setup Guide
 
-Hệ thống cơ sở dữ liệu Postgres sử dụng các bảng chính sau:
-- **`profiles`**: Lưu thông tin mở rộng của user (username, avatar_url, tổng số phút tập trung, streak hiện tại, điểm rank).
-- **`focus_sessions`**: Ghi nhận lịch sử các phiên tập trung và trạng thái hoàn thành (`completed`, `failed`, `cancelled`).
-- **`scheduled_sessions`**: Quản lý lịch trình đặt trước định kỳ theo định dạng chuẩn RRULE.
-- **`blocked_apps`**: Danh sách cấu hình các ứng dụng cần khóa của từng tài khoản.
-- **`friendships`**: Mối quan hệ bạn bè phục vụ cho việc so sánh điểm trên bảng xếp hạng xã hội.
+### 1. Prerequisites
+- **Flutter SDK**: `>=3.11.4`
+- **Dart SDK**: `>=3.0.0`
+- **Android Studio** / **Xcode** (for iOS builds)
 
----
-
-## 🛡️ Cơ chế chặn app (Blocking Strategy)
-
-*(Giữ nguyên cơ chế native iOS Screen Time và Android UsageStatsManager)*
-
----
-
-## 🛠️ Hướng dẫn cài đặt & Khởi chạy (Client)
-
-### 1. Chuẩn bị môi trường
-- Flutter SDK (phiên bản Stable mới nhất hỗ trợ `--dart-define-from-file`).
-- Đã cấu hình đầy đủ Android SDK (Android Studio) / Xcode (macOS).
-- Backend Java Spring Boot đã sẵn sàng (ở môi trường cục bộ hoặc trên cloud).
-
-### 2. Thiết lập dự án
+### 2. Install Dependencies & Code Generation
 ```bash
-# Cài đặt các thư viện/packages cần thiết
+# Get packages
 flutter pub get
-```
 
-### 3. Sinh mã tự động (Build Runner)
-```bash
-# Chạy build runner một lần để sinh các provider Riverpod, routes, JSON converters
+# Generate code for Riverpod & JSON Serializers
 dart run build_runner build --delete-conflicting-outputs
-
-# Hoặc chạy watcher tự động biên dịch khi file thay đổi trong lúc code
-dart run build_runner watch --delete-conflicting-outputs
 ```
 
-### 4. Môi trường & Khởi chạy ứng dụng
-Dự án sử dụng file cấu hình JSON được định nghĩa tại thư mục `configs/` để phân tách giữa môi trường Phát triển (**Development**) và Sản xuất (**Production**).
+### 3. Running the App (Development & Production)
 
-#### 🔹 Môi trường Phát triển (Development)
-Sử dụng file cấu hình: [env.dev.json](configs/env.dev.json) (kết nối Backend cục bộ tại localhost).
-
-* **Khởi chạy (Run):**
-  ```bash
-  flutter run --dart-define-from-file=configs/env.dev.json
-  ```
-* **Build (Android Debug APK):**
-  ```bash
-  flutter build apk --debug --dart-define-from-file=configs/env.dev.json
-  ```
-* **Build (iOS Simulator/Debug):**
-  ```bash
-  flutter build ios --debug --dart-define-from-file=configs/env.dev.json
-  ```
-
-#### 🔸 Môi trường Sản xuất (Production)
-Sử dụng file cấu hình: [env.json](configs/env.json) (kết nối Backend chính thức tại cloud).
-
-* **Khởi chạy (Run Release):**
-  ```bash
-  flutter run --release --dart-define-from-file=configs/env.json
-  ```
-* **Build Android APK (Release):**
-  ```bash
-  flutter build apk --release --dart-define-from-file=configs/env.json
-  ```
-* **Build Android App Bundle (Release - dùng tải lên CH Play):**
-  ```bash
-  flutter build appbundle --release --dart-define-from-file=configs/env.json
-  ```
-* **Build iOS IPA (Release - dùng tải lên App Store):**
-  ```bash
-  flutter build ipa --release --dart-define-from-file=configs/env.json
-  ```
+#### 🔹 Development Environment (Local BE)
+```bash
+flutter run --dart-define-from-file=configs/env.dev.json
 ```
+
+#### 🔸 Production Environment (Cloud BE)
+```bash
+# Run in Release Mode
+flutter run --release --dart-define-from-file=configs/env.json
+
+# Build Android App Bundle (Published on Google Play)
+flutter build appbundle --release --dart-define-from-file=configs/env.json
+
+# Build iOS IPA (Ready for App Store Release)
+flutter build ipa --release --dart-define-from-file=configs/env.json
+```
+
+---
+
+## 📱 Google Play Store
+
+🔗 **Official Download:** [Lorofy on Google Play Store](https://play.google.com/store/apps/details?id=com.lorofy.app)
+
+---
+
+## 📄 License
+
+Copyright © 2026 **Lorofy Team**. All rights reserved.

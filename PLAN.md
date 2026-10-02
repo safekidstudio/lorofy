@@ -1,251 +1,160 @@
-# Kế hoạch phát triển app Lorofy (Updated: Java Backend + PostgreSQL)
-### Flutter + Java (Spring Boot) + PostgreSQL — Chia theo Phase
+# 🦉 Lorofy - Development Plan & Project Roadmap
+
+> **Project Status:**  
+> ✅ **Core Features & Closed Testing Completed**  
+> 🚀 **OFFICIALLY RELEASED ON GOOGLE PLAY STORE!**  
+> 🔗 **Store Link:** [https://play.google.com/store/apps/details?id=com.lorofy.app](https://play.google.com/store/apps/details?id=com.lorofy.app)  
+> 📈 **Current Phase: Post-Release Marketing Execution & Feature Expansion (v1.1+)**
 
 ---
 
-## 1. Tech Stack tổng quan
+## 🟢 PART 1: COMPLETED & RELEASED FEATURES (v1.0.3+7)
 
-| Hạng mục | Công nghệ | Ghi chú |
+The following core modules have been fully implemented, published, and verified live on Google Play:
+
+### 1. Core Focus Engine (Pomodoro)
+- [x] Custom Pomodoro timer parameters (Focus Time, Short Break, Long Break, Rounds).
+- [x] Strict / Deep Focus Mode with warning dialogs and points penalty on premature give-up.
+- [x] Session category management (Studying, Work, Reading, Creativity, etc.).
+- [x] Background timer service and real-time status notifications.
+
+### 2. App Whitelist & App Blocker System
+- [x] Automated scanner for installed applications on Android & iOS.
+- [x] Custom Whitelist selection allowing productivity apps (Dictionaries, Calculators, Notion) during sessions.
+- [x] Smooth onboarding and permission dialog flow for `UsageStatsManager` / system access.
+
+### 3. Interactive Mascot System
+- [x] Real-time dynamic animations (Rive & Lottie) displaying mascot emotions (Focusing, Break time, Victory celebration, Disappointment on give-up).
+- [x] Initial mascot companion selection.
+
+### 4. Ambient Soundscape Player
+- [x] High-quality ambient audio player (Rain, Ocean Waves, Coffee Shop, Forest Sounds) for brainwave optimization.
+- [x] Independent sound controls and playlist navigation in the Explore module.
+
+### 5. Gamification, Streak & Leaderboard
+- [x] Consecutive focus day tracking (Streak) with celebration screens.
+- [x] Rank reward points (Lorofy Points) granted upon successful session completion.
+- [x] Global Leaderboard tracking total focus minutes and rankings on Daily/Weekly scales.
+
+### 6. Authentication, Profile & Analytics
+- [x] Email OTP authentication, Google Sign-In, and secure JWT token lifecycle management.
+- [x] Interactive onboarding guiding new users through goal selection.
+- [x] Productivity charts (`fl_chart`) & personal activity logs (`My Activities`).
+
+---
+
+## 🟡 PART 2: NEXT DEVELOPMENT PHASES (POST-RELEASE ROADMAP)
+
+With the app live on Google Play, subsequent engineering releases (v1.1+) will focus on **User Retention**, **Monetization**, and **Social Collaboration**.
+
+```mermaid
+gantt
+    title Lorofy Post-Release Development Roadmap
+    dateFormat  YYYY-MM-DD
+    section Phase A: Mascot Shop
+    Design Mascot Shop UI & Item Assets   :a1, 2026-10-10, 14d
+    API Integration for Skins & Accessories:a2, after a1, 10d
+    section Phase B: Monetization
+    Integrate IAP (RevenueCat / Play Billing) :b1, 2026-11-01, 14d
+    Lorofy Premium Tier (Monthly/Yearly/Lifetime) :b2, after b1, 10d
+    section Phase C: Social & Rooms
+    Real-Time Focus Rooms                 :c1, 2026-11-25, 20d
+    1v1 Challenges & Guilds                :c2, after c1, 15d
+    section Phase D: Widgets & Wearables
+    Home Screen Widgets (iOS / Android)   :d1, 2026-12-20, 14d
+    Smartwatch App (Apple Watch / Wear OS):d2, after d1, 20d
+```
+
+### 🎨 Phase A: Mascot Shop & Customization
+- [ ] **Mascot Shop UI:** Build a dedicated shop interface for Mascot costumes and room decorations.
+- [ ] **Item System:** 
+  - Redeem new Mascot Skins using **Lorofy Points** earned from focus sessions.
+  - Unique accessories (Sunglasses, Graduation Caps, Backpacks, Instruments).
+  - Customizable study room backgrounds.
+- [ ] **Gacha / Mystery Boxes:** Lucky reward boxes unlocked by achieving streak milestones.
+
+### 💎 Phase B: Subscription & Monetization (Lorofy Premium)
+- [ ] **In-App Purchase (IAP) Integration:** Utilize RevenueCat or `in_app_purchase` for seamless cross-platform subscriptions.
+- [ ] **Subscription Plans:** 
+  - **Lorofy Premium Monthly** (Recurring monthly subscription).
+  - **Lorofy Premium Yearly** (Discounted annual pass).
+  - **Lifetime Pass** (One-time payment for early supporters).
+- [ ] **Premium Benefits:**
+  - Unlock complete catalog of Exclusive Ambient Soundscapes.
+  - Unlimited apps in custom Whitelist.
+  - Advanced 365-day Analytics & PDF Report Exports.
+  - Exclusive VIP Mascot Skins and Profile Badges.
+
+### 👥 Phase C: Social Focus Rooms & Team Challenges
+- [ ] **Focus Rooms:** Real-time virtual study rooms for groups and friends.
+- [ ] **1v1 & Team Challenges:** Compete with friends on consecutive focus streaks.
+- [ ] **Study Guilds:** Join study clubs and automatically share group rankings.
+
+### ⌚ Phase D: Home Screen Widgets & Smartwatch Companion
+- [ ] **Home Screen Widgets (iOS WidgetKit / Android):** 
+  - Display Mascot status, current Streak, and 1-tap Quick Start button on home screens.
+- [ ] **Smartwatch Companion (Apple Watch / Wear OS):** 
+  - Track remaining session time and receive haptic feedback directly on wrist devices.
+
+---
+
+## 🚀 PART 3: MARKETING & GO-TO-MARKET STRATEGY
+
+Now that Lorofy is officially live at `https://play.google.com/store/apps/details?id=com.lorofy.app`, the marketing rollout is active:
+
+---
+
+### 📌 Phase 1: App Store Optimization (ASO Maintenance)
+- **Active Store Link:** [Lorofy on Google Play](https://play.google.com/store/apps/details?id=com.lorofy.app)
+- **Visual Presentation:** 5-8 benefit-driven screenshot captions.
+- **Store Review Campaign:** Prompt satisfied users to leave 5-star ratings on Google Play after completing 3 focus sessions.
+
+---
+
+### 📌 Phase 2: Launch Week & Community Seeding (Active Now)
+*Goal: Acquire 1,000 - 5,000 initial users & drive organic word-of-mouth*
+
+1. **Short-Form Content Strategy (TikTok, Instagram Reels, YouTube Shorts):**
+   - Include direct link in bio pointing to `https://play.google.com/store/apps/details?id=com.lorofy.app`.
+   - High-converting hooks:
+     - *"The study app that saved my GPA without deleting TikTok"*
+     - *"Testing the cutest gamified Pomodoro app for study marathons"*
+     - *"POV: Giving up on a focus timer and disappointing your Mascot"*
+2. **Community Seeding (Reddit, Facebook Groups, Threads):**
+   - Share authentic creator stories on `r/getdisciplined`, `r/StudyTips`, Studygram communities, and student forums with direct Play Store links.
+3. **Launch Day Offer:**
+   - Grant **500 Lorofy Points** + an **Early Bird Badge** for all users registering during launch week.
+
+---
+
+### 📌 Phase 3: Viral Campaign & User Acquisition (Weeks 3 - Month 2)
+*Goal: Accelerate organic growth & turn daily usage into a sticky habit*
+
+1. **7-Day Focus Challenge (`#7DayFocusWithLorofy`):**
+   - Challenge users to share daily Mascot & Streak progress on Instagram/TikTok Stories to earn exclusive Mascot skins.
+2. **Referral Program:**
+   - *"Invite a study buddy -> Both earn 100 bonus Lorofy Points"*.
+3. **Micro-Influencer Partnerships:**
+   - Partner with targeted Studygrammers & Study TikTokers (10k - 50k followers) for organic "Study With Me" product integrations.
+
+---
+
+### 📌 Phase 4: Retention Push & Premium Monetization (Month 3 Onward)
+*Goal: Maintain high retention (D7 > 35%, D30 > 15%) & convert free users to Premium*
+
+1. **Smart Re-Engagement Notifications:**
+   - Personality-driven push notifications from the Mascot.
+2. **Free Trial Push for Premium:**
+   - Offer a 7-day free trial of Lorofy Premium upon unlocking exclusive soundscapes & Mascot skins.
+
+---
+
+## 📊 KEY PERFORMANCE INDICATORS (KPIs)
+
+| Metric | Month 1 Target | Month 3 Target |
 |---|---|---|
-| Framework | Flutter (kênh stable mới nhất) | Dart 3.x, null-safety, sound null-safety bắt buộc |
-| Backend | **Java (Spring Boot)** | Framework chuẩn doanh nghiệp, tin cậy, bảo mật và hiệu năng cao |
-| Database | **PostgreSQL** | Neon.tech (Serverless) / Supabase Postgres (Dùng làm DB) |
-| State management | **Riverpod 2.x/3.x** (code-gen: `riverpod_generator`) | Quản lý state mạnh mẽ, hỗ trợ Dependency Injection |
-| Routing | **go_router** | Chuẩn định tuyến declarative routing |
-| Local DB / cache | **Drift** (SQLite) hoặc **Hive** | Lưu session offline, cache token, lịch sử chặn |
-| Networking | **Dio** (HTTP Client) | Thay thế cho Supabase SDK, hỗ trợ Interceptor, retry, logging |
-| DI / codegen | `riverpod_generator`, `freezed`, `json_serializable` | Giảm boilerplate, bảo toàn an toàn kiểu dữ liệu |
-| Push notification | Firebase Cloud Messaging (FCM) | Tích hợp thư viện Java FCM Admin SDK phía Backend |
-| App blocking (Android) | `usage_stats` + `flutter_foreground_task` + Native Platform Channel | Dùng `UsageStatsManager` kết hợp Foreground Service |
-| App blocking (iOS) | Apple **Screen Time API** | Dùng native Swift qua Platform Channel (`FamilyControls`, `DeviceActivity`) |
-| Development Server | Local / Koyeb / Render / Railway | Deploy thử nghiệm Java Jar & DB PostgreSQL miễn phí |
-
----
-
-## 2. UI System: Cupertino Theme + Atomic Design
-
-### 2.1 Vì sao Cupertino thay vì Material
-
-Để app "mượt như iOS" trên cả 2 nền tảng, không dùng `MaterialApp` mặc định mà build layer adaptive riêng:
-
-- Dùng `CupertinoApp.router` làm gốc kết hợp với `go_router`
-- Toàn bộ widget cơ bản dùng `Cupertino*` (CupertinoButton, CupertinoTextField, CupertinoSwitch...)
-- Transition mặc định dùng `CupertinoPageRoute` (hiệu ứng vuốt-đẩy ngang chuẩn iOS)
-- Font: Chọn font tương đồng Cupertino như `Inter` cấu hình trong `CupertinoThemeData.textTheme`
-
-```dart
-CupertinoApp.router(
-  theme: const CupertinoThemeData(
-    primaryColor: AppColors.primary,
-    brightness: Brightness.light,
-    textTheme: CupertinoTextThemeData(...),
-  ),
-  routerConfig: appRouter,
-)
-```
-
-Design tokens tách riêng thành file `core/theme/design_tokens.dart` — đây sẽ là nguồn duy nhất mọi atom tham chiếu tới.
-
-### 2.2 Cấu trúc theo Atomic Design & Feature-First
-
-Tổ chức theo **feature-first** — mỗi feature tự chứa đủ 3 tầng `data/domain/presentation` của riêng nó:
-
-```
-lib/
-├── core/
-│   ├── theme/
-│   │   ├── design_tokens.dart      # màu, spacing, radius, typography scale
-│   │   └── cupertino_theme.dart
-│   ├── router/
-│   │   └── app_router.dart         # Cấu hình định tuyến
-│   ├── network/
-│   │   ├── dio_client.dart         # HTTP Client với Interceptors (gắn JWT)
-│   │   └── api_endpoints.dart      # Đường dẫn endpoint API Java
-│   ├── constants/
-│   ├── utils/
-│   └── errors/
-├── design_system/                   # ATOMIC DESIGN UI
-│   ├── atoms/                       # app_button, app_text_field, app_badge...
-│   ├── molecules/                   # search_bar, stat_chip, timer_control...
-│   ├── organisms/                   # focus_session_card, leaderboard_row_list...
-│   └── templates/                   # dashboard_template, form_page_template...
-├── features/                        # Lắp ráp UI & Logic nghiệp vụ
-│   ├── auth/
-│   │   ├── data/
-│   │   │   ├── datasources/           # Gọi REST API qua DioClient
-│   │   │   ├── models/                # Request/Response DTO
-│   │   │   └── repositories/          # Implement repository interface
-│   │   ├── domain/
-│   │   │   ├── entities/              # Thực thể User
-│   │   │   ├── repositories/          # Interface hợp đồng (contract)
-│   │   │   └── usecases/              # Logic nghiệp vụ độc lập UI
-│   │   └── presentation/
-│   │       ├── providers/             # Notifier cho state auth (JWT handling)
-│   │       └── pages/                 # Giao diện chính
-│   ├── focus_session/
-│   ├── blocking/
-│   ├── scheduled/
-│   ├── leaderboard/
-│   ├── profile/
-│   └── gamification/
-└── main.dart
-```
-
----
-
-## 3. Database Schema (PostgreSQL - v1)
-
-```sql
--- profiles / users
-create table profiles (
-  id uuid primary key default gen_random_uuid(),
-  user_id varchar(255) unique not null, -- Mapped từ User ID của auth system
-  username varchar(50) unique not null,
-  avatar_url text,
-  total_focus_minutes int default 0,
-  current_streak int default 0,
-  longest_streak int default 0,
-  rank_points int default 0,
-  created_at timestamptz default now()
-);
-
--- focus_sessions
-create table focus_sessions (
-  id uuid primary key default gen_random_uuid(),
-  profile_id uuid references profiles(id),
-  category varchar(50),               -- Học tập / Công việc / Đọc sách...
-  block_mode varchar(20),              -- light / medium / strict
-  planned_minutes int,
-  actual_minutes int,
-  status varchar(20),                 -- completed / failed / cancelled
-  started_at timestamptz,
-  ended_at timestamptz,
-  created_at timestamptz default now()
-);
-
--- scheduled_sessions
-create table scheduled_sessions (
-  id uuid primary key default gen_random_uuid(),
-  profile_id uuid references profiles(id),
-  title varchar(100),
-  template_type varchar(30),          -- custom / pomodoro_classic ...
-  recurrence_rule text,               -- RRULE format
-  start_time time,
-  end_time time,
-  is_active bool default true,
-  created_at timestamptz default now()
-);
-
--- blocked_apps
-create table blocked_apps (
-  id uuid primary key default gen_random_uuid(),
-  profile_id uuid references profiles(id),
-  app_identifier varchar(255) not null, -- bundle id / package name
-  app_name varchar(100),
-  block_mode varchar(20)
-);
-
--- friendships
-create table friendships (
-  profile_id uuid references profiles(id),
-  friend_id uuid references profiles(id),
-  status varchar(20),                 -- pending / accepted
-  primary key (profile_id, friend_id)
-);
-```
-
----
-
-## 4. Các Phase phát triển
-
-### **Phase 0 — Nền tảng & Setup (1-2 tuần)**
-Mục tiêu: Dựng khung dự án cho cả Flutter Client và Java Backend.
-
-*   **Flutter Client:**
-    - Khởi tạo dự án, cấu hình Riverpod + go_router + freezed
-    - Cài đặt và cấu hình `DioClient` (Xử lý JWT Interceptor, Log interceptor)
-    - Thiết lập Design System theo Atomic Design: dựng `CupertinoThemeData` + design tokens + build 4-5 atoms cơ bản (button, text field, badge, avatar)
-*   **Java Backend (Spring Boot):**
-    - Khởi tạo dự án Spring Boot (Spring Web, Spring Data JPA, Spring Security, Flyway/Liquibase)
-    - Thiết lập kết nối PostgreSQL (Neon/Local)
-    - Cấu hình Spring Security với JWT (Tạo/Verify token)
-*   **Native Prototyping:**
-    - Android: Test `UsageStatsManager` nhận diện app foreground.
-    - iOS: Test thử nghiệm cấu hình xin quyền `FamilyControls`.
-
----
-
-### **Phase 1 — Authentication & Onboarding (1 tuần)**
-*   **Backend (Java):**
-    - API Register, Login, Refresh Token (trả về JWT Access Token & Refresh Token)
-    - Tự động tạo bản ghi `profiles` tương ứng khi đăng ký tài khoản thành công
-*   **Flutter Client:**
-    - Màn hình đăng ký/đăng nhập Cupertino
-    - Quản lý token thông qua secure storage và Riverpod
-    - Onboarding flow: xin quyền Accessibility (Android) / Screen Time (iOS)
-
----
-
-### **Phase 2 — Home (Quick Focus) — Core Focus Engine (2 tuần)**
-*   **Backend (Java):**
-    - API Create & Update `focus_sessions`
-*   **Flutter Client:**
-    - Giao diện chọn thời lượng, chủ đề phiên, chế độ chặn
-    - Timer engine chạy ngầm bằng `flutter_foreground_task`
-    - Bật/tắt chặn app native khi bắt đầu/kết thúc phiên tập trung
-    - Gọi API Java BE đồng bộ dữ liệu phiên tập trung
-
----
-
-### **Phase 3 — App/Website Blocking nâng cao (1.5 tuần)**
-*   **Backend (Java):**
-    - API CRUD danh sách `blocked_apps` theo người dùng
-*   **Flutter Client:**
-    - Màn hình chọn ứng dụng cần chặn (Android đọc danh sách cài đặt, iOS qua FamilyActivityPicker)
-    - Chặn website bằng cách dựng VPN nội bộ (DNS Filter)
-    - Cơ chế "Break glass" phạt điểm tích hợp với API Java BE
-
----
-
-### **Phase 4 — Scheduled + Pomodoro Templates (1.5 tuần)**
-*   **Backend (Java):**
-    - API CRUD cho `scheduled_sessions` (lưu trữ RRULE và phân tích thời gian chạy)
-*   **Flutter Client:**
-    - Lập lịch định kỳ bằng package `flutter_local_notifications`
-    - Đồng bộ hóa lịch trình bằng `WorkManager` (Android) / `BGTaskScheduler` (iOS) để tự động kích hoạt tính năng chặn đúng giờ
-
----
-
-### **Phase 5 — Leaderboard & Social (1.5 tuần)**
-*   **Backend (Java):**
-    - API thống kê bảng xếp hạng hàng tuần theo group/bạn bè (truy vấn SQL tối ưu hóa)
-    - Tích hợp WebSockets/STOMP để cập nhật realtime bảng xếp hạng khi có người hoàn thành phiên
-*   **Flutter Client:**
-    - Kết nối WebSockets nhận thông báo realtime
-    - Hiển thị bảng xếp hạng Cupertino mượt mà
-
----
-
-### **Phase 6 — Profile, Stats & Gamification (1.5 tuần)**
-*   **Backend (Java):**
-    - API phân tích thống kê (tổng phút, streak) và trả về dữ liệu biểu đồ
-    - API quản lý phần thưởng / avatar / shop
-*   **Flutter Client:**
-    - Vẽ biểu đồ thống kê dùng `fl_chart`
-    - Shop đổi điểm thưởng lấy avatar/item
-
----
-
-### **Phase 7 — Polish, Testing & Release (2 tuần)**
-*   **Backend (Java):**
-    - Setup CI/CD deploy JAR lên Cloud (Render/Koyeb)
-    - Kết nối Firebase Admin SDK để gửi push notification
-*   **Flutter Client:**
-    - Tích hợp Push notification (FCM)
-    - Test tổng thể, tối ưu performance & submit App Store/Play Store
-
----
-
-## 5. Chiến lược chặn app — Hướng đi tối ưu
-
-*(Giữ nguyên phân tích kỹ thuật của iOS Screen Time Framework & Android UsageStatsManager như bản kế hoạch gốc)*
+| **Total Downloads** | 5,000+ | 30,000+ |
+| **Store Rating** | 4.8★+ (100+ reviews) | 4.8★+ (500+ reviews) |
+| **Active Users (DAU)** | 1,000+ | 6,000+ |
+| **D7 Retention Rate** | > 35% | > 40% |
+| **Premium Conversion Rate** | - | 2.5% - 4.0% |
