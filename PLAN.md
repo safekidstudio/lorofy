@@ -8,7 +8,7 @@
 
 ---
 
-## 🟢 PART 1: COMPLETED & RELEASED FEATURES (v1.0.3+7)
+## 🟢 PART 1: COMPLETED & RELEASED FEATURES (v1.0.4+7)
 
 The following core modules have been fully implemented, published, and verified live on Google Play:
 
