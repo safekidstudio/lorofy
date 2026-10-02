@@ -96,6 +96,12 @@ gantt
 - [ ] **Smartwatch Companion (Apple Watch / Wear OS):** 
   - Track remaining session time and receive haptic feedback directly on wrist devices.
 
+### 🚜 Phase E (Major Update v2.0+): Evolutionary Focus System & Farm Sanctuary
+- [ ] **Pre-Session Selection:** Choose whether to plant a Tree OR hatch/raise an Animal Mascot before starting the focus timer.
+- [ ] **In-Session Visual Evolution:** Real-time visual evolution stage during active focus time (Egg ➔ Baby ➔ Evolved Adult Mascot, or Seed ➔ Sprout ➔ Flowering Tree).
+- [ ] **Living Farm Sanctuary:** Completed fully-evolved pets and plants move into the user's permanent visual Farm.
+- [ ] **Evolution Collection Book:** Unlock rare mythical pets (Dragons, Phoenixes, Kitsune) and legendary plants using Lorofy Points or Premium Pass.
+
 ---
 
 ## 🚀 PART 3: MARKETING & GO-TO-MARKET STRATEGY
