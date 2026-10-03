@@ -50,7 +50,11 @@ struct FamilyPickerView: View {
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-    setupFamilyControlsChannel(messenger: engineBridge.binaryMessenger)
+    if let messenger = engineBridge.pluginRegistry as? FlutterBinaryMessenger {
+      setupFamilyControlsChannel(messenger: messenger)
+    } else if let messenger = engineBridge.pluginRegistry.registrar(forPlugin: "Runner")?.messenger() {
+      setupFamilyControlsChannel(messenger: messenger)
+    }
   }
 
   private func setupFamilyControlsChannel(messenger: FlutterBinaryMessenger) {
@@ -122,7 +126,7 @@ struct FamilyPickerView: View {
         }
 
       default:
-        result(FlutterMethodNotImplemented())
+        result(FlutterMethodNotImplemented)
       }
     }
   }
