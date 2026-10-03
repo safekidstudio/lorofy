@@ -117,9 +117,17 @@ class AppTextStyles {
   static const String fontFamily = 'Fredoka';
   static const String titleFontFamily = 'NerkoOne';
 
+  static const List<String> bodyFontFallback = [
+    '.SF Pro Rounded',
+    'SF Pro Rounded',
+    'CupertinoSystemDisplay',
+    'sans-serif',
+  ];
+
   // 1. Title Large
   static const TextStyle titleLarge = TextStyle(
     fontFamily: titleFontFamily,
+    fontFamilyFallback: bodyFontFallback,
     fontSize: 28,
     fontWeight: FontWeight.w700,
     color: AppColors.foreground,
@@ -130,6 +138,7 @@ class AppTextStyles {
   // Title Medium
   static const TextStyle titleMedium = TextStyle(
     fontFamily: titleFontFamily,
+    fontFamilyFallback: bodyFontFallback,
     fontSize: 20,
     fontWeight: FontWeight.w600,
     color: AppColors.foreground,
@@ -139,6 +148,7 @@ class AppTextStyles {
   // 2. Input Label
   static const TextStyle label = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: bodyFontFallback,
     fontSize: 13,
     fontWeight: FontWeight.w600,
     color: AppColors.foreground,
@@ -148,6 +158,7 @@ class AppTextStyles {
   // 3. Body Text
   static const TextStyle body = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: bodyFontFallback,
     fontSize: 15,
     fontWeight: FontWeight.w400,
     color: AppColors.foreground,
@@ -157,6 +168,7 @@ class AppTextStyles {
   // Placeholder
   static const TextStyle placeholder = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: bodyFontFallback,
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.mutedForeground,
@@ -165,6 +177,7 @@ class AppTextStyles {
   // 4. Caption / Disclaimer
   static const TextStyle caption = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: bodyFontFallback,
     fontSize: 11,
     fontWeight: FontWeight.w400,
     color: AppColors.mutedForeground,
@@ -174,6 +187,7 @@ class AppTextStyles {
   // Link
   static const TextStyle link = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: bodyFontFallback,
     fontSize: 11,
     fontWeight: FontWeight.w600,
     color: AppColors.foreground,
@@ -183,6 +197,7 @@ class AppTextStyles {
   // 5. Button Text
   static const TextStyle buttonText = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: bodyFontFallback,
     fontSize: 16,
     fontWeight: FontWeight.w600,
     letterSpacing: -0.2,

@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/core/localization/locale_provider.dart';
 import 'package:lorofy/features/focus/presentation/providers/focus_lifecycle_observer.dart';
 import 'package:lorofy/l10n/generated/app_localizations.dart';
-import 'core/router/app_router.dart';
-import 'core/theme/app_theme.dart';
+import 'package:lorofy/core/router/app_router.dart';
+import 'package:lorofy/core/theme/app_theme.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lorofy/core/storage/settings_storage.dart';
@@ -87,12 +87,13 @@ class MyApp extends ConsumerWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: const CupertinoThemeData(
-        primaryColor: CupertinoColors.activeBlue,
+        primaryColor: AppColors.primary,
         brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.background,
         textTheme: CupertinoTextThemeData(
           textStyle: TextStyle(
             fontFamily: AppTextStyles.fontFamily,
+            fontFamilyFallback: AppTextStyles.bodyFontFallback,
             color: AppColors.primary,
           ),
         ),

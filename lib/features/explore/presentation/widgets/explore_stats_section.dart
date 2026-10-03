@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/core/localization/l10n_extension.dart';
 import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
 
 /// Converts total minutes from API into a display string:
@@ -57,6 +58,7 @@ class ExploreStatsSection extends ConsumerWidget {
         padding: AppPadding.md,
       ),
       data: (stats) {
+        final l10n = context.l10n;
         return todayActivitiesAsync.when(
           loading: () => const _ExploreStatsSkeleton(),
           error: (err, stack) => AppEmptyState.error(
@@ -113,7 +115,7 @@ class ExploreStatsSection extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Today Focus',
+                                l10n.explore_todayFocus,
                                 style: TextStyle(
                                   fontFamily: AppTextStyles.fontFamily,
                                   color: const Color(0xFF8E9B93),
@@ -165,7 +167,7 @@ class ExploreStatsSection extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'All Focus',
+                                l10n.explore_allFocus,
                                 style: TextStyle(
                                   fontFamily: AppTextStyles.fontFamily,
                                   color: const Color(0xFF8E8E93),
@@ -215,7 +217,7 @@ class ExploreStatsSection extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Today Kill',
+                            l10n.explore_todayKill,
                             style: TextStyle(
                               fontFamily: AppTextStyles.fontFamily,
                               color: AppColors.foreground.withValues(alpha: 0.6),
@@ -244,7 +246,7 @@ class ExploreStatsSection extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'All Kill',
+                            l10n.explore_allKill,
                             style: TextStyle(
                               fontFamily: AppTextStyles.fontFamily,
                               color: AppColors.foreground.withValues(alpha: 0.6),
@@ -285,7 +287,7 @@ class ExploreStatsSection extends ConsumerWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                'Average\nFocus time',
+                                l10n.explore_avgFocusTime,
                                 style: TextStyle(
                                   fontFamily: AppTextStyles.fontFamily,
                                   color: AppColors.foreground.withValues(alpha: 0.6),
@@ -337,7 +339,7 @@ class ExploreStatsSection extends ConsumerWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                'Average\nKill time',
+                                l10n.explore_avgKillTime,
                                 style: TextStyle(
                                   fontFamily: AppTextStyles.fontFamily,
                                   fontSize: 14,

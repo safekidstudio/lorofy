@@ -78,20 +78,10 @@ flutter:
   fonts:
     - family: Fredoka
       fonts:
-        - asset: assets/fonts/Fredoka-Light.ttf
-          weight: 300
-        - asset: assets/fonts/Fredoka-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Fredoka-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Fredoka-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Fredoka-Bold.ttf
-          weight: 700
+        - asset: assets/fonts/Fredoka-Variable.ttf
     - family: NerkoOne
       fonts:
         - asset: assets/fonts/NerkoOne-Regular.ttf
-          weight: 400
 
 flutter_launcher_icons:
   android: "launcher_icon"

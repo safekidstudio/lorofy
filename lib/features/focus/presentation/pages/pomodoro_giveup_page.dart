@@ -4,6 +4,8 @@ import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+
 class PomodoroGiveupPage extends StatelessWidget {
   final VoidCallback onBackToHome;
   final VoidCallback onRestart;
@@ -16,6 +18,7 @@ class PomodoroGiveupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -50,11 +53,10 @@ class PomodoroGiveupPage extends StatelessWidget {
                   ),
 
                   // Subtitle
-                  const Text(
-                    'Oh no, your plant is dead',
+                  Text(
+                    l10n.focus_plantDead,
                     textAlign: TextAlign.center,
-
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: AppTextStyles.fontFamily,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -68,7 +70,7 @@ class PomodoroGiveupPage extends StatelessWidget {
                     child: SizedBox(
                       width: 180,
                       child: Button.secondary(
-                        text: 'Restart',
+                        text: l10n.focus_restart,
                         prefix: const Icon(
                           CupertinoIcons.refresh,
                           size: 16,
@@ -83,7 +85,7 @@ class PomodoroGiveupPage extends StatelessWidget {
                   // Back to home Link Button
                   Center(
                     child: Button.ghost(
-                      text: 'Back to Home',
+                      text: l10n.focus_backToHome,
                       onPressed: onBackToHome,
                       textStyle: const TextStyle(
                         fontFamily: AppTextStyles.fontFamily,

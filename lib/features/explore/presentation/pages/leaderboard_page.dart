@@ -13,6 +13,8 @@ import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/explore/domain/models/leaderboard.dart';
 import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+
 class LeaderboardPage extends ConsumerStatefulWidget {
   const LeaderboardPage({super.key});
 
@@ -25,6 +27,8 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     // Listen to realtime SSE updates to refresh and show toasts
     ref.listen(leaderboardRealtimeStreamProvider, (previous, next) {
       next.whenData((fomoEvent) {
@@ -71,7 +75,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                   ),
                 ),
               ),
-              title: 'Leaderboard',
+              title: l10n.explore_leaderboard,
             ),
 
             // Scrollable Segmented Tab, Podium & Ranks List
@@ -101,7 +105,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                           // Tabs Selector
                           Center(
                             child: SlidingSegmentedControl(
-                              tabs: const ['Day', 'Week', 'National'],
+                              tabs: [l10n.common_day, l10n.common_week, l10n.common_all],
                               selectedIndex: _selectedTab,
                               onTabChanged: (index) {
                                 setState(() {
@@ -117,9 +121,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                             error: (err, stack) => Padding(
                               padding: const EdgeInsets.symmetric(vertical: 24),
                               child: AppEmptyState.error(
-                                title: 'Unable to Load Leaderboard',
-                                description:
-                                    'Please check your internet connection and tap anywhere to reload.',
+                                title: l10n.common_retry,
                                 onRetry: () => ref.invalidate(
                                   leaderboardProvider(timeframe: timeframe),
                                 ),
@@ -129,12 +131,11 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                               final list = data.leaderboard.content;
 
                               if (list.isEmpty) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 40),
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 40),
                                   child: AppEmptyState(
-                                    title: 'No Rankings Yet',
-                                    description:
-                                        'Be the first to complete a focus session and claim the top spot!',
+                                    title: l10n.explore_noRankingsYet,
+                                    description: l10n.explore_noRankingsDesc,
                                     rivePath: 'assets/rive/cat-not-track.riv',
                                   ),
                                 );

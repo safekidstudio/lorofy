@@ -9,6 +9,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:lorofy/features/explore/domain/models/focus_stats.dart';
 import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+
 class ExploreChartSection extends ConsumerStatefulWidget {
   const ExploreChartSection({super.key});
 
@@ -99,7 +101,7 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Recent Focus',
+                    context.l10n.explore_recentFocus,
                     style: TextStyle(
                       fontFamily: AppTextStyles.fontFamily,
                       fontSize: 18,
@@ -109,7 +111,7 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
                   ),
                   RichText(
                     text: TextSpan(
-                      text: 'Daily Average ',
+                      text: context.l10n.explore_dailyAverage,
                       style: TextStyle(
                         fontFamily: AppTextStyles.fontFamily,
                         color: AppColors.mutedForeground,
@@ -283,8 +285,8 @@ class _ExploreChartSectionState extends ConsumerState<ExploreChartSection> {
                       color: CupertinoColors.white.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      'No focus data this week 🌿',
+                    child: Text(
+                      context.l10n.explore_noFocusDataWeek,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: AppTextStyles.fontFamily,

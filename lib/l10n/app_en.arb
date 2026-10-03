@@ -9,6 +9,11 @@
   "common_all": "All",
   "common_today": "Today",
   "common_week": "Week",
+  "common_month": "Month",
+  "common_day": "Day",
+  "common_update": "Update",
+  "common_retry": "Retry",
+  "common_viewMore": "View more",
 
   "@@category_settings": "=== SETTINGS FEATURE ===",
   "settings_title": "Settings",
@@ -23,6 +28,18 @@
   "settings_focusReminders": "Focus Reminders",
   "settings_focusRemindersDesc": "Remind before session starts",
 
+  "@@category_home": "=== HOME FEATURE ===",
+  "home_congratulationsTitle": "🎉 Congratulations!",
+  "home_sessionCompletedInactive": "You completed your {minutes}-minute focus session while the app was inactive. Your points and streak have been credited!",
+  "@home_sessionCompletedInactive": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "home_awesome": "Awesome",
+
   "@@category_focus": "=== FOCUS & BLOCKER FEATURE ===",
   "focus_strictMode": "Strict Mode",
   "focus_strictModeDesc": "In focus, opening other apps kill the plant",
@@ -30,8 +47,76 @@
   "focus_mediumModeDesc": "In focus, only whitelisted apps can be opened",
   "focus_selectAllowedApps": "Select allowed apps",
   "focus_nowToEarn": "Focus Now to Earn Coins 🎯",
+  "focus_keepGoing": "Keep Going",
+  "focus_giveUpConfirmTitle": "Giving up already?",
+  "focus_cancelSessionConfirmTitle": "Cancel Focus Session?",
+  "focus_gracePeriodDesc": "You started less than 1 minute ago. Cancelling now will incur NO penalties.",
+  "focus_giveUpBtn": "I give up...",
+  "focus_cancelSessionBtn": "Cancel Session",
+  "focus_gracePeriodProtection": "Grace Period Protection",
+  "focus_noPointsDeducted": "No points will be deducted",
+  "focus_sessionProgressReset": "Session Progress Reset",
+  "focus_sessionNotLogged": "Session won't be logged in stats",
+  "focus_treeWithered": "Focus Tree Withered",
+  "focus_growingTreeWillDie": "Your growing tree will die",
+  "focus_rankPointsDeducted": "Rank Points Deducted",
+  "focus_modePenalty": "{mode} mode penalty",
+  "@focus_modePenalty": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "focus_dailyStreakRisk": "Daily Streak Risk",
+  "focus_streakResetTip": "Streak resets if no session today",
+  "focus_wow": "Wow!",
+  "focus_plantGrownUp": "The plant has grown up",
+  "focus_dayStreak": "{count}-Day Streak!",
+  "@focus_dayStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "focus_plusOneToday": "+1 Today 🎉",
+  "focus_haveARest": "Have a rest",
+  "focus_plantDead": "Oh no, your plant is dead",
+  "focus_restart": "Restart",
+  "focus_backToHome": "Back to Home",
+
+  "@@category_explore": "=== EXPLORE & LEADERBOARD FEATURE ===",
+  "explore_title": "Explore",
+  "explore_todayFocus": "Today Focus",
+  "explore_allFocus": "All Focus",
+  "explore_todayKill": "Today Kill",
+  "explore_allKill": "All Kill",
+  "explore_avgFocusTime": "Average\nFocus time",
+  "explore_avgKillTime": "Average\nKill time",
+  "explore_mins": "{count} mins",
+  "@explore_mins": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "explore_recentFocus": "Recent Focus",
+  "explore_dailyAverage": "Daily Average ",
+  "explore_noFocusDataWeek": "No focus data this week 🌿",
+  "explore_focusRecord": "Focus Record",
+  "explore_noFocusRecordsToday": "No focus records today",
+  "explore_noFocusRecordsMonth": "No focus records in the last 30 days",
+  "explore_leaderboard": "Leaderboard",
+  "explore_noRankingsYet": "No Rankings Yet",
+  "explore_noRankingsDesc": "Be the first to complete a focus session and claim top spot!",
+  "explore_you": "You",
 
   "@@category_profile": "=== PROFILE & STREAK FEATURE ===",
+  "profile_title": "Profile",
+  "profile_myProfile": "My Profile",
+  "profile_myPoints": "My Points",
   "profile_myActivities": "My activities",
   "profile_completed": "Completed",
   "profile_failed": "Failed",
@@ -74,5 +159,18 @@
       }
     }
   },
-  "profile_needMoreCoinsTip": "You need more coins to restore. Complete focus sessions to earn Gold Coins!"
+  "profile_needMoreCoinsTip": "You need more coins to restore. Complete focus sessions to earn Gold Coins!",
+  "profile_logout": "Logout",
+  "profile_logoutConfirm": "Are you sure you want to log out?",
+  "profile_displayName": "Display Name",
+  "profile_username": "Username",
+  "profile_countryRegion": "Country / Region",
+  "profile_updatingAvatar": "Updating avatar...",
+  "profile_avatarUpdated": "Avatar updated!",
+  "profile_uploadingAvatar": "Uploading avatar...",
+  "profile_avatarUploaded": "Avatar uploaded!",
+  "profile_failedUpdateAvatar": "Failed to update avatar",
+  "profile_failedUploadAvatar": "Failed to upload avatar",
+  "profile_profileUpdated": "Profile updated!",
+  "profile_failedUpdateProfile": "Failed to update profile"
 }

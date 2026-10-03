@@ -13,65 +13,31 @@ import 'package:lorofy/features/focus/presentation/widgets/modals/block_mode_sel
 import 'package:lorofy/core/localization/l10n_extension.dart';
 import 'package:lorofy/core/localization/locale_provider.dart';
 
-import 'package:lorofy/l10n/generated/app_localizations.dart';
+import 'package:lorofy/features/settings/presentation/widgets/language_select_sheet.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   void _showLanguagePicker(BuildContext context, WidgetRef ref) {
     final currentLocale = ref.read(appLocaleProvider);
-    final l10n = context.l10n;
-
-    final options = <({Locale? locale, String label})>[
-      (locale: null, label: l10n.settings_languageSystem),
-      ...AppLocalizations.supportedLocales.map((locale) {
-        final label = locale.languageCode == 'vi'
-            ? l10n.settings_languageVietnamese
-            : l10n.settings_languageEnglish;
-        return (locale: locale, label: label);
-      }),
-    ];
-
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (context) => CupertinoActionSheet(
-        title: Text(
-          l10n.settings_language,
-          style: const TextStyle(fontFamily: AppTextStyles.fontFamily),
-        ),
-        actions: options.map((opt) {
-          final isSelected = (opt.locale?.languageCode == currentLocale?.languageCode) ||
-              (opt.locale == null && currentLocale == null);
-
-          return CupertinoActionSheetAction(
-            onPressed: () {
-              ref.read(appLocaleProvider.notifier).setLocale(opt.locale);
-              Navigator.pop(context);
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  opt.label,
-                  style: TextStyle(
-                    fontFamily: AppTextStyles.fontFamily,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? AppColors.primary : AppColors.foreground,
-                  ),
-                ),
-                if (isSelected) ...[
-                  const SizedBox(width: 8),
-                  const Icon(CupertinoIcons.check_mark, size: 18, color: AppColors.primary),
-                ],
-              ],
+    Navigator.push(
+      context,
+      CupertinoModalSheetRoute(
+        swipeDismissible: true,
+        builder: (context) => Sheet(
+          decoration: const MaterialSheetDecoration(
+            size: SheetSize.fit,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
             ),
-          );
-        }).toList(),
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            l10n.common_cancel,
-            style: const TextStyle(fontFamily: AppTextStyles.fontFamily),
+            color: AppColors.background,
+          ),
+          child: LanguageSelectSheet(
+            currentLocale: currentLocale,
+            onSelect: (locale) {
+              ref.read(appLocaleProvider.notifier).setLocale(locale);
+            },
           ),
         ),
       ),

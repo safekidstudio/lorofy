@@ -14,6 +14,8 @@ import 'package:lorofy/features/explore/presentation/widgets/explore_chart_secti
 import 'package:lorofy/features/explore/presentation/widgets/explore_record_section.dart';
 import 'package:lorofy/features/profile/presentation/pages/profile_page.dart';
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+
 /// Pinned Explore AppHeader delegate for SliverPersistentHeader
 class ExploreHeaderDelegate extends SliverPersistentHeaderDelegate {
   final VoidCallback onBack;
@@ -38,7 +40,7 @@ class ExploreHeaderDelegate extends SliverPersistentHeaderDelegate {
             width: 24,
           ),
         ),
-        title: 'Explore',
+        title: context.l10n.explore_title,
         rightActions: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: onProfile,

@@ -8,6 +8,8 @@ import 'package:lorofy/features/focus/presentation/providers/pomodoro_notifier.d
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 import 'package:lorofy/features/settings/presentation/providers/system_settings_provider.dart';
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+
 class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
   const PomodoroGiveupConfirmationSheet({super.key});
 
@@ -23,6 +25,7 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final timerState = ref.watch(pomodoroTimerProvider);
     final settings = ref.watch(pomodoroSettingsProvider);
     final systemSettings = ref.watch(systemSettingsProvider);
@@ -110,7 +113,9 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
 
             // Title
             Text(
-              isGracePeriod ? 'Cancel Focus Session?' : 'Giving up already?',
+              isGracePeriod
+                  ? l10n.focus_cancelSessionConfirmTitle
+                  : l10n.focus_giveUpConfirmTitle,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontFamily: AppTextStyles.titleFontFamily,
@@ -124,9 +129,7 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
 
             // Subtitle / Roast
             Text(
-              isGracePeriod
-                  ? 'You started less than 1 minute ago. Cancelling now will incur NO penalties.'
-                  : roastMessage,
+              isGracePeriod ? l10n.focus_gracePeriodDesc : roastMessage,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontFamily: AppTextStyles.fontFamily,
@@ -152,8 +155,8 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
                           icon: CupertinoIcons.shield_fill,
                           iconBgColor: iconBgColor,
                           iconColor: AppColors.foreground,
-                          title: 'Grace Period Protection',
-                          subtitle: 'No points will be deducted',
+                          title: l10n.focus_gracePeriodProtection,
+                          subtitle: l10n.focus_noPointsDeducted,
                           badgeText: '0 pts',
                           badgeBgColor: iconBgColor,
                           badgeTextColor: AppColors.foreground,
@@ -163,8 +166,8 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
                           icon: CupertinoIcons.arrow_counterclockwise,
                           iconBgColor: iconBgColor,
                           iconColor: AppColors.foreground,
-                          title: 'Session Progress Reset',
-                          subtitle: 'Session won\'t be logged in stats',
+                          title: l10n.focus_sessionProgressReset,
+                          subtitle: l10n.focus_sessionNotLogged,
                         ),
                       ]
                     : [
@@ -172,17 +175,20 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
                           icon: CupertinoIcons.leaf_arrow_circlepath,
                           iconBgColor: iconBgColor,
                           iconColor: AppColors.foreground,
-                          title: 'Focus Tree Withered',
-                          subtitle: 'Your growing tree will die',
+                          title: l10n.focus_treeWithered,
+                          subtitle: l10n.focus_growingTreeWillDie,
                         ),
                         _CardDivider(color: dividerColor),
                         _CardRowItem(
                           icon: CupertinoIcons.minus_circle_fill,
                           iconBgColor: iconBgColor,
                           iconColor: AppColors.foreground,
-                          title: 'Rank Points Deducted',
-                          subtitle:
-                              '${isStrict ? "Strict" : "Medium"} mode penalty',
+                          title: l10n.focus_rankPointsDeducted,
+                          subtitle: l10n.focus_modePenalty(
+                            isStrict
+                                ? l10n.focus_strictMode
+                                : l10n.focus_mediumMode,
+                          ),
                           badgeText: '-$penaltyPoints pts',
                           badgeBgColor: iconBgColor,
                           badgeTextColor: AppColors.foreground,
@@ -192,8 +198,8 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
                           icon: CupertinoIcons.flame_fill,
                           iconBgColor: iconBgColor,
                           iconColor: AppColors.foreground,
-                          title: 'Daily Streak Risk',
-                          subtitle: 'Streak resets if no session today',
+                          title: l10n.focus_dailyStreakRisk,
+                          subtitle: l10n.focus_streakResetTip,
                         ),
                       ],
               ),
@@ -203,13 +209,15 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
 
             // Primary action — Keep Going
             Button.primary(
-              text: 'Keep Going',
+              text: l10n.focus_keepGoing,
               onPressed: () => Navigator.pop(context, false),
             ),
             const SizedBox(height: 10),
             // Ghost action — Give up / Cancel
             Button.ghost(
-              text: isGracePeriod ? 'Cancel Session' : 'I give up...',
+              text: isGracePeriod
+                  ? l10n.focus_cancelSessionBtn
+                  : l10n.focus_giveUpBtn,
               onPressed: () => Navigator.pop(context, true),
               textStyle: const TextStyle(
                 fontSize: 15,

@@ -13,6 +13,7 @@ import 'package:lorofy/features/focus/presentation/pages/quick_start_page.dart';
 import 'package:lorofy/features/focus/presentation/widgets/modals/active_session_dialog.dart';
 import 'package:lorofy/features/home/presentation/physics/quick_start_snap_scroll_physics.dart';
 import 'package:lorofy/features/profile/presentation/pages/profile_page.dart';
+import 'package:lorofy/core/localization/l10n_extension.dart';
 import 'package:lorofy/features/profile/presentation/widgets/streak_repair_dialog.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -107,19 +108,20 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _showSessionCompletedBanner(int minutes) {
+    final l10n = context.l10n;
     showCupertinoDialog(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        title: const Text('🎉 Congratulations!'),
+        title: Text(l10n.home_congratulationsTitle),
         content: Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: Text(
-            'You completed your $minutes-minute focus session while the app was inactive. Your points and streak have been credited!',
+            l10n.home_sessionCompletedInactive(minutes),
           ),
         ),
         actions: [
           CupertinoDialogAction(
-            child: const Text('Awesome'),
+            child: Text(l10n.home_awesome),
             onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],

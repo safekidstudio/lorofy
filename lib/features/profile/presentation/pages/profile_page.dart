@@ -12,6 +12,8 @@ import 'package:lorofy/features/profile/presentation/pages/my_profile_page.dart'
 import 'package:lorofy/features/profile/presentation/widgets/streak_repair_banner.dart';
 
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
@@ -21,6 +23,7 @@ class ProfilePage extends ConsumerWidget {
     final String displayName = authStatus.displayName ?? 'Lorofy User';
     final String username = authStatus.username ?? 'lorofy.user';
     final String? avatarUrl = authStatus.avatarUrl;
+    final l10n = context.l10n;
 
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
@@ -33,7 +36,7 @@ class ProfilePage extends ConsumerWidget {
               leftActions: AppBackButton(
                 onPressed: () => Navigator.pop(context),
               ),
-              title: 'Profile',
+              title: l10n.profile_title,
               rightActions: CupertinoButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => context.push('/settings'),
@@ -147,7 +150,7 @@ class ProfilePage extends ConsumerWidget {
 
                   _buildMenuItem(
                     context: context,
-                    title: 'My Profile',
+                    title: l10n.profile_myProfile,
                     onTap: () => Navigator.push(
                       context,
                       CupertinoPageRoute(
@@ -159,46 +162,20 @@ class ProfilePage extends ConsumerWidget {
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     context: context,
-                    title: 'My Points',
+                    title: l10n.profile_myPoints,
                     onTap: () => context.push('/my-points'),
                   ),
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     context: context,
-                    title: 'Activities',
+                    title: l10n.profile_myActivities,
                     onTap: () => context.push('/my-activities'),
                   ),
 
-                  /*
                   const SizedBox(height: 8),
                   _buildMenuItem(
                     context: context,
-                    title: 'Notifications',
-                    onTap: () => context.push('/notifications'),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildMenuItem(
-                    context: context,
-                    title: 'Help Center',
-                    onTap: () => _showComingSoon(context, 'Help Center'),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildMenuItem(
-                    context: context,
-                    title: 'Terms & Policies',
-                    onTap: () => _showComingSoon(context, 'Terms & Policies'),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildMenuItem(
-                    context: context,
-                    title: 'Report',
-                    onTap: () => _showComingSoon(context, 'Report'),
-                  ),
-                  */
-                  const SizedBox(height: 8),
-                  _buildMenuItem(
-                    context: context,
-                    title: 'Logout',
+                    title: l10n.profile_logout,
                     isDestructive: true,
                     onTap: () => _showLogoutConfirmationDialog(context, ref),
                   ),
@@ -213,19 +190,20 @@ class ProfilePage extends ConsumerWidget {
   }
 
   void _showLogoutConfirmationDialog(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to log out?'),
+        title: Text(l10n.profile_logout),
+        content: Text(l10n.profile_logoutConfirm),
         actions: [
           CupertinoDialogAction(
-            child: const Text('Cancel'),
+            child: Text(l10n.common_cancel),
             onPressed: () => Navigator.pop(context),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
-            child: const Text('Logout'),
+            child: Text(l10n.profile_logout),
             onPressed: () {
               Navigator.pop(context);
               ref.read(authProvider.notifier).logout();

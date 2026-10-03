@@ -6,6 +6,8 @@ import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/profile/presentation/pages/streak_celebration_page.dart';
 import 'package:lorofy/components/ui/safe_rive_animation.dart';
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+
 class PomodoroCompletePage extends StatefulWidget {
   final VoidCallback onBackToHome;
   final VoidCallback onHaveARest;
@@ -94,6 +96,7 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -155,10 +158,10 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage>
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
-                                  'Wow!',
+                                Text(
+                                  l10n.focus_wow,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontFamily: AppTextStyles.titleFontFamily,
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
@@ -166,10 +169,10 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage>
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                const Text(
-                                  'The plant has grown up',
+                                Text(
+                                  l10n.focus_plantGrownUp,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontFamily: AppTextStyles.fontFamily,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -246,7 +249,7 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage>
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
-                                              '${widget.currentStreak}-Day Streak!',
+                                              l10n.focus_dayStreak(widget.currentStreak),
                                               style: const TextStyle(
                                                 fontFamily: AppTextStyles.fontFamily,
                                                 fontSize: 15,
@@ -267,9 +270,9 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage>
                                                     10,
                                                   ),
                                                 ),
-                                                child: const Text(
-                                                  '+1 Today 🎉',
-                                                  style: TextStyle(
+                                                child: Text(
+                                                  l10n.focus_plusOneToday,
+                                                  style: const TextStyle(
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.bold,
                                                     color: CupertinoColors.white,
@@ -298,7 +301,7 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage>
                               child: SizedBox(
                                 width: 180,
                                 child: Button.secondary(
-                                  text: 'Have a rest',
+                                  text: l10n.focus_haveARest,
                                   onPressed: () => _triggerActionWithStreakFlow(
                                     widget.onHaveARest,
                                   ),

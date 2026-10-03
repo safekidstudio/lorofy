@@ -19,6 +19,8 @@ import 'package:lorofy/features/profile/presentation/widgets/country_select_shee
 import 'package:lorofy/core/constants/app_constants.dart';
 import 'package:lorofy/features/profile/data/repositories/profile_repository_impl.dart';
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+
 class MyProfilePage extends ConsumerStatefulWidget {
   const MyProfilePage({super.key});
 
@@ -427,7 +429,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                   ),
                 ),
               ),
-              title: 'My Profile',
+              title: context.l10n.profile_myProfile,
             ),
 
             Expanded(
@@ -437,6 +439,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                       formGroup: _form,
                       child: ReactiveFormConsumer(
                         builder: (context, form, child) {
+                          final l10n = context.l10n;
                           final currentDisplayName =
                               (_form.value['displayName'] as String?)?.trim() ??
                               '';
@@ -506,10 +509,10 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                 const SizedBox(height: 36),
 
                                 // Username Input (Disabled)
-                                const Input(
-                                  placeholder: 'Username',
+                                Input(
+                                  placeholder: l10n.profile_username,
                                   formControlName: 'username',
-                                  prefix: SVG(
+                                  prefix: const SVG(
                                     'assets/icons/at-symbol.svg',
                                     width: 20,
                                     height: 20,
@@ -520,11 +523,11 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                 const SizedBox(height: 16),
 
                                 // Display Name Input
-                                const Input(
-                                  placeholder: 'Display Name',
+                                Input(
+                                  placeholder: l10n.profile_displayName,
                                   formControlName: 'displayName',
                                   maxLength: 30,
-                                  prefix: SVG(
+                                  prefix: const SVG(
                                     'assets/icons/user-square.svg',
                                     width: 20,
                                     height: 20,
@@ -536,7 +539,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
 
                                 // Country / Region Tile
                                 _buildSelectorTile(
-                                  label: 'Country / Region',
+                                  label: l10n.profile_countryRegion,
                                   value: _selectedCountryName,
                                   countryCode: _selectedCountryCode,
                                   iconPath: 'assets/icons/global.svg',
@@ -550,7 +553,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
                                   child: SizedBox(
                                     width: 180,
                                     child: Button.primary(
-                                      text: 'Update',
+                                      text: l10n.common_update,
                                       onPressed:
                                           (form.valid &&
                                               isChanged &&

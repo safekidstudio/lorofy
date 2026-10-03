@@ -140,6 +140,36 @@ abstract class AppLocalizations {
   /// **'Week'**
   String get common_week;
 
+  /// No description provided for @common_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get common_month;
+
+  /// No description provided for @common_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get common_day;
+
+  /// No description provided for @common_update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get common_update;
+
+  /// No description provided for @common_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get common_retry;
+
+  /// No description provided for @common_viewMore.
+  ///
+  /// In en, this message translates to:
+  /// **'View more'**
+  String get common_viewMore;
+
   /// No description provided for @settings_title.
   ///
   /// In en, this message translates to:
@@ -206,6 +236,24 @@ abstract class AppLocalizations {
   /// **'Remind before session starts'**
   String get settings_focusRemindersDesc;
 
+  /// No description provided for @home_congratulationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🎉 Congratulations!'**
+  String get home_congratulationsTitle;
+
+  /// No description provided for @home_sessionCompletedInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'You completed your {minutes}-minute focus session while the app was inactive. Your points and streak have been credited!'**
+  String home_sessionCompletedInactive(int minutes);
+
+  /// No description provided for @home_awesome.
+  ///
+  /// In en, this message translates to:
+  /// **'Awesome'**
+  String get home_awesome;
+
   /// No description provided for @focus_strictMode.
   ///
   /// In en, this message translates to:
@@ -241,6 +289,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Focus Now to Earn Coins 🎯'**
   String get focus_nowToEarn;
+
+  /// No description provided for @focus_keepGoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Going'**
+  String get focus_keepGoing;
+
+  /// No description provided for @focus_giveUpConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Giving up already?'**
+  String get focus_giveUpConfirmTitle;
+
+  /// No description provided for @focus_cancelSessionConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Focus Session?'**
+  String get focus_cancelSessionConfirmTitle;
+
+  /// No description provided for @focus_gracePeriodDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You started less than 1 minute ago. Cancelling now will incur NO penalties.'**
+  String get focus_gracePeriodDesc;
+
+  /// No description provided for @focus_giveUpBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'I give up...'**
+  String get focus_giveUpBtn;
+
+  /// No description provided for @focus_cancelSessionBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Session'**
+  String get focus_cancelSessionBtn;
+
+  /// No description provided for @focus_gracePeriodProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'Grace Period Protection'**
+  String get focus_gracePeriodProtection;
+
+  /// No description provided for @focus_noPointsDeducted.
+  ///
+  /// In en, this message translates to:
+  /// **'No points will be deducted'**
+  String get focus_noPointsDeducted;
+
+  /// No description provided for @focus_sessionProgressReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Session Progress Reset'**
+  String get focus_sessionProgressReset;
+
+  /// No description provided for @focus_sessionNotLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Session won\'t be logged in stats'**
+  String get focus_sessionNotLogged;
+
+  /// No description provided for @focus_treeWithered.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus Tree Withered'**
+  String get focus_treeWithered;
+
+  /// No description provided for @focus_growingTreeWillDie.
+  ///
+  /// In en, this message translates to:
+  /// **'Your growing tree will die'**
+  String get focus_growingTreeWillDie;
+
+  /// No description provided for @focus_rankPointsDeducted.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank Points Deducted'**
+  String get focus_rankPointsDeducted;
+
+  /// No description provided for @focus_modePenalty.
+  ///
+  /// In en, this message translates to:
+  /// **'{mode} mode penalty'**
+  String focus_modePenalty(String mode);
+
+  /// No description provided for @focus_dailyStreakRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Streak Risk'**
+  String get focus_dailyStreakRisk;
+
+  /// No description provided for @focus_streakResetTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak resets if no session today'**
+  String get focus_streakResetTip;
+
+  /// No description provided for @focus_wow.
+  ///
+  /// In en, this message translates to:
+  /// **'Wow!'**
+  String get focus_wow;
+
+  /// No description provided for @focus_plantGrownUp.
+  ///
+  /// In en, this message translates to:
+  /// **'The plant has grown up'**
+  String get focus_plantGrownUp;
+
+  /// No description provided for @focus_dayStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}-Day Streak!'**
+  String focus_dayStreak(int count);
+
+  /// No description provided for @focus_plusOneToday.
+  ///
+  /// In en, this message translates to:
+  /// **'+1 Today 🎉'**
+  String get focus_plusOneToday;
+
+  /// No description provided for @focus_haveARest.
+  ///
+  /// In en, this message translates to:
+  /// **'Have a rest'**
+  String get focus_haveARest;
+
+  /// No description provided for @focus_plantDead.
+  ///
+  /// In en, this message translates to:
+  /// **'Oh no, your plant is dead'**
+  String get focus_plantDead;
+
+  /// No description provided for @focus_restart.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get focus_restart;
+
+  /// No description provided for @focus_backToHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Home'**
+  String get focus_backToHome;
+
+  /// No description provided for @explore_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get explore_title;
+
+  /// No description provided for @explore_todayFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Today Focus'**
+  String get explore_todayFocus;
+
+  /// No description provided for @explore_allFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'All Focus'**
+  String get explore_allFocus;
+
+  /// No description provided for @explore_todayKill.
+  ///
+  /// In en, this message translates to:
+  /// **'Today Kill'**
+  String get explore_todayKill;
+
+  /// No description provided for @explore_allKill.
+  ///
+  /// In en, this message translates to:
+  /// **'All Kill'**
+  String get explore_allKill;
+
+  /// No description provided for @explore_avgFocusTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Average\nFocus time'**
+  String get explore_avgFocusTime;
+
+  /// No description provided for @explore_avgKillTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Average\nKill time'**
+  String get explore_avgKillTime;
+
+  /// No description provided for @explore_mins.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} mins'**
+  String explore_mins(int count);
+
+  /// No description provided for @explore_recentFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Focus'**
+  String get explore_recentFocus;
+
+  /// No description provided for @explore_dailyAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Average '**
+  String get explore_dailyAverage;
+
+  /// No description provided for @explore_noFocusDataWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'No focus data this week 🌿'**
+  String get explore_noFocusDataWeek;
+
+  /// No description provided for @explore_focusRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus Record'**
+  String get explore_focusRecord;
+
+  /// No description provided for @explore_noFocusRecordsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No focus records today'**
+  String get explore_noFocusRecordsToday;
+
+  /// No description provided for @explore_noFocusRecordsMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'No focus records in the last 30 days'**
+  String get explore_noFocusRecordsMonth;
+
+  /// No description provided for @explore_leaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get explore_leaderboard;
+
+  /// No description provided for @explore_noRankingsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Rankings Yet'**
+  String get explore_noRankingsYet;
+
+  /// No description provided for @explore_noRankingsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Be the first to complete a focus session and claim top spot!'**
+  String get explore_noRankingsDesc;
+
+  /// No description provided for @explore_you.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get explore_you;
+
+  /// No description provided for @profile_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile_title;
+
+  /// No description provided for @profile_myProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get profile_myProfile;
+
+  /// No description provided for @profile_myPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'My Points'**
+  String get profile_myPoints;
 
   /// No description provided for @profile_myActivities.
   ///
@@ -325,6 +643,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You need more coins to restore. Complete focus sessions to earn Gold Coins!'**
   String get profile_needMoreCoinsTip;
+
+  /// No description provided for @profile_logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get profile_logout;
+
+  /// No description provided for @profile_logoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out?'**
+  String get profile_logoutConfirm;
+
+  /// No description provided for @profile_displayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display Name'**
+  String get profile_displayName;
+
+  /// No description provided for @profile_username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get profile_username;
+
+  /// No description provided for @profile_countryRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Country / Region'**
+  String get profile_countryRegion;
+
+  /// No description provided for @profile_updatingAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating avatar...'**
+  String get profile_updatingAvatar;
+
+  /// No description provided for @profile_avatarUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar updated!'**
+  String get profile_avatarUpdated;
+
+  /// No description provided for @profile_uploadingAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading avatar...'**
+  String get profile_uploadingAvatar;
+
+  /// No description provided for @profile_avatarUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar uploaded!'**
+  String get profile_avatarUploaded;
+
+  /// No description provided for @profile_failedUpdateAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update avatar'**
+  String get profile_failedUpdateAvatar;
+
+  /// No description provided for @profile_failedUploadAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to upload avatar'**
+  String get profile_failedUploadAvatar;
+
+  /// No description provided for @profile_profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated!'**
+  String get profile_profileUpdated;
+
+  /// No description provided for @profile_failedUpdateProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update profile'**
+  String get profile_failedUpdateProfile;
 }
 
 class _AppLocalizationsDelegate

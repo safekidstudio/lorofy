@@ -14,7 +14,7 @@ class AppLocale extends _$AppLocale {
   @override
   Locale? build() {
     _loadSavedLocale();
-    return null; // System default initially
+    return const Locale('en'); // Default to English initially
   }
 
   Future<void> _loadSavedLocale() async {
@@ -28,11 +28,11 @@ class AppLocale extends _$AppLocale {
         return;
       }
     }
-    state = null; // System default fallback
+    state = const Locale('en'); // Fallback default to English
   }
 
   Future<void> setLocale(Locale? locale) async {
-    state = locale;
+    state = locale ?? const Locale('en');
     final prefs = await SharedPreferences.getInstance();
     if (locale == null) {
       await prefs.remove(_kLocaleKey);

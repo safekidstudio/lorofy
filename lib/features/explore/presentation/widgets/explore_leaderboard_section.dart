@@ -8,12 +8,15 @@ import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/explore/presentation/pages/leaderboard_page.dart';
 import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+
 class ExploreLeaderboardSection extends ConsumerWidget {
   const ExploreLeaderboardSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final leaderboardAsync = ref.watch(leaderboardProvider(timeframe: 'ALL'));
+    final l10n = context.l10n;
 
     return Container(
       decoration: BoxDecoration(
@@ -28,9 +31,9 @@ class ExploreLeaderboardSection extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Leaderboard',
-                style: TextStyle(
+              Text(
+                l10n.explore_leaderboard,
+                style: const TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -51,7 +54,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                 child: Row(
                   children: [
                     Text(
-                      'View more ',
+                      '${l10n.common_viewMore} ',
                       style: TextStyle(
                         fontFamily: AppTextStyles.fontFamily,
                         color: AppColors.mutedForeground,
@@ -86,10 +89,9 @@ class ExploreLeaderboardSection extends ConsumerWidget {
               final list = data.leaderboard.content;
 
               if (list.isEmpty) {
-                return const AppEmptyState(
-                  title: 'No Rankings Yet',
-                  description:
-                      'Be the first to complete a focus session and claim top spot!',
+                return AppEmptyState(
+                  title: l10n.explore_noRankingsYet,
+                  description: l10n.explore_noRankingsDesc,
                   rivePath: 'assets/rive/cat-not-track.riv',
                   padding: AppPadding.md,
                 );
@@ -108,6 +110,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                   Expanded(
                     child: second != null
                         ? _buildPodiumUser(
+                            context,
                             name: second.displayName,
                             points: second.points,
                             rank: 2,
@@ -125,6 +128,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                   Expanded(
                     child: first != null
                         ? _buildPodiumUser(
+                            context,
                             name: first.displayName,
                             points: first.points,
                             rank: 1,
@@ -143,6 +147,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
                   Expanded(
                     child: third != null
                         ? _buildPodiumUser(
+                            context,
                             name: third.displayName,
                             points: third.points,
                             rank: 3,
@@ -164,7 +169,8 @@ class ExploreLeaderboardSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildPodiumUser({
+  Widget _buildPodiumUser(
+    BuildContext context, {
     required String name,
     required int points,
     required int rank,
@@ -262,7 +268,7 @@ class ExploreLeaderboardSection extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Text(
-            isYou ? 'You' : name,
+            isYou ? context.l10n.explore_you : name,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

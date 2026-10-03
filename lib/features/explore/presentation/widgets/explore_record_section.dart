@@ -10,6 +10,9 @@ import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
 import 'package:lorofy/features/focus/domain/models/focus_session.dart';
 
+import 'package:lorofy/core/localization/l10n_extension.dart';
+import 'package:lorofy/l10n/generated/app_localizations.dart';
+
 class ExploreRecordSection extends ConsumerStatefulWidget {
   const ExploreRecordSection({super.key});
 
@@ -25,6 +28,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
   Widget build(BuildContext context) {
     final todayAsync = ref.watch(todayActivitiesProvider);
     final monthAsync = ref.watch(monthActivitiesProvider);
+    final l10n = context.l10n;
 
     return Container(
       decoration: BoxDecoration(
@@ -39,16 +43,16 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Focus Record',
-                style: TextStyle(
+              Text(
+                l10n.explore_focusRecord,
+                style: const TextStyle(
                   fontFamily: AppTextStyles.fontFamily,
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: AppColors.primary,
                 ),
               ),
-              _buildRecordToggle(),
+              _buildRecordToggle(l10n),
             ],
           ),
           const SizedBox(height: 16),
@@ -78,9 +82,9 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
     );
   }
 
-  Widget _buildRecordToggle() {
+  Widget _buildRecordToggle(AppLocalizations l10n) {
     return SlidingSegmentedControl(
-      tabs: const ['Day', 'Month'],
+      tabs: [l10n.common_day, l10n.common_month],
       selectedIndex: _isDayToggle ? 0 : 1,
       onTabChanged: (index) {
         setState(() {
@@ -91,17 +95,18 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
   }
 
   Widget _buildDayRecordList(List<FocusSession> sessions) {
+    final l10n = context.l10n;
     final completedSessions =
         sessions.where((s) => s.status == 'COMPLETED').toList()
           ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
 
     if (completedSessions.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 100,
         child: Center(
           child: Text(
-            'No focus records today',
-            style: TextStyle(
+            l10n.explore_noFocusRecordsToday,
+            style: const TextStyle(
               fontFamily: AppTextStyles.fontFamily,
               color: AppColors.mutedForeground,
               fontSize: 14,
@@ -122,7 +127,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
         final period = DateFormat('a').format(localTime);
 
         final int flowerCount = session.earnedPoints.clamp(0, 999999);
-        final String durationStr = '${session.actualMinutes} mins';
+        final String durationStr = l10n.explore_mins(session.actualMinutes);
         final bool isHighlight = index == 0;
 
         final Color numberColor = isHighlight
@@ -199,6 +204,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
   }
 
   Widget _buildMonthRecordList(List<FocusSession> sessions) {
+    final l10n = context.l10n;
     final completedSessions = sessions
         .where((s) => s.status == 'COMPLETED')
         .toList();
@@ -216,12 +222,12 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
       ..sort((a, b) => b.compareTo(a));
 
     if (sortedDates.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 100,
         child: Center(
           child: Text(
-            'No focus records in the last 30 days',
-            style: TextStyle(
+            l10n.explore_noFocusRecordsMonth,
+            style: const TextStyle(
               fontFamily: AppTextStyles.fontFamily,
               color: AppColors.mutedForeground,
               fontSize: 14,
@@ -246,7 +252,7 @@ class _ExploreRecordSectionState extends ConsumerState<ExploreRecordSection> {
 
         final String dayStr = DateFormat('d').format(date);
         final String monthStr = isToday
-            ? 'Today'
+            ? l10n.common_today
             : DateFormat.MMM().format(date);
 
         final bool isHighlight = isToday || index == 0;
