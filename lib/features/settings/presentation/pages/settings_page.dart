@@ -10,9 +10,73 @@ import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.d
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
 import 'package:lorofy/features/focus/presentation/widgets/modals/edit_breaks_and_rounds_sheet.dart';
 import 'package:lorofy/features/focus/presentation/widgets/modals/block_mode_selection_sheet.dart';
+import 'package:lorofy/core/localization/l10n_extension.dart';
+import 'package:lorofy/core/localization/locale_provider.dart';
+
+import 'package:lorofy/l10n/generated/app_localizations.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
+
+  void _showLanguagePicker(BuildContext context, WidgetRef ref) {
+    final currentLocale = ref.read(appLocaleProvider);
+    final l10n = context.l10n;
+
+    final options = <({Locale? locale, String label})>[
+      (locale: null, label: l10n.settings_languageSystem),
+      ...AppLocalizations.supportedLocales.map((locale) {
+        final label = locale.languageCode == 'vi'
+            ? l10n.settings_languageVietnamese
+            : l10n.settings_languageEnglish;
+        return (locale: locale, label: label);
+      }),
+    ];
+
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        title: Text(
+          l10n.settings_language,
+          style: const TextStyle(fontFamily: AppTextStyles.fontFamily),
+        ),
+        actions: options.map((opt) {
+          final isSelected = (opt.locale?.languageCode == currentLocale?.languageCode) ||
+              (opt.locale == null && currentLocale == null);
+
+          return CupertinoActionSheetAction(
+            onPressed: () {
+              ref.read(appLocaleProvider.notifier).setLocale(opt.locale);
+              Navigator.pop(context);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  opt.label,
+                  style: TextStyle(
+                    fontFamily: AppTextStyles.fontFamily,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? AppColors.primary : AppColors.foreground,
+                  ),
+                ),
+                if (isSelected) ...[
+                  const SizedBox(width: 8),
+                  const Icon(CupertinoIcons.check_mark, size: 18, color: AppColors.primary),
+                ],
+              ],
+            ),
+          );
+        }).toList(),
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(context),
+          child: Text(
+            l10n.common_cancel,
+            style: const TextStyle(fontFamily: AppTextStyles.fontFamily),
+          ),
+        ),
+      ),
+    );
+  }
 
   void _openPomodoroRules(BuildContext context) {
     Navigator.push(
@@ -53,33 +117,6 @@ class SettingsPage extends ConsumerWidget {
       ),
     );
   }
-
-  /*
-  void _confirmDeactivate(BuildContext context) {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Deactivate Account'),
-        content: const Text(
-          'Are you sure you want to deactivate your account? This action cannot be undone.',
-        ),
-        actions: [
-          CupertinoDialogAction(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            child: const Text('Deactivate'),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-  */
 
   Widget _buildSectionHeader(String title) {
     return Padding(
@@ -196,7 +233,19 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(pomodoroSettingsProvider);
-    final blockModeStr = settings.blockMode == BlockMode.strict ? 'Strict' : 'Medium';
+    final activeLocale = ref.watch(appLocaleProvider);
+    final l10n = context.l10n;
+
+    final blockModeStr = settings.blockMode == BlockMode.strict
+        ? l10n.focus_strictMode
+        : l10n.focus_mediumMode;
+
+    String currentLanguageStr = l10n.settings_languageSystem;
+    if (activeLocale?.languageCode == 'vi') {
+      currentLanguageStr = l10n.settings_languageVietnamese;
+    } else if (activeLocale?.languageCode == 'en') {
+      currentLanguageStr = l10n.settings_languageEnglish;
+    }
 
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
@@ -206,9 +255,9 @@ class SettingsPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const AppHeader(
-                leftActions: AppBackButton(),
-                title: 'Settings',
+              AppHeader(
+                leftActions: const AppBackButton(),
+                title: l10n.settings_title,
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -217,7 +266,7 @@ class SettingsPage extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Section 1: APP PREFERENCES
-                      _buildSectionHeader('APP PREFERENCES'),
+                      _buildSectionHeader(l10n.settings_appPreferences),
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
@@ -227,7 +276,16 @@ class SettingsPage extends ConsumerWidget {
                         child: Column(
                           children: [
                             _buildRow(
-                              title: 'Pomodoro Rules',
+                              title: l10n.settings_language,
+                              subtitle: currentLanguageStr,
+                              onTap: () => _showLanguagePicker(context, ref),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Divider(height: 1, color: AppColors.border),
+                            ),
+                            _buildRow(
+                              title: l10n.settings_pomodoroRules,
                               subtitle: '${settings.breakMinutes}m · ${settings.targetRounds}r',
                               onTap: () => _openPomodoroRules(context),
                             ),
@@ -236,7 +294,7 @@ class SettingsPage extends ConsumerWidget {
                               child: Divider(height: 1, color: AppColors.border),
                             ),
                             _buildRow(
-                              title: 'App Blocker Rules',
+                              title: l10n.settings_appBlockerRules,
                               subtitle: blockModeStr,
                               onTap: () => _openFocusModeSelection(context),
                             ),
@@ -245,7 +303,7 @@ class SettingsPage extends ConsumerWidget {
                       ),
 
                       // Section 2: NOTIFICATIONS
-                      _buildSectionHeader('NOTIFICATIONS'),
+                      _buildSectionHeader(l10n.settings_notifications),
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
@@ -255,8 +313,8 @@ class SettingsPage extends ConsumerWidget {
                         child: Column(
                           children: [
                             _buildRow(
-                              title: 'Focus Reminders',
-                              description: 'Remind before session starts',
+                              title: l10n.settings_focusReminders,
+                              description: l10n.settings_focusRemindersDesc,
                               trailing: AppSwitch(
                                 value: settings.timedReminder,
                                 onChanged: (val) async {

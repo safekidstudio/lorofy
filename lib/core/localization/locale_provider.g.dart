@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'auth_provider.dart';
+part of 'locale_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,50 +9,50 @@ part of 'auth_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(Auth)
-final authProvider = AuthProvider._();
+@ProviderFor(AppLocale)
+final appLocaleProvider = AppLocaleProvider._();
 
-final class AuthProvider extends $NotifierProvider<Auth, AuthStatus> {
-  AuthProvider._()
+final class AppLocaleProvider extends $NotifierProvider<AppLocale, Locale?> {
+  AppLocaleProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'authProvider',
+        name: r'appLocaleProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$authHash();
+  String debugGetCreateSourceHash() => _$appLocaleHash();
 
   @$internal
   @override
-  Auth create() => Auth();
+  AppLocale create() => AppLocale();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(AuthStatus value) {
+  Override overrideWithValue(Locale? value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<AuthStatus>(value),
+      providerOverride: $SyncValueProvider<Locale?>(value),
     );
   }
 }
 
-String _$authHash() => r'a84fb2b6cbb6361dd020ae02911808a70c9c2829';
+String _$appLocaleHash() => r'10fffbd7daca6f80edbb428f179e6b0984a8e7e0';
 
-abstract class _$Auth extends $Notifier<AuthStatus> {
-  AuthStatus build();
+abstract class _$AppLocale extends $Notifier<Locale?> {
+  Locale? build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<AuthStatus, AuthStatus>;
+    final ref = this.ref as $Ref<Locale?, Locale?>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AuthStatus, AuthStatus>,
-              AuthStatus,
+              AnyNotifier<Locale?, Locale?>,
+              Locale?,
               Object?,
               Object?
             >;

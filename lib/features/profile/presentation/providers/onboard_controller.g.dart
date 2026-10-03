@@ -33,7 +33,7 @@ final class OnboardControllerProvider
   OnboardController create() => OnboardController();
 }
 
-String _$onboardControllerHash() => r'fe83848478896d5c6eee094f933d94405d282efa';
+String _$onboardControllerHash() => r'cb9ba69d613c7c37052a62e915d62f80dce9274a';
 
 abstract class _$OnboardController extends $AsyncNotifier<void> {
   FutureOr<void> build();

@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/core/localization/locale_provider.dart';
 import 'package:lorofy/features/focus/presentation/providers/focus_lifecycle_observer.dart';
+import 'package:lorofy/l10n/generated/app_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 
@@ -77,10 +78,14 @@ class MyApp extends ConsumerWidget {
     ref.watch(networkRetryNotifierProvider);
 
     final router = ref.watch(appRouterProvider);
+    final activeLocale = ref.watch(appLocaleProvider);
 
     return CupertinoApp.router(
       title: 'Lorofy',
       debugShowCheckedModeBanner: false,
+      locale: activeLocale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: const CupertinoThemeData(
         primaryColor: CupertinoColors.activeBlue,
         brightness: Brightness.light,
@@ -92,11 +97,6 @@ class MyApp extends ConsumerWidget {
           ),
         ),
       ),
-      localizationsDelegates: const [
-        DefaultMaterialLocalizations.delegate,
-        DefaultCupertinoLocalizations.delegate,
-        DefaultWidgetsLocalizations.delegate,
-      ],
       routerConfig: router,
       builder: (context, child) {
         return FocusLifecycleObserver(

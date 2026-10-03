@@ -1,0 +1,78 @@
+{
+  "@@locale": "en",
+
+  "@@category_common": "=== COMMON / GENERAL UTILITIES ===",
+  "common_appName": "Lorofy",
+  "common_cancel": "Cancel",
+  "common_save": "Save",
+  "common_confirm": "Confirm",
+  "common_all": "All",
+  "common_today": "Today",
+  "common_week": "Week",
+
+  "@@category_settings": "=== SETTINGS FEATURE ===",
+  "settings_title": "Settings",
+  "settings_appPreferences": "APP PREFERENCES",
+  "settings_notifications": "NOTIFICATIONS",
+  "settings_language": "Language",
+  "settings_languageEnglish": "English",
+  "settings_languageVietnamese": "Vietnamese",
+  "settings_languageSystem": "System Default",
+  "settings_pomodoroRules": "Pomodoro Rules",
+  "settings_appBlockerRules": "App Blocker Rules",
+  "settings_focusReminders": "Focus Reminders",
+  "settings_focusRemindersDesc": "Remind before session starts",
+
+  "@@category_focus": "=== FOCUS & BLOCKER FEATURE ===",
+  "focus_strictMode": "Strict Mode",
+  "focus_strictModeDesc": "In focus, opening other apps kill the plant",
+  "focus_mediumMode": "Medium Mode",
+  "focus_mediumModeDesc": "In focus, only whitelisted apps can be opened",
+  "focus_selectAllowedApps": "Select allowed apps",
+  "focus_nowToEarn": "Focus Now to Earn Coins 🎯",
+
+  "@@category_profile": "=== PROFILE & STREAK FEATURE ===",
+  "profile_myActivities": "My activities",
+  "profile_completed": "Completed",
+  "profile_failed": "Failed",
+  "profile_noActivitiesFound": "No activities found",
+  "profile_tryChangingFilters": "Try changing your filters or start a new focus session.",
+  "profile_restoreStreak": "Restore Streak",
+  "profile_saveYourStreak": "Save Your {count}-Day Streak!",
+  "@profile_saveYourStreak": {
+    "description": "Streak recovery card title",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profile_recoverStreakDesc": "Recover your progress using a shield or coins.",
+  "profile_streakFreezeShield": "Streak Freeze Shield",
+  "profile_availableShields": "Available: {count} shields",
+  "@profile_availableShields": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profile_noShields": "No freeze shields in inventory",
+  "profile_useGoldCoins": "Use {cost} Gold Coins",
+  "@profile_useGoldCoins": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "profile_coinBalance": "Balance: {balance} coins",
+  "@profile_coinBalance": {
+    "placeholders": {
+      "balance": {
+        "type": "int"
+      }
+    }
+  },
+  "profile_needMoreCoinsTip": "You need more coins to restore. Complete focus sessions to earn Gold Coins!"
+}
