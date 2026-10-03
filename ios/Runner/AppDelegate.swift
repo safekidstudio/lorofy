@@ -1,10 +1,12 @@
 import Flutter
 import UIKit
 import UserNotifications
-import SwiftUI
-import FamilyControls
-import ManagedSettings
+// Temporarily disabled FamilyControls / ManagedSettings for testing builds without entitlements
+// import SwiftUI
+// import FamilyControls
+// import ManagedSettings
 
+/*
 @available(iOS 15.0, *)
 struct FamilyPickerView: View {
   @State private var selection = FamilyActivitySelection()
@@ -27,10 +29,11 @@ struct FamilyPickerView: View {
     }
   }
 }
+*/
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
-  private var managedSettingsStore: Any? = nil
+  // private var managedSettingsStore: Any? = nil
 
   override func application(
     _ application: UIApplication,
@@ -63,86 +66,30 @@ struct FamilyPickerView: View {
       binaryMessenger: messenger
     )
 
-    channel.setMethodCallHandler { [weak self] (call, result) in
-      guard let self = self else { return }
-
+    channel.setMethodCallHandler { (call, result) in
+      // Stub responses for testing without FamilyControls entitlement
       switch call.method {
       case "isSupported":
-        if #available(iOS 15.0, *) {
-          result(true)
-        } else {
-          result(false)
-        }
+        result(false)
 
       case "hasAuthorization":
-        if #available(iOS 15.0, *) {
-          let status = AuthorizationCenter.shared.authorizationStatus
-          result(status == .approved)
-        } else {
-          result(false)
-        }
+        result(false)
 
       case "requestAuthorization":
-        if #available(iOS 15.0, *) {
-          Task {
-            do {
-              try await AuthorizationCenter.shared.requestAuthorization(for: .individual)
-              result(true)
-            } catch {
-              result(FlutterError(code: "AUTH_ERROR", message: error.localizedDescription, details: nil))
-            }
-          }
-        } else {
-          result(false)
-        }
+        result(false)
 
       case "openAppPicker":
-        if #available(iOS 15.0, *) {
-          self.presentFamilyActivityPicker(result: result)
-        } else {
-          result(false)
-        }
+        result(false)
 
       case "startBlocking":
-        if #available(iOS 15.0, *) {
-          let store = ManagedSettingsStore()
-          self.managedSettingsStore = store
-          store.shield.applicationCategories = ShieldSettings.ActivityCategoryPolicy.all()
-          result(true)
-        } else {
-          result(false)
-        }
+        result(false)
 
       case "stopBlocking":
-        if #available(iOS 15.0, *) {
-          if let store = self.managedSettingsStore as? ManagedSettingsStore {
-            store.shield.applications = nil
-            store.shield.applicationCategories = nil
-          }
-          self.managedSettingsStore = nil
-          result(true)
-        } else {
-          result(false)
-        }
+        result(false)
 
       default:
         result(FlutterMethodNotImplemented)
       }
-    }
-  }
-
-  @available(iOS 15.0, *)
-  private func presentFamilyActivityPicker(result: @escaping FlutterResult) {
-    DispatchQueue.main.async {
-      guard let rootVC = self.window?.rootViewController else {
-        result(false)
-        return
-      }
-      let pickerView = FamilyPickerView {
-        result(true)
-      }
-      let hostingController = UIHostingController(rootView: pickerView)
-      rootVC.present(hostingController, animated: true, completion: nil)
     }
   }
 }

@@ -70,15 +70,21 @@ class _SelectAllowedAppsSheetState
 
   Future<void> _openAppPickerSheet() async {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      final isAuthorized = await IOSFamilyControlsService().hasAuthorization();
-      if (!isAuthorized) {
+      final isSupported = await IOSFamilyControlsService().isSupported();
+      if (isSupported) {
+        final isAuthorized =
+            await IOSFamilyControlsService().hasAuthorization();
+        if (!isAuthorized) {
+          if (!mounted) return;
+          final granted = await showUsagePermissionDialog(context);
+          if (!granted) return;
+        }
         if (!mounted) return;
-        final granted = await showUsagePermissionDialog(context);
-        if (!granted) return;
+        final success = await IOSFamilyControlsService().openAppPicker();
+        if (success) return;
       }
-      if (!mounted) return;
-      await IOSFamilyControlsService().openAppPicker();
-      return;
+      // If Family Controls is not supported or stubbed for testing,
+      // fall through to the built-in Flutter AppPickerDialog below.
     } else {
       final hasPermission = await ForegroundAppService().hasUsagePermission();
       if (!hasPermission) {
