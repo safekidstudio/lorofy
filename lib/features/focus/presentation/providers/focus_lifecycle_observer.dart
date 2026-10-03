@@ -69,8 +69,7 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
     }
 
     final settings = ref.read(pomodoroSettingsProvider);
-    final activeBlockMode =
-        !settings.isPomodoroMode ? settings.blockMode : BlockMode.medium;
+    final activeBlockMode = settings.blockMode;
 
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       if (_isBackgrounded) return;

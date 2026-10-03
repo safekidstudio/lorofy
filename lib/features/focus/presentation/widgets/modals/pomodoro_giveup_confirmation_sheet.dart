@@ -34,8 +34,7 @@ class PomodoroGiveupConfirmationSheet extends ConsumerWidget {
         timerState.totalSessionSeconds - timerState.countdownSeconds;
     final isGracePeriod = elapsedSeconds < 60;
 
-    final isStrict =
-        !settings.isPomodoroMode && settings.blockMode == BlockMode.strict;
+    final isStrict = settings.blockMode == BlockMode.strict;
     final penaltyPoints = isStrict
         ? systemSettings.penaltyPointsStrict
         : systemSettings.penaltyPointsMedium;

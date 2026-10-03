@@ -208,8 +208,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
     final settings = ref.read(pomodoroSettingsProvider);
     final systemSettings = ref.read(systemSettingsProvider);
-    final isStrict =
-        !settings.isPomodoroMode && settings.blockMode == BlockMode.strict;
+    final isStrict = settings.blockMode == BlockMode.strict;
     final penaltyPoints = isStrict
         ? systemSettings.penaltyPointsStrict
         : systemSettings.penaltyPointsMedium;
@@ -280,9 +279,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     try {
       final FocusRepository repository = ref.read(focusRepositoryProvider);
       final settings = ref.read(pomodoroSettingsProvider);
-      final activeBlockMode = !settings.isPomodoroMode
-          ? settings.blockMode
-          : BlockMode.medium;
+      final activeBlockMode = settings.blockMode;
 
       FocusSession session;
       try {
@@ -359,8 +356,7 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     final systemSettings = ref.read(systemSettingsProvider);
 
     final focusMinutes = (state.totalSessionSeconds / 60).round();
-    final isStrict =
-        !settings.isPomodoroMode && settings.blockMode == BlockMode.strict;
+    final isStrict = settings.blockMode == BlockMode.strict;
     final multiplier = isStrict
         ? systemSettings.rewardMultiplierStrict
         : systemSettings.rewardMultiplierMedium;
