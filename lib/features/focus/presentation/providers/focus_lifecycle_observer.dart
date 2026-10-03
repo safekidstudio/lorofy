@@ -71,7 +71,7 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
     final settings = ref.read(pomodoroSettingsProvider);
     final activeBlockMode = settings.blockMode;
 
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
       if (_isBackgrounded) return;
       _isBackgrounded = true;
       _cancelGraceTimer();
