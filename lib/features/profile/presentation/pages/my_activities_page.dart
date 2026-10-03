@@ -74,6 +74,7 @@ class _MyActivitiesPageState extends ConsumerState<MyActivitiesPage> {
     Navigator.push(
       context,
       CupertinoModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => Sheet(
           decoration: const MaterialSheetDecoration(
             size: SheetSize.fit,

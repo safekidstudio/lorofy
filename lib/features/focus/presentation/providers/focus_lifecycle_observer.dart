@@ -31,6 +31,7 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
   Timer? _mediumPeriodicTimer;
   int _unallowedSecondsCounter = 0;
   String? _lastNotifiedStatus;
+  bool _isBackgrounded = false;
 
   @override
   void initState() {
@@ -63,6 +64,7 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
     final timerState = ref.read(pomodoroTimerProvider);
     if (timerState.phase != PomodoroState.focus) {
       _cancelGraceTimer();
+      _isBackgrounded = false;
       return;
     }
 
@@ -70,7 +72,9 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
     final activeBlockMode =
         !settings.isPomodoroMode ? settings.blockMode : BlockMode.medium;
 
-    if (state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      if (_isBackgrounded) return;
+      _isBackgrounded = true;
       _cancelGraceTimer();
 
       if (activeBlockMode == BlockMode.strict) {
@@ -93,6 +97,7 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
         _handleMediumModePaused(seconds, settings.allowedAppPackages);
       }
     } else if (state == AppLifecycleState.resumed) {
+      _isBackgrounded = false;
       // Return to app within grace period: cancel timer and clear notifications
       _cancelGraceTimer();
       NotificationService().cancelAll();

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:lorofy/core/services/foreground_app_service.dart';
+import 'package:lorofy/core/services/ios_family_controls_service.dart';
 import 'package:lorofy/core/services/installed_apps_service.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
@@ -68,11 +69,23 @@ class _SelectAllowedAppsSheetState
       !setEquals(_initialSavedPackages, _workingSelectedPackages);
 
   Future<void> _openAppPickerSheet() async {
-    final hasPermission = await ForegroundAppService().hasUsagePermission();
-    if (!hasPermission) {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      final isAuthorized = await IOSFamilyControlsService().hasAuthorization();
+      if (!isAuthorized) {
+        if (!mounted) return;
+        final granted = await showUsagePermissionDialog(context);
+        if (!granted) return;
+      }
       if (!mounted) return;
-      final granted = await showUsagePermissionDialog(context);
-      if (!granted) return;
+      await IOSFamilyControlsService().openAppPicker();
+      return;
+    } else {
+      final hasPermission = await ForegroundAppService().hasUsagePermission();
+      if (!hasPermission) {
+        if (!mounted) return;
+        final granted = await showUsagePermissionDialog(context);
+        if (!granted) return;
+      }
     }
 
     if (!mounted) return;
@@ -80,6 +93,7 @@ class _SelectAllowedAppsSheetState
     final result = await Navigator.push<Set<String>>(
       context,
       CupertinoModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => Sheet(
           decoration: const MaterialSheetDecoration(
             size: SheetSize.fit,

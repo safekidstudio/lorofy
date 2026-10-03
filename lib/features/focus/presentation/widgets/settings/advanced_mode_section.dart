@@ -15,6 +15,7 @@ class AdvancedModeSection extends ConsumerWidget {
     Navigator.push(
       context,
       CupertinoModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => const Sheet(
           decoration: MaterialSheetDecoration(
             size: SheetSize.fit,
@@ -34,6 +35,7 @@ class AdvancedModeSection extends ConsumerWidget {
     Navigator.push(
       context,
       CupertinoModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => const Sheet(
           decoration: MaterialSheetDecoration(
             size: SheetSize.fit,

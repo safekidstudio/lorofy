@@ -18,6 +18,7 @@ class SettingsPage extends ConsumerWidget {
     Navigator.push(
       context,
       CupertinoModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => const Sheet(
           decoration: MaterialSheetDecoration(
             size: SheetSize.stretch,
@@ -37,6 +38,7 @@ class SettingsPage extends ConsumerWidget {
     Navigator.push(
       context,
       CupertinoModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => const Sheet(
           decoration: MaterialSheetDecoration(
             size: SheetSize.stretch,

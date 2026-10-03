@@ -17,6 +17,9 @@ import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 import 'package:lorofy/features/settings/presentation/providers/system_settings_provider.dart';
 import 'package:lorofy/features/focus/domain/models/focus_session.dart';
 import 'package:lorofy/features/profile/presentation/providers/activities_provider.dart';
+import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
+import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
+import 'package:lorofy/features/profile/presentation/providers/point_history_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Immutable state
@@ -233,14 +236,26 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
               failureReason: failureReason ?? 'User gave up manually',
             );
         state = state.copyWith(earnedPoints: session.earnedPoints);
-        // Refresh fresh profile details & rank points from backend
-        ref.read(authProvider.notifier).refreshProfile();
-        ref.invalidate(filteredActivitiesProvider);
+        _invalidateUserDataProviders();
       } catch (e) {
         AppLogger.warning('Error failing backend session: $e', tag: 'PomodoroNotifier');
       }
     }
 
+  }
+
+  void _invalidateUserDataProviders() {
+    try {
+      ref.read(authProvider.notifier).refreshProfile();
+      ref.invalidate(filteredActivitiesProvider);
+      ref.invalidate(leaderboardProvider);
+      ref.invalidate(exploreStatsProvider);
+      ref.invalidate(todayActivitiesProvider);
+      ref.invalidate(monthActivitiesProvider);
+      ref.invalidate(pointHistoryProvider);
+    } catch (e) {
+      AppLogger.warning('Error invalidating user data providers: $e', tag: 'PomodoroNotifier');
+    }
   }
 
   void skipBreak() {
@@ -416,9 +431,8 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
                 .read(authProvider.notifier)
                 .updatePointsState(currentPoints + points);
 
-            // Refresh user profile from backend
-            ref.read(authProvider.notifier).refreshProfile();
-            ref.invalidate(filteredActivitiesProvider);
+            // Refresh user profile & invalidate all user/leaderboard data from backend
+            _invalidateUserDataProviders();
           })
           .catchError((e) {
             AppLogger.error('Error completing backend session: $e', tag: 'PomodoroNotifier');

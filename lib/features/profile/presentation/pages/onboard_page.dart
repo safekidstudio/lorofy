@@ -262,8 +262,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
       });
 
       final bytes = await image.readAsBytes();
-      final uploadResult = await ref.read(profileRepositoryProvider).uploadAvatar(bytes, image.name);
-      final assetId = uploadResult.id;
+      final assetId = await ref.read(profileRepositoryProvider).uploadAvatar(bytes, image.name);
       setState(() {
         _selectedAvatarId = assetId;
       });

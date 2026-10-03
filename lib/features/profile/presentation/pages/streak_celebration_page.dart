@@ -235,25 +235,22 @@ class _StreakCelebrationPageState extends State<StreakCelebrationPage>
                     scale: _showStreakNumber ? 1.0 : 0.2,
                     duration: const Duration(milliseconds: 450),
                     curve: Curves.easeOutBack,
-                    child: GestureDetector(
-                      onTap: _startCountAnimation,
-                      child: NumberFlowText(
-                        text: _displayedStreak.toString().padLeft(2, '0'),
-                        duration: const Duration(milliseconds: 450),
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.titleFontFamily,
-                          fontSize: 136,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          height: 1.0,
-                          shadows: const [
-                            Shadow(
-                              color: Color.fromARGB(255, 241, 113, 28),
-                              blurRadius: 0,
-                              offset: Offset(0, 6),
-                            ),
-                          ],
-                        ),
+                    child: NumberFlowText(
+                      text: _displayedStreak.toString().padLeft(2, '0'),
+                      duration: const Duration(milliseconds: 450),
+                      style: TextStyle(
+                        fontFamily: AppTextStyles.titleFontFamily,
+                        fontSize: 136,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        height: 1.0,
+                        shadows: const [
+                          Shadow(
+                            color: Color.fromARGB(255, 241, 113, 28),
+                            blurRadius: 0,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
                       ),
                     ),
                   ),

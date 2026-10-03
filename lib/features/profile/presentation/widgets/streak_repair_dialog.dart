@@ -21,6 +21,7 @@ class StreakRepairDialog extends ConsumerStatefulWidget {
     await Navigator.push(
       context,
       ModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => Sheet(
           decoration: const MaterialSheetDecoration(
             size: SheetSize.fit,

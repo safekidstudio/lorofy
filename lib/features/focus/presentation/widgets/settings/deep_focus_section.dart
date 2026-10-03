@@ -64,13 +64,13 @@ class DeepFocusSection extends ConsumerWidget {
                       Navigator.push(
                         context,
                         CupertinoModalSheetRoute(
+                          swipeDismissible: true,
                           builder: (context) => const Sheet(
                             decoration: MaterialSheetDecoration(
                               size: SheetSize.stretch,
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(24),
                                 topRight: Radius.circular(24),
-                                // ...
                               ),
                               color: AppColors.background,
                             ),

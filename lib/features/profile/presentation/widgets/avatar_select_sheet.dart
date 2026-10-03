@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:lorofy/components/ui/app_avatar.dart';
 import 'package:lorofy/components/ui/button.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 
@@ -98,20 +99,11 @@ class AvatarSelectSheet extends StatelessWidget {
                       onSelectPreset(avatar['id']!, avatar['url']!);
                       Navigator.pop(context);
                     },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.secondary,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: ClipOval(
-                        child: Image.network(
-                          avatar['url']!,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                    child: AppAvatar(
+                      path: avatar['url'],
+                      size: 52,
+                      borderColor: AppColors.secondary,
+                      borderWidth: 1.5,
                     ),
                   );
                 },

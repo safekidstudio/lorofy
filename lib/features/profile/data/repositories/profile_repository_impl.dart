@@ -19,7 +19,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   ProfileRepositoryImpl(this._dio);
 
   @override
-  Future<({String id, String url})> uploadAvatar(List<int> bytes, String filename) async {
+  Future<String> uploadAvatar(List<int> bytes, String filename) async {
     try {
       final formData = FormData.fromMap({
         'file': MultipartFile.fromBytes(bytes, filename: filename),
@@ -37,11 +37,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final responseData = response.data;
       if (responseData != null) {
         final dataField = responseData['data'];
-        if (dataField != null) {
-          return (
-            id: dataField['id'] as String,
-            url: dataField['url'] as String,
-          );
+        if (dataField != null && dataField['id'] != null) {
+          return dataField['id'] as String;
         }
       }
       throw Exception('Failed to upload avatar: invalid response data');

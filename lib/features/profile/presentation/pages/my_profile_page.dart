@@ -104,6 +104,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
     Navigator.push(
       context,
       CupertinoModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => Sheet(
           decoration: const MaterialSheetDecoration(
             size: SheetSize.fit,
@@ -129,6 +130,7 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
     Navigator.push(
       context,
       CupertinoModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => Sheet(
           decoration: const MaterialSheetDecoration(
             size: SheetSize.fit,
@@ -204,10 +206,9 @@ class _MyProfilePageState extends ConsumerState<MyProfilePage> {
       });
 
       final bytes = await image.readAsBytes();
-      final uploadResult = await ref
+      final assetId = await ref
           .read(profileRepositoryProvider)
           .uploadAvatar(bytes, image.name);
-      final assetId = uploadResult.id;
 
       final displayName =
           (_form.value['displayName'] as String?)?.trim() ??

@@ -92,16 +92,6 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage>
     }
   }
 
-  void _handleManualStreakClick(BuildContext context) {
-    if (widget.currentStreak > 0) {
-      StreakCelebrationPage.show(
-        context,
-        currentStreak: widget.currentStreak,
-        streakIncreased: widget.streakIncreased,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -125,8 +115,7 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage>
                 AppHeader(
                   leftActions: CupertinoButton(
                     padding: EdgeInsets.zero,
-                    onPressed: () =>
-                        _triggerActionWithStreakFlow(widget.onBackToHome),
+                    onPressed: widget.onBackToHome,
                     child: const Icon(
                       CupertinoIcons.xmark,
                       color: Color(0xFF232321),
@@ -232,66 +221,63 @@ class _PomodoroCompletePageState extends State<PomodoroCompletePage>
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      GestureDetector(
-                                        onTap: () => _handleManualStreakClick(context),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 8,
-                                          ),
-                                          decoration: BoxDecoration(
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: CupertinoColors.activeOrange
+                                              .withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(20),
+                                          border: Border.all(
                                             color: CupertinoColors.activeOrange
-                                                .withValues(alpha: 0.15),
-                                            borderRadius: BorderRadius.circular(20),
-                                            border: Border.all(
-                                              color: CupertinoColors.activeOrange
-                                                  .withValues(alpha: 0.3),
-                                              width: 1,
+                                                .withValues(alpha: 0.3),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              CupertinoIcons.flame_fill,
+                                              color: CupertinoColors.activeOrange,
+                                              size: 20,
                                             ),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const Icon(
-                                                CupertinoIcons.flame_fill,
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              '${widget.currentStreak}-Day Streak!',
+                                              style: const TextStyle(
+                                                fontFamily: AppTextStyles.fontFamily,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
                                                 color: CupertinoColors.activeOrange,
-                                                size: 20,
                                               ),
+                                            ),
+                                            if (widget.streakIncreased) ...[
                                               const SizedBox(width: 6),
-                                              Text(
-                                                '${widget.currentStreak}-Day Streak!',
-                                                style: const TextStyle(
-                                                  fontFamily: AppTextStyles.fontFamily,
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold,
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 6,
+                                                  vertical: 2,
+                                                ),
+                                                decoration: BoxDecoration(
                                                   color: CupertinoColors.activeOrange,
+                                                  borderRadius: BorderRadius.circular(
+                                                    10,
+                                                  ),
+                                                ),
+                                                child: const Text(
+                                                  '+1 Today 🎉',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: CupertinoColors.white,
+                                                  ),
                                                 ),
                                               ),
-                                              if (widget.streakIncreased) ...[
-                                                const SizedBox(width: 6),
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(
-                                                    horizontal: 6,
-                                                    vertical: 2,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: CupertinoColors.activeOrange,
-                                                    borderRadius: BorderRadius.circular(
-                                                      10,
-                                                    ),
-                                                  ),
-                                                  child: const Text(
-                                                    '+1 Today 🎉',
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: CupertinoColors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
                                             ],
-                                          ),
+                                          ],
                                         ),
                                       ),
                                     ],

@@ -52,6 +52,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
     final confirmed = await Navigator.push<bool>(
       context,
       ModalSheetRoute(
+        swipeDismissible: true,
         builder: (context) => Sheet(
           decoration: const MaterialSheetDecoration(
             size: SheetSize.fit,

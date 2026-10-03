@@ -38,6 +38,7 @@ class TagSection extends ConsumerWidget {
                 Navigator.push(
                   context,
                   CupertinoModalSheetRoute(
+                    swipeDismissible: true,
                     builder: (context) => const Sheet(
                       decoration: MaterialSheetDecoration(
                         size: SheetSize.fit,
