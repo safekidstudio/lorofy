@@ -25,3 +25,8 @@
 # Preserve Line Numbers for Crashlytics stack traces
 -renamesourcefileattribute SourceFile
 -keepattributes SourceFile,LineNumberTable,Signature,*Annotation*
+
+# R8 Optimization & Code Shrinking
+-optimizationpasses 5
+-allowaccessmodification
+-repackageclasses ''

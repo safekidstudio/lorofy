@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:installed_apps/app_info.dart';
 import 'package:installed_apps/installed_apps.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:lorofy/core/utils/logger.dart';
