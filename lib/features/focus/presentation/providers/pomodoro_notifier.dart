@@ -19,6 +19,8 @@ import 'package:lorofy/features/focus/domain/models/focus_session.dart';
 import 'package:lorofy/features/profile/presentation/providers/activities_provider.dart';
 import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
 import 'package:lorofy/features/explore/presentation/providers/explore_stats_provider.dart';
+import 'package:lorofy/core/services/notification_service.dart';
+import 'package:lorofy/core/services/widget_service.dart';
 import 'package:lorofy/features/profile/presentation/providers/point_history_provider.dart';
 
 // ---------------------------------------------------------------------------
@@ -29,6 +31,7 @@ class PomodoroTimerState {
   final PomodoroState phase;
   final int countdownSeconds;
   final int totalSessionSeconds;
+  final DateTime? targetEndTime;
   final int currentRound;
   final bool isLongBreak;
   final String? backendSessionId;
@@ -42,6 +45,7 @@ class PomodoroTimerState {
     this.phase = PomodoroState.idle,
     this.countdownSeconds = 60,
     this.totalSessionSeconds = 60,
+    this.targetEndTime,
     this.currentRound = 1,
     this.isLongBreak = false,
     this.backendSessionId,
@@ -56,6 +60,7 @@ class PomodoroTimerState {
     PomodoroState? phase,
     int? countdownSeconds,
     int? totalSessionSeconds,
+    DateTime? targetEndTime,
     int? currentRound,
     bool? isLongBreak,
     String? backendSessionId,
@@ -69,6 +74,7 @@ class PomodoroTimerState {
       phase: phase ?? this.phase,
       countdownSeconds: countdownSeconds ?? this.countdownSeconds,
       totalSessionSeconds: totalSessionSeconds ?? this.totalSessionSeconds,
+      targetEndTime: targetEndTime ?? this.targetEndTime,
       currentRound: currentRound ?? this.currentRound,
       isLongBreak: isLongBreak ?? this.isLongBreak,
       backendSessionId: backendSessionId ?? this.backendSessionId,
@@ -101,17 +107,40 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
   // ── Public API ──────────────────────────────────────────────────────────
 
+  /// Call when app resumes from screen-off or background to instantly sync timer
+  void syncWithTargetEndTime() {
+    final endTime = state.targetEndTime;
+    if (endTime == null || (state.phase != PomodoroState.focus && state.phase != PomodoroState.breakTime)) {
+      return;
+    }
+
+    final remaining = endTime.difference(DateTime.now()).inSeconds;
+    if (remaining <= 0) {
+      state = state.copyWith(countdownSeconds: 0);
+      if (state.phase == PomodoroState.focus) {
+        _onFocusCompleted();
+      } else if (state.phase == PomodoroState.breakTime) {
+        _onBreakCompleted();
+      }
+    } else {
+      state = state.copyWith(countdownSeconds: remaining);
+    }
+  }
+
   void startFocus(int focusMinutes, {bool force = false}) {
     _cancelTicker();
     final totalSeconds = focusMinutes * 60;
+    final endTime = DateTime.now().add(Duration(seconds: totalSeconds));
     _stopwatch = Stopwatch()..start();
 
     final settings = ref.read(pomodoroSettingsProvider);
+    final categoryName = settings.selectedCategory?.name ?? 'Focus Session';
 
     state = state.copyWith(
       phase: PomodoroState.focus,
       totalSessionSeconds: totalSeconds,
       countdownSeconds: totalSeconds,
+      targetEndTime: endTime,
       selectedCategory: settings.selectedCategory,
       backendSessionId: null,
       earnedPoints: 0,
@@ -119,6 +148,21 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     );
 
     _runTicker(PomodoroState.focus, onComplete: _onFocusCompleted);
+
+    // Show ongoing lock screen notification with chronometer countdown
+    NotificationService().showLockScreenOngoingNotification(
+      title: 'Lorofy Focus: $categoryName 🎯',
+      body: 'Keep going! Focus session is active on your screen.',
+      targetEndTime: endTime,
+    );
+
+    // Update Home & Lock screen widgets
+    WidgetService().updateFocusWidget(
+      categoryName: categoryName,
+      targetEndTime: endTime,
+      totalSeconds: totalSeconds,
+      isRunning: true,
+    );
 
     // Start ambient sound if configured
     _playAmbientSound(settings);
@@ -134,14 +178,17 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
   }) {
     _cancelTicker();
     final totalSeconds = session.plannedMinutes * 60;
+    final endTime = DateTime.now().add(Duration(seconds: remainingSeconds));
     _stopwatch = Stopwatch()..start();
 
     final settings = ref.read(pomodoroSettingsProvider);
+    final categoryName = settings.selectedCategory?.name ?? 'Focus Session';
 
     state = state.copyWith(
       phase: PomodoroState.focus,
       totalSessionSeconds: totalSeconds,
       countdownSeconds: remainingSeconds,
+      targetEndTime: endTime,
       selectedCategory: settings.selectedCategory,
       backendSessionId: session.id,
       earnedPoints: 0,
@@ -149,6 +196,21 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     );
 
     _runTicker(PomodoroState.focus, onComplete: _onFocusCompleted);
+
+    // Show ongoing lock screen notification
+    NotificationService().showLockScreenOngoingNotification(
+      title: 'Lorofy Focus: $categoryName 🎯',
+      body: 'Focus session resumed. Keep going!',
+      targetEndTime: endTime,
+    );
+
+    // Update Home & Lock screen widgets
+    WidgetService().updateFocusWidget(
+      categoryName: categoryName,
+      targetEndTime: endTime,
+      totalSeconds: totalSeconds,
+      isRunning: true,
+    );
 
     // Start ambient sound if configured
     _playAmbientSound(settings);
@@ -162,16 +224,34 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
   void startBreak(int breakMinutes, {required bool isLong}) {
     _cancelTicker();
     final totalSeconds = breakMinutes * 60;
+    final endTime = DateTime.now().add(Duration(seconds: totalSeconds));
     _stopwatch = Stopwatch()..start();
 
     state = state.copyWith(
       phase: PomodoroState.breakTime,
       totalSessionSeconds: totalSeconds,
       countdownSeconds: totalSeconds,
+      targetEndTime: endTime,
       isLongBreak: isLong,
     );
 
     _runTicker(PomodoroState.breakTime, onComplete: _onBreakCompleted);
+
+    // Show ongoing lock screen notification for break
+    final breakTitle = isLong ? 'Long Break' : 'Short Break';
+    NotificationService().showLockScreenOngoingNotification(
+      title: 'Lorofy $breakTitle ☕',
+      body: 'Rest up before your next focus round!',
+      targetEndTime: endTime,
+    );
+
+    // Update Home & Lock screen widgets
+    WidgetService().updateFocusWidget(
+      categoryName: breakTitle,
+      targetEndTime: endTime,
+      totalSeconds: totalSeconds,
+      isRunning: true,
+    );
 
     // Stop ambient sound during break
     ref.read(musicPlayerProvider.notifier).stop();
@@ -181,6 +261,12 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
   void pauseTicker() async {
     _ticker?.cancel();
     _stopwatch?.stop();
+
+    final categoryName = state.selectedCategory?.name ?? 'Focus Session';
+    WidgetService().markPaused(
+      categoryName: categoryName,
+      remainingSeconds: state.countdownSeconds,
+    );
 
     // Call API pauseSession
     final sessionId = state.backendSessionId;
@@ -196,17 +282,30 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
   /// Resumes the ticker after the give-up sheet is dismissed without confirming.
   void resumeFocusTicker() {
     _stopwatch?.start();
+    final categoryName = state.selectedCategory?.name ?? 'Focus Session';
+    final endTime = DateTime.now().add(Duration(seconds: state.countdownSeconds));
+    state = state.copyWith(targetEndTime: endTime);
+
+    WidgetService().updateWidgetState(
+      statusText: categoryName,
+      widgetState: 'running',
+      targetEndTime: endTime,
+      totalSeconds: state.totalSessionSeconds,
+    );
+
     _runTicker(PomodoroState.focus, onComplete: _onFocusCompleted);
   }
 
   void confirmGiveUp({String? failureReason}) async {
     _cancelTicker();
+    NotificationService().cancelOngoingLockScreenNotification();
+    final settings = ref.read(pomodoroSettingsProvider);
+    WidgetService().clearWidget(focusMinutes: settings.focusMinutes);
     state = state.copyWith(phase: PomodoroState.giveup);
 
     // Stop ambient sound on give up
     ref.read(musicPlayerProvider.notifier).stop();
 
-    final settings = ref.read(pomodoroSettingsProvider);
     final systemSettings = ref.read(systemSettingsProvider);
     final isStrict = settings.blockMode == BlockMode.strict;
     final penaltyPoints = isStrict
@@ -264,8 +363,10 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
   void resetToIdle() {
     _cancelTicker();
-    ref.read(musicPlayerProvider.notifier).stop();
+    NotificationService().cancelOngoingLockScreenNotification();
     final settings = ref.read(pomodoroSettingsProvider);
+    WidgetService().clearWidget(focusMinutes: settings.focusMinutes);
+    ref.read(musicPlayerProvider.notifier).stop();
     state = PomodoroTimerState(selectedCategory: settings.selectedCategory);
   }
 
@@ -326,25 +427,25 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
     PomodoroState expectedPhase, {
     required VoidCallback onComplete,
   }) {
-    _ticker = Timer.periodic(const Duration(milliseconds: 50), (_) {
+    _ticker = Timer.periodic(const Duration(milliseconds: 200), (_) {
       if (state.phase != expectedPhase) {
         _ticker?.cancel();
         return;
       }
 
-      final elapsed = (_stopwatch!.elapsedMilliseconds / 1000.0);
-      final remaining = (state.totalSessionSeconds - elapsed).clamp(
-        0.0,
-        state.totalSessionSeconds.toDouble(),
-      );
-      final newCountdown = remaining.ceil();
+      final endTime = state.targetEndTime;
+      if (endTime == null) return;
+
+      final now = DateTime.now();
+      final remaining = endTime.difference(now).inSeconds;
+      final newCountdown = remaining.clamp(0, state.totalSessionSeconds);
 
       if (newCountdown != state.countdownSeconds) {
         state = state.copyWith(countdownSeconds: newCountdown);
       }
 
-      if (elapsed >= state.totalSessionSeconds) {
-        _stopwatch!.stop();
+      if (now.isAfter(endTime) || remaining <= 0) {
+        _stopwatch?.stop();
         _ticker?.cancel();
         onComplete();
       }
@@ -371,6 +472,11 @@ class PomodoroNotifier extends Notifier<PomodoroTimerState> {
 
     final targetRounds = settings.isPomodoroMode ? settings.targetRounds : 1;
     final isFinalRound = state.currentRound >= targetRounds;
+
+    if (isFinalRound) {
+      NotificationService().cancelOngoingLockScreenNotification();
+      WidgetService().clearWidget();
+    }
 
     // Immediately update completion state so screen transition triggers instantly without delay
     state = state.copyWith(

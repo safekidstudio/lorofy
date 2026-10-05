@@ -97,9 +97,10 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
       }
     } else if (state == AppLifecycleState.resumed) {
       _isBackgrounded = false;
-      // Return to app within grace period: cancel timer and clear notifications
+      // Instantly sync timer upon resume
+      ref.read(pomodoroTimerProvider.notifier).syncWithTargetEndTime();
+      // Return to app within grace period: cancel timer
       _cancelGraceTimer();
-      NotificationService().cancelAll();
     }
   }
 
@@ -124,15 +125,22 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
       final settings = ref.read(pomodoroSettingsProvider);
       final fgPackage = await ForegroundAppService().getForegroundAppPackage();
 
-      // Case A: User is in Lorofy OR in a Whitelisted app (e.g. Hive, Spotify)
-      if (fgPackage != null && (fgPackage == myPackage || allowedPackages.contains(fgPackage))) {
+      // Case A: Screen Off / Locked (fgPackage == null) -> Safe Neutral Zone!
+      if (fgPackage == null) {
+        _unallowedSecondsCounter = 0;
+        _lastNotifiedStatus = 'screen_off';
+        return;
+      }
+
+      // Case B: User is in Lorofy OR in a Whitelisted app (e.g. Hive, Spotify)
+      if (fgPackage == myPackage || allowedPackages.contains(fgPackage)) {
         _unallowedSecondsCounter = 0;
         _lastNotifiedStatus = 'whitelisted';
         return;
       }
 
-      // Case B: User is on Home Launcher / System UI -> Safe Neutral Zone!
-      final isLauncher = fgPackage != null && await ForegroundAppService().isLauncherPackage(fgPackage);
+      // Case C: User is on Home Launcher / System UI -> Safe Neutral Zone!
+      final isLauncher = await ForegroundAppService().isLauncherPackage(fgPackage);
       if (isLauncher) {
         _unallowedSecondsCounter = 0;
         _lastNotifiedStatus = 'launcher';
@@ -146,9 +154,7 @@ class _FocusLifecycleObserverState extends ConsumerState<FocusLifecycleObserver>
       if (remainingSeconds <= 0) {
         _cancelGraceTimer();
         ref.read(pomodoroTimerProvider.notifier).confirmGiveUp(
-              failureReason: fgPackage != null
-                  ? 'Accessed unallowed app ($fgPackage)'
-                  : 'Accessed unallowed app',
+              failureReason: 'Accessed unallowed app ($fgPackage)',
             );
         NotificationService().showSessionFailedNotification(
           title: 'Focus Session Failed',

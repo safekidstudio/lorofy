@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lorofy</string>
+    <string name="widget_pill_description">Lorofy Focus Light Widget</string>
+    <string name="widget_dark_description">Lorofy Focus Dark Widget</string>
+</resources>

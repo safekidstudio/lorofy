@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:lorofy/core/services/widget_service.dart';
 import 'package:lorofy/core/storage/settings_storage.dart';
 import 'package:lorofy/core/utils/logger.dart';
 import 'package:lorofy/features/focus/domain/enums/block_mode.dart';
@@ -39,6 +40,9 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
       initialSettings = _defaultSettings();
     }
 
+    // Sync widget idle timer with loaded user focusMinutes setting
+    Future.microtask(() => WidgetService().clearWidget(focusMinutes: initialSettings.focusMinutes));
+
     // Schedule remote sync in background after build
     Future.microtask(() => syncFromRemote());
 
@@ -68,6 +72,7 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
       if (remoteSettings != null && remoteSettings != state) {
         AppLogger.info('Remote settings synced from API', tag: 'PomodoroSettings');
         state = remoteSettings.copyWith(isLoaded: true);
+        WidgetService().clearWidget(focusMinutes: state.focusMinutes);
       }
     } catch (e, stack) {
       AppLogger.error('Failed to sync settings from remote', error: e, stackTrace: stack, tag: 'PomodoroSettings');
@@ -82,6 +87,9 @@ class PomodoroSettingsNotifier extends _$PomodoroSettingsNotifier {
     
     // Save locally immediately for fast responsive UI
     saveToStorage();
+
+    // Sync idle widget with newly saved focusMinutes
+    WidgetService().clearWidget(focusMinutes: updated.focusMinutes);
 
     // Debounce remote API sync by 4 seconds so rapid user adjustments don't flood the server
     _debounceTimer?.cancel();

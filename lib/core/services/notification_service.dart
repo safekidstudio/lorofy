@@ -217,6 +217,72 @@ class NotificationService {
     }
   }
 
+  /// Show ongoing lock screen notification with live chronometer countdown
+  Future<void> showLockScreenOngoingNotification({
+    String title = 'Lorofy Focus Session 🎯',
+    required String body,
+    required DateTime targetEndTime,
+  }) async {
+    final androidDetails = AndroidNotificationDetails(
+      'focus_ongoing_channel',
+      'Ongoing Focus Session',
+      channelDescription: 'Live lock screen timer for active focus session',
+      importance: Importance.low,
+      priority: Priority.low,
+      ongoing: true,
+      autoCancel: false,
+      usesChronometer: true,
+      chronometerCountDown: true,
+      when: targetEndTime.millisecondsSinceEpoch,
+      showWhen: true,
+      icon: '@mipmap/launcher_icon',
+      category: AndroidNotificationCategory.status,
+      visibility: NotificationVisibility.public,
+      styleInformation: BigTextStyleInformation(body),
+    );
+
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: const DarwinNotificationDetails(
+        presentAlert: false,
+        presentBadge: false,
+        presentSound: false,
+        interruptionLevel: InterruptionLevel.passive,
+      ),
+    );
+
+    try {
+      await _notificationsPlugin.show(
+        1004,
+        title,
+        body,
+        notificationDetails,
+        payload: 'ongoing_focus',
+      );
+    } catch (e, stack) {
+      AppLogger.error(
+        'Error showing ongoing lock screen notification',
+        error: e,
+        stackTrace: stack,
+        tag: _tag,
+      );
+    }
+  }
+
+  /// Cancel ongoing lock screen notification
+  Future<void> cancelOngoingLockScreenNotification() async {
+    try {
+      await _notificationsPlugin.cancel(1004);
+    } catch (e, stack) {
+      AppLogger.error(
+        'Error cancelling ongoing notification',
+        error: e,
+        stackTrace: stack,
+        tag: _tag,
+      );
+    }
+  }
+
   /// Cancel all active notifications
   Future<void> cancelAll() async {
     try {

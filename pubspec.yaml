@@ -47,6 +47,7 @@ dependencies:
   installed_apps: ^2.1.0
   package_info_plus: ^8.1.0
   connectivity_plus: ^7.3.1
+  home_widget: ^0.7.0
 
 dev_dependencies:
   build_runner: ^2.4.11
