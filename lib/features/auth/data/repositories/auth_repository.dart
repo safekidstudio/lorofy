@@ -135,6 +135,12 @@ class AuthRepository {
         timezone: timezone,
         avatarAssetId: avatarAssetId,
       );
+
+      await _ref.read(authProvider.notifier).updateOnboardedState(
+            onboarded: profile.isOnboarded,
+            displayName: profile.displayName ?? displayName,
+          );
+
       return profile;
     } catch (e) {
       throw e.toFailure();

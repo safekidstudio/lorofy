@@ -19,6 +19,8 @@ import 'package:lorofy/features/mascot/presentation/providers/mascot_notifier.da
 import 'package:lorofy/features/mascot/presentation/widgets/mascot_graphic.dart';
 import 'package:lorofy/features/auth/presentation/providers/auth_provider.dart';
 
+import 'package:lorofy/core/storage/settings_storage.dart';
+import 'package:lorofy/features/focus/presentation/widgets/timer/first_time_coachmark_overlay.dart';
 import 'package:flutter/foundation.dart';
 
 class QuickStartPage extends ConsumerStatefulWidget {
@@ -41,6 +43,27 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
+
+  final GlobalKey _settingsKey = GlobalKey();
+  final GlobalKey _startKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final storage = ref.read(settingsStorageProvider);
+      if (!storage.isFirstTourCompleted()) {
+        showFirstTimeCoachmarkTour(
+          context: context,
+          settingsKey: _settingsKey,
+          startButtonKey: _startKey,
+          onFinish: () {
+            ref.read(settingsStorageProvider).setFirstTourCompleted(true);
+          },
+        );
+      }
+    });
+  }
 
   // ── Navigation & Sheet Helpers ─────────────────────────────────────────
 
@@ -139,7 +162,11 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Modular Clean Header
-            QuickStartHeader(phase: phase, onReset: onReset),
+            QuickStartHeader(
+              phase: phase,
+              onReset: onReset,
+              settingsKey: _settingsKey,
+            ),
 
             // Main focus content (Mascot + Timer + Action buttons)
             Expanded(
@@ -247,6 +274,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
                               child: PomodoroActionButtons(
                                 key: ValueKey(phase),
                                 pomodoroState: phase,
+                                startButtonKey: _startKey,
                                 onStart: () {
                                   HapticFeedback.mediumImpact();
                                   notifier.startFocus(settings.focusMinutes);
@@ -300,7 +328,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
       );
     }
 
-    return AnimatedSwitcher(
+    final mainContent = AnimatedSwitcher(
       duration: const Duration(milliseconds: 450),
       switchInCurve: Curves.easeOutCubic,
       switchOutCurve: Curves.easeInCubic,
@@ -358,5 +386,7 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
       },
       child: currentScreen,
     );
+
+    return mainContent;
   }
 }

@@ -10,6 +10,24 @@ class SettingsStorage {
 
   static const _pomodoroSettingsKey = "pomodoro_settings";
   static const _systemSettingsKey = "system_settings";
+  static const _firstTourCompletedKey = "is_first_tour_completed";
+  static const _firstSettingsTourCompletedKey = "is_first_settings_tour_completed";
+
+  bool isFirstTourCompleted() {
+    return _prefs.getBool(_firstTourCompletedKey) ?? false;
+  }
+
+  Future<void> setFirstTourCompleted(bool completed) async {
+    await _prefs.setBool(_firstTourCompletedKey, completed);
+  }
+
+  bool isFirstSettingsTourCompleted() {
+    return _prefs.getBool(_firstSettingsTourCompletedKey) ?? false;
+  }
+
+  Future<void> setFirstSettingsTourCompleted(bool completed) async {
+    await _prefs.setBool(_firstSettingsTourCompletedKey, completed);
+  }
 
   Future<void> saveSettings(String jsonStr) async {
     await _prefs.setString(_pomodoroSettingsKey, jsonStr);

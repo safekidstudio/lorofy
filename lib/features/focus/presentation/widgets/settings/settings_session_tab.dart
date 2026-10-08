@@ -8,7 +8,18 @@ import 'tag_section.dart';
 import 'advanced_mode_section.dart';
 
 class SettingsSessionTab extends ConsumerWidget {
-  const SettingsSessionTab({super.key});
+  final GlobalKey? pomodoroModeKey;
+  final GlobalKey? durationKey;
+  final GlobalKey? tagKey;
+  final GlobalKey? blockModeKey;
+
+  const SettingsSessionTab({
+    super.key,
+    this.pomodoroModeKey,
+    this.durationKey,
+    this.tagKey,
+    this.blockModeKey,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,13 +32,25 @@ class SettingsSessionTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const DeepFocusSection(),
+          Container(
+            key: pomodoroModeKey,
+            child: const DeepFocusSection(),
+          ),
           const SizedBox(height: 24),
-          const TimeDurationSection(),
+          Container(
+            key: durationKey,
+            child: const TimeDurationSection(),
+          ),
           const SizedBox(height: 24),
-          TagSection(categoriesAsync: categoriesAsync),
+          Container(
+            key: tagKey,
+            child: TagSection(categoriesAsync: categoriesAsync),
+          ),
           const SizedBox(height: 24),
-          const AdvancedModeSection(),
+          Container(
+            key: blockModeKey,
+            child: const AdvancedModeSection(),
+          ),
         ],
       ),
     );

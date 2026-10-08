@@ -40,14 +40,21 @@ class UserProfile {
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
+    final displayName = json['displayName'] as String?;
+    final bool parsedOnboarded = (json['isOnboarded'] ??
+            json['onboarded'] ??
+            json['is_onboarded'] ??
+            json['isOnBoarded']) as bool? ??
+        (displayName != null && displayName.trim().isNotEmpty);
+
     return UserProfile(
       id: json['id'] as String,
       username: json['username'] as String,
-      displayName: json['displayName'] as String?,
+      displayName: displayName,
       countryCode: json['countryCode'] as String? ?? 'VN',
       countryName: json['countryName'] as String? ?? 'Vietnam',
       timezone: json['timezone'] as String? ?? 'Asia/Ho_Chi_Minh',
-      isOnboarded: json['onboarded'] as bool? ?? false,
+      isOnboarded: parsedOnboarded,
       avatarUrl: json['avatarUrl'] as String?,
       defaultBlockMode: json['defaultBlockMode'] as String? ?? 'MEDIUM',
       rankPoints: json['rankPoints'] as int? ?? 0,

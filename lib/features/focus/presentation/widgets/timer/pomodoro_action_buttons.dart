@@ -11,6 +11,7 @@ class PomodoroActionButtons extends StatelessWidget {
   final VoidCallback onRest;
   final VoidCallback onRestart;
   final VoidCallback onHome;
+  final GlobalKey? startButtonKey;
 
   const PomodoroActionButtons({
     super.key,
@@ -21,6 +22,7 @@ class PomodoroActionButtons extends StatelessWidget {
     required this.onRest,
     required this.onRestart,
     required this.onHome,
+    this.startButtonKey,
   });
 
   @override
@@ -28,7 +30,7 @@ class PomodoroActionButtons extends StatelessWidget {
     switch (pomodoroState) {
       case PomodoroState.idle:
         return SizedBox(
-          key: const ValueKey('idle_btn'),
+          key: startButtonKey ?? const ValueKey('idle_btn'),
           width: 146,
           child: Button.primary(text: 'Start', onPressed: onStart),
         );

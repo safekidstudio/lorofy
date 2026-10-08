@@ -11,11 +11,13 @@ import 'sound_button.dart';
 class QuickStartHeader extends StatelessWidget {
   final PomodoroState phase;
   final VoidCallback onReset;
+  final GlobalKey? settingsKey;
 
   const QuickStartHeader({
     super.key,
     required this.phase,
     required this.onReset,
+    this.settingsKey,
   });
 
   @override
@@ -41,7 +43,7 @@ class QuickStartHeader extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         child: switch (phase) {
           PomodoroState.idle => CupertinoButton(
-            key: const ValueKey('settings_btn'),
+            key: settingsKey ?? const ValueKey('settings_btn'),
             padding: EdgeInsets.zero,
             onPressed: () => context.push('/session-settings'),
             child: const SVG(
