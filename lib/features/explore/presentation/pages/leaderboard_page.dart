@@ -159,7 +159,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                     recentlyBoosted: _recentlyBoosted,
                                   ),
 
-                                  const SizedBox(height: 32),
+                                  const SizedBox(height: 12),
 
                                   // Rank 4+ Reordering List
                                   if (listItems.isNotEmpty)
