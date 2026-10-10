@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/animated_points_flow.dart';
 import 'package:lorofy/components/shared/drawing_container.dart';
 import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
@@ -281,21 +282,9 @@ class ExploreLeaderboardSection extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 2,
-          children: [
-            SVG('assets/illustrations/flower.svg', width: 14, height: 14),
-            Text(
-              '$points pts',
-              style: const TextStyle(
-                fontFamily: AppTextStyles.fontFamily,
-                fontSize: 12,
-                color: AppColors.mutedForeground,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+        AnimatedPointsFlow(
+          value: points,
+          iconSize: 14,
         ),
       ],
     );

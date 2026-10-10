@@ -16,10 +16,11 @@ class DeepFocusSection extends ConsumerWidget {
     final settings = ref.watch(pomodoroSettingsProvider);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
               'Pomodoro Mode',
@@ -27,7 +28,7 @@ class DeepFocusSection extends ConsumerWidget {
                 fontFamily: AppTextStyles.fontFamily,
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
-                color: AppColors.foreground,
+                color: AppColors.primary,
               ),
             ),
             AppSwitch(

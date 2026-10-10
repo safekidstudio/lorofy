@@ -28,16 +28,16 @@ class CoachmarkTooltipCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: CupertinoColors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: CupertinoColors.black.withValues(alpha: 0.2),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -109,27 +109,27 @@ class CoachmarkTooltipCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Text(
             title,
             style: const TextStyle(
               fontFamily: AppTextStyles.titleFontFamily,
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.bold,
               color: AppColors.foreground,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             description,
             style: const TextStyle(
               fontFamily: AppTextStyles.fontFamily,
               fontSize: 13,
-              height: 1.4,
+              height: 1.35,
               color: AppColors.mutedForeground,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Align(
             alignment: Alignment.centerRight,
             child: Button.primary(
@@ -164,12 +164,12 @@ void showFirstTimeCoachmarkTour({
           align: ContentAlign.bottom,
           builder: (context, controller) {
             return CoachmarkTooltipCard(
-              title: 'Customize Session ⚙️',
+              title: 'Customize Session',
               stepText: 'STEP 1',
               stepProgress: '1 / 2',
               description:
                   'Tap the Gear icon to set Timer duration, Ambient Sounds, and Strict Mode.',
-              buttonText: 'Next ➜',
+              buttonText: 'Next',
               onNext: () => controller.next(),
               onSkip: () => controller.skip(),
             );
@@ -188,12 +188,12 @@ void showFirstTimeCoachmarkTour({
           align: ContentAlign.top,
           builder: (context, controller) {
             return CoachmarkTooltipCard(
-              title: 'Ready to Focus? 🚀',
+              title: 'Ready to Focus?',
               stepText: 'STEP 2',
               stepProgress: '2 / 2',
               description:
                   'Tap START to launch your first session, earn coins, and level up Lorofy!',
-              buttonText: 'Get Started 🚀',
+              buttonText: 'Get Started',
               onNext: () => controller.next(),
               onSkip: () => controller.skip(),
             );
@@ -209,6 +209,17 @@ void showFirstTimeCoachmarkTour({
     opacityShadow: 0.75,
     paddingFocus: 8,
     hideSkip: true,
+    beforeFocus: (target) async {
+      final key = target.keyTarget;
+      if (key?.currentContext != null && key!.currentContext!.mounted) {
+        final alignment = target.identify == "start_step" ? 0.8 : 0.05;
+        await Scrollable.ensureVisible(
+          key.currentContext!,
+          alignment: alignment,
+          duration: const Duration(milliseconds: 300),
+        );
+      }
+    },
     onFinish: onFinish,
     onSkip: () {
       onFinish();
@@ -243,12 +254,12 @@ void showSessionSettingsCoachmarkTour({
           align: ContentAlign.bottom,
           builder: (context, controller) {
             return CoachmarkTooltipCard(
-              title: 'Pomodoro Mode ⏳',
+              title: 'Pomodoro Mode',
               stepText: 'STEP 1',
               stepProgress: '1 / 4',
               description:
                   'Enable Pomodoro mode to divide study sessions into focus rounds & rest breaks.',
-              buttonText: 'Next ➜',
+              buttonText: 'Next',
               onNext: () => controller.next(),
               onSkip: () => controller.skip(),
             );
@@ -268,12 +279,12 @@ void showSessionSettingsCoachmarkTour({
           align: ContentAlign.bottom,
           builder: (context, controller) {
             return CoachmarkTooltipCard(
-              title: 'Focus Duration ⏱️',
+              title: 'Focus Duration',
               stepText: 'STEP 2',
               stepProgress: '2 / 4',
               description:
                   'Drag the slider to adjust your focus time per session (e.g. 25m or 50m).',
-              buttonText: 'Next ➜',
+              buttonText: 'Next',
               onNext: () => controller.next(),
               onSkip: () => controller.skip(),
             );
@@ -290,15 +301,15 @@ void showSessionSettingsCoachmarkTour({
       radius: 16,
       contents: [
         TargetContent(
-          align: ContentAlign.top,
+          align: ContentAlign.bottom,
           builder: (context, controller) {
             return CoachmarkTooltipCard(
-              title: 'Activity Tag 🏷️',
+              title: 'Activity Tag',
               stepText: 'STEP 3',
               stepProgress: '3 / 4',
               description:
                   'Select a tag like Study, Work, or Reading to organize your statistics.',
-              buttonText: 'Next ➜',
+              buttonText: 'Next',
               onNext: () => controller.next(),
               onSkip: () => controller.skip(),
             );
@@ -318,12 +329,12 @@ void showSessionSettingsCoachmarkTour({
           align: ContentAlign.top,
           builder: (context, controller) {
             return CoachmarkTooltipCard(
-              title: 'Block Mode 🔒',
+              title: 'Block Mode',
               stepText: 'STEP 4',
               stepProgress: '4 / 4',
               description:
                   'Choose Strict Mode or Medium Mode to block distracting apps while focusing.',
-              buttonText: 'Got it! 🚀',
+              buttonText: 'Got it!',
               onNext: () => controller.next(),
               onSkip: () => controller.skip(),
             );
@@ -339,6 +350,25 @@ void showSessionSettingsCoachmarkTour({
     opacityShadow: 0.75,
     paddingFocus: 8,
     hideSkip: true,
+    beforeFocus: (target) async {
+      final key = target.keyTarget;
+      if (key?.currentContext != null && key!.currentContext!.mounted) {
+        double alignment = 0.0;
+        if (target.identify == "block_mode_step") {
+          alignment = 0.8;
+        } else if (target.identify == "tag_step") {
+          alignment = 0.2;
+        } else if (target.identify == "duration_step") {
+          alignment = 0.1;
+        }
+        await Scrollable.ensureVisible(
+          key.currentContext!,
+          alignment: alignment,
+          duration: const Duration(milliseconds: 150),
+        );
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+    },
     onFinish: onFinish,
     onSkip: () {
       onFinish();
@@ -346,5 +376,10 @@ void showSessionSettingsCoachmarkTour({
     },
   );
 
-  tutorialCoachMark.show(context: context);
+  // Wait 500ms for page slide-in route transition to fully finish before showing coachmark
+  Future.delayed(const Duration(milliseconds: 500), () {
+    if (context.mounted) {
+      tutorialCoachMark.show(context: context);
+    }
+  });
 }

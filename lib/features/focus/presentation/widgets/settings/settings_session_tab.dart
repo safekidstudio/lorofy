@@ -32,23 +32,27 @@ class SettingsSessionTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
+          SizedBox(
             key: pomodoroModeKey,
+            width: double.infinity,
             child: const DeepFocusSection(),
           ),
           const SizedBox(height: 24),
-          Container(
+          SizedBox(
             key: durationKey,
+            width: double.infinity,
             child: const TimeDurationSection(),
           ),
           const SizedBox(height: 24),
-          Container(
+          SizedBox(
             key: tagKey,
+            width: double.infinity,
             child: TagSection(categoriesAsync: categoriesAsync),
           ),
           const SizedBox(height: 24),
-          Container(
+          SizedBox(
             key: blockModeKey,
+            width: double.infinity,
             child: const AdvancedModeSection(),
           ),
         ],

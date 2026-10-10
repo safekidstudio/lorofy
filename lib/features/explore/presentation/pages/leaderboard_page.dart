@@ -1,19 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lorofy/components/layout/app_header.dart';
-import 'package:lorofy/components/shared/drawing_container.dart';
-import 'package:lorofy/components/ui/app_avatar.dart';
 import 'package:lorofy/components/ui/app_empty_state.dart';
 import 'package:lorofy/components/ui/app_refresh_control.dart';
 import 'package:lorofy/components/ui/fomo_toast.dart';
-import 'package:lorofy/components/ui/shimmer.dart';
 import 'package:lorofy/components/ui/sliding_segmented_control.dart';
 import 'package:lorofy/components/ui/svg_asset.dart';
-import 'package:lorofy/core/theme/app_theme.dart';
-import 'package:lorofy/features/explore/domain/models/leaderboard.dart';
-import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
-
 import 'package:lorofy/core/localization/l10n_extension.dart';
+import 'package:lorofy/core/theme/app_theme.dart';
+import 'package:lorofy/features/explore/presentation/providers/leaderboard_provider.dart';
+import 'package:lorofy/features/explore/presentation/widgets/leaderboard/leaderboard.dart';
 
 class LeaderboardPage extends ConsumerStatefulWidget {
   const LeaderboardPage({super.key});
@@ -24,12 +20,13 @@ class LeaderboardPage extends ConsumerStatefulWidget {
 
 class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
   int _selectedTab = 0; // 0: Day, 1: Week, 2: National
+  final Set<String> _recentlyBoosted = {};
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    // Listen to realtime SSE updates to refresh and show toasts
+    // Listen to real-time SSE updates for toast notifications & live rank invalidation
     ref.listen(leaderboardRealtimeStreamProvider, (previous, next) {
       next.whenData((fomoEvent) {
         FomoToast.show(
@@ -38,6 +35,13 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
           avatarUrl: fomoEvent.avatarUrl,
           earnedPoints: fomoEvent.earnedPoints,
         );
+
+        // Highlight recently active user
+        if (mounted) {
+          setState(() {
+            _recentlyBoosted.add(fomoEvent.displayName);
+          });
+        }
       });
     });
 
@@ -47,9 +51,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
       _ => 'ALL',
     };
 
-    final leaderboardAsync = ref.watch(
-      leaderboardProvider(timeframe: timeframe),
-    );
+    final leaderboardAsync = ref.watch(leaderboardProvider(timeframe: timeframe));
 
     return CupertinoPageScaffold(
       backgroundColor: AppColors.background,
@@ -57,7 +59,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
+            // App Header
             AppHeader(
               leftActions: CupertinoButton(
                 padding: EdgeInsets.zero,
@@ -78,7 +80,7 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
               title: l10n.explore_leaderboard,
             ),
 
-            // Scrollable Segmented Tab, Podium & Ranks List
+            // Scrollable Content Area
             Expanded(
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(
@@ -87,12 +89,8 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                 slivers: [
                   AppRefreshControl(
                     onRefresh: () async {
-                      ref.invalidate(
-                        leaderboardProvider(timeframe: timeframe),
-                      );
-                      await ref.read(
-                        leaderboardProvider(timeframe: timeframe).future,
-                      );
+                      ref.invalidate(leaderboardProvider(timeframe: timeframe));
+                      await ref.read(leaderboardProvider(timeframe: timeframe).future);
                     },
                   ),
                   SliverPadding(
@@ -102,22 +100,29 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const SizedBox(height: 12),
-                          // Tabs Selector
+                          // Timeframe Tabs Selector
                           Center(
                             child: SlidingSegmentedControl(
-                              tabs: [l10n.common_day, l10n.common_week, l10n.common_all],
+                              tabs: [
+                                l10n.common_day,
+                                l10n.common_week,
+                                l10n.common_all,
+                              ],
                               selectedIndex: _selectedTab,
                               onTabChanged: (index) {
-                                setState(() {
-                                  _selectedTab = index;
-                                });
+                                if (_selectedTab != index) {
+                                  setState(() {
+                                    _selectedTab = index;
+                                    _recentlyBoosted.clear();
+                                  });
+                                }
                               },
                             ),
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 28),
 
                           leaderboardAsync.when(
-                            loading: () => const _LeaderboardPageSkeleton(),
+                            loading: () => const LeaderboardPageSkeleton(),
                             error: (err, stack) => Padding(
                               padding: const EdgeInsets.symmetric(vertical: 24),
                               child: AppEmptyState.error(
@@ -128,9 +133,9 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                               ),
                             ),
                             data: (data) {
-                              final list = data.leaderboard.content;
+                              final rawList = data.leaderboard.content;
 
-                              if (list.isEmpty) {
+                              if (rawList.isEmpty) {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 40),
                                   child: AppEmptyState(
@@ -141,187 +146,33 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
                                 );
                               }
 
-                              final first = list.isNotEmpty ? list[0] : null;
-                              final second = list.length > 1 ? list[1] : null;
-                              final third = list.length > 2 ? list[2] : null;
-
-                              final listItems = list.skip(3).toList();
+                              final top3 = rawList.take(3).toList();
+                              final listItems = rawList.skip(3).toList();
 
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  const SizedBox(height: 28),
-                                  // Podium
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      // Rank 2 (Left)
-                                      Expanded(
-                                        child: second != null
-                                            ? _buildPodiumCol(
-                                                second,
-                                                borderColor:
-                                                    const Color(0xFFD5DEEA),
-                                                isYou:
-                                                    data.currentUserRank !=
-                                                            null &&
-                                                        second.profileId ==
-                                                            data
-                                                                .currentUserRank!
-                                                                .profileId,
-                                              )
-                                            : const SizedBox(height: 130),
-                                      ),
-
-                                      // Rank 1 (Center) - taller
-                                      Expanded(
-                                        child: first != null
-                                            ? _buildPodiumCol(
-                                                first,
-                                                isCenter: true,
-                                                borderColor:
-                                                    const Color(0xFFFFB61D),
-                                                isYou:
-                                                    data.currentUserRank !=
-                                                            null &&
-                                                        first.profileId ==
-                                                            data
-                                                                .currentUserRank!
-                                                                .profileId,
-                                              )
-                                            : const SizedBox(height: 150),
-                                      ),
-
-                                      // Rank 3 (Right)
-                                      Expanded(
-                                        child: third != null
-                                            ? _buildPodiumCol(
-                                                third,
-                                                borderColor:
-                                                    const Color(0xFFD96806),
-                                                isYou:
-                                                    data.currentUserRank !=
-                                                            null &&
-                                                        third.profileId ==
-                                                            data
-                                                                .currentUserRank!
-                                                                .profileId,
-                                              )
-                                            : const SizedBox(height: 130),
-                                      ),
-                                    ],
+                                  // Top 3 Podium Stage
+                                  PodiumStage(
+                                    top3: top3,
+                                    currentUserRank: data.currentUserRank,
+                                    recentlyBoosted: _recentlyBoosted,
                                   ),
 
                                   const SizedBox(height: 32),
 
-                                  // Ranks List 4+
+                                  // Rank 4+ Reordering List
                                   if (listItems.isNotEmpty)
-                                    Column(
-                                      children: listItems.map((entry) {
-                                        final isYou =
-                                            data.currentUserRank != null &&
-                                                entry.profileId ==
-                                                    data.currentUserRank!
-                                                        .profileId;
-
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 8.0,
-                                          ),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: isYou
-                                                  ? const Color(0xFF072013)
-                                                  : CupertinoColors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            padding:
-                                                const EdgeInsets.symmetric(
-                                                  horizontal: 16,
-                                                  vertical: 10,
-                                                ),
-                                            child: Row(
-                                              children: [
-                                                // Rank number
-                                                SizedBox(
-                                                  width: 24,
-                                                  child: Text(
-                                                    entry.rank.toString(),
-                                                    style: TextStyle(
-                                                      fontFamily:
-                                                          AppTextStyles
-                                                              .titleFontFamily,
-                                                      fontSize: 16,
-                                                      color: isYou
-                                                          ? CupertinoColors
-                                                              .white
-                                                          : const Color(
-                                                            0xFF232321,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                // Avatar
-                                                AppAvatar(
-                                                  path: entry.avatarUrl,
-                                                  size: 32,
-                                                ),
-                                                const SizedBox(width: 12),
-                                                // Name
-                                                Expanded(
-                                                  child: Text(
-                                                    isYou
-                                                        ? 'You'
-                                                        : entry.displayName,
-                                                    style: TextStyle(
-                                                      fontFamily:
-                                                          AppTextStyles
-                                                              .fontFamily,
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: isYou
-                                                          ? CupertinoColors
-                                                              .white
-                                                          : AppColors.primary,
-                                                    ),
-                                                  ),
-                                                ),
-                                                // Points
-                                                Text(
-                                                  '${entry.points} pts',
-                                                  style: TextStyle(
-                                                    fontFamily:
-                                                        AppTextStyles
-                                                            .fontFamily,
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.w500,
-                                                    color: isYou
-                                                        ? CupertinoColors.white
-                                                            .withValues(
-                                                              alpha: 0.8,
-                                                            )
-                                                        : const Color(
-                                                          0xFF8E8E93,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
+                                    ReorderingCardsList(
+                                      listItems: listItems,
+                                      currentUserRank: data.currentUserRank,
+                                      recentlyBoosted: _recentlyBoosted,
                                     ),
                                 ],
                               );
                             },
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 32),
                         ],
                       ),
                     ),
@@ -332,241 +183,6 @@ class _LeaderboardPageState extends ConsumerState<LeaderboardPage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildPodiumCol(
-    LeaderboardItem user, {
-    bool isCenter = false,
-    required Color borderColor,
-    required bool isYou,
-  }) {
-    final double avatarSize = isCenter ? 100.0 : 80.0;
-    Color badgeColor;
-    switch (user.rank) {
-      case 1:
-        badgeColor = const Color(0xFFFFCA28);
-      case 2:
-        badgeColor = const Color(0xFFFFFFFF);
-      case 3:
-        badgeColor = const Color(0xFFF6A661);
-      default:
-        badgeColor = borderColor;
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.center,
-          children: [
-            // Organic blob avatar drawn via DrawingContainer
-            DrawingContainer(
-              shape: DrawingShape.blob,
-              width: avatarSize,
-              height: avatarSize,
-              borderColor: borderColor,
-              borderWidth: 4.0,
-              fillColor: CupertinoColors.transparent,
-              child: Image.network(
-                user.avatarUrl ??
-                    'https://res.cloudinary.com/ikupgdru/image/upload/v1784619368/08_tqar6z_nvbvsx.png',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: const Color(0xFFE5E5EA),
-                  child: Icon(
-                    CupertinoIcons.person_fill,
-                    size: avatarSize * 0.5,
-                    color: const Color(0xFF8E8E93),
-                  ),
-                ),
-              ),
-            ),
-
-            // Crown on top of Rank 1
-            if (user.rank == 1)
-              const Positioned(
-                top: -45, // Adjusted to fit the 65x65 crown SVG cleanly
-                child: SVG(
-                  'assets/illustrations/crown.svg',
-                  width: 65,
-                  height: 65,
-                ),
-              ),
-
-            // Rank badge at bottom-center
-            Positioned(
-              bottom: -14,
-              child: Container(
-                width: 26,
-                height: 26,
-                decoration: BoxDecoration(
-                  color: badgeColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: borderColor, width: 3),
-                ),
-                alignment: Alignment.center,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Outline stroke
-                    Text(
-                      user.rank.toString(),
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.titleFontFamily,
-                        fontSize: 14,
-                        foreground: Paint()
-                          ..style = PaintingStyle.stroke
-                          ..strokeWidth = 1
-                          ..color = borderColor,
-                      ),
-                    ),
-                    // Solid text fill
-                    Text(
-                      user.rank.toString(),
-                      style: const TextStyle(
-                        fontFamily: AppTextStyles.titleFontFamily,
-                        color: AppColors.primary,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        // User Name
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Text(
-            isYou ? 'You' : user.displayName,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        // Points
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SVG('assets/illustrations/flower.svg', width: 12, height: 12),
-            const SizedBox(width: 2),
-            Text(
-              '${user.points} pts',
-              style: const TextStyle(
-                fontFamily: AppTextStyles.fontFamily,
-                fontSize: 12,
-                color: AppColors.mutedForeground,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _LeaderboardPageSkeleton extends StatelessWidget {
-  const _LeaderboardPageSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Podium Skeleton
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const ShimmerPlaceholder.circular(size: 80),
-                  const SizedBox(height: 12),
-                  ShimmerPlaceholder.rectangular(
-                    width: 60,
-                    height: 14,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  const SizedBox(height: 4),
-                  ShimmerPlaceholder.rectangular(
-                    width: 40,
-                    height: 12,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const ShimmerPlaceholder.circular(size: 100),
-                  const SizedBox(height: 12),
-                  ShimmerPlaceholder.rectangular(
-                    width: 80,
-                    height: 16,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  const SizedBox(height: 4),
-                  ShimmerPlaceholder.rectangular(
-                    width: 50,
-                    height: 12,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const ShimmerPlaceholder.circular(size: 80),
-                  const SizedBox(height: 12),
-                  ShimmerPlaceholder.rectangular(
-                    width: 60,
-                    height: 14,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  const SizedBox(height: 4),
-                  ShimmerPlaceholder.rectangular(
-                    width: 40,
-                    height: 12,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 40),
-        // List Item Skeletons
-        Column(
-          children: List.generate(
-            5,
-            (index) => Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: ShimmerPlaceholder.rectangular(
-                height: 52,
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

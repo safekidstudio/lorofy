@@ -53,14 +53,18 @@ class _QuickStartPageState extends ConsumerState<QuickStartPage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final storage = ref.read(settingsStorageProvider);
       if (!storage.isFirstTourCompleted()) {
-        showFirstTimeCoachmarkTour(
-          context: context,
-          settingsKey: _settingsKey,
-          startButtonKey: _startKey,
-          onFinish: () {
-            ref.read(settingsStorageProvider).setFirstTourCompleted(true);
-          },
-        );
+        Future.delayed(const Duration(milliseconds: 2500), () {
+          if (mounted) {
+            showFirstTimeCoachmarkTour(
+              context: context,
+              settingsKey: _settingsKey,
+              startButtonKey: _startKey,
+              onFinish: () {
+                ref.read(settingsStorageProvider).setFirstTourCompleted(true);
+              },
+            );
+          }
+        });
       }
     });
   }

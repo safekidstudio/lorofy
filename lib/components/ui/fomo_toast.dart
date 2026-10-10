@@ -54,16 +54,16 @@ class _FomoToastWidgetState extends State<_FomoToastWidget>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 450),
       vsync: this,
     );
 
     _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0, -1.5),
+      begin: const Offset(1.2, 0.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutBack,
+      curve: Curves.easeOutCubic,
     ));
 
     _opacityAnimation = Tween<double>(
@@ -76,8 +76,8 @@ class _FomoToastWidgetState extends State<_FomoToastWidget>
 
     _controller.forward();
 
-    // Dismiss overlay after 3.5 seconds
-    Future.delayed(const Duration(milliseconds: 3500), () {
+    // Dismiss overlay after 2.2 seconds
+    Future.delayed(const Duration(milliseconds: 2200), () {
       if (mounted) {
         _controller.reverse().then((_) {
           widget.onDismiss();
@@ -95,127 +95,104 @@ class _FomoToastWidgetState extends State<_FomoToastWidget>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 50,
-      left: 16,
+      bottom: 32,
       right: 16,
       child: SafeArea(
         child: SlideTransition(
           position: _offsetAnimation,
           child: FadeTransition(
             opacity: _opacityAnimation,
-            child: DefaultTextStyle(
-              style: const TextStyle(
-                fontFamily: AppTextStyles.fontFamily,
-                color: AppColors.primary,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF9F9F9).withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: CupertinoColors.white.withValues(alpha: 0.3),
-                        width: 1.5,
+            child: IgnorePointer(
+              child: DefaultTextStyle(
+                style: const TextStyle(
+                  fontFamily: AppTextStyles.fontFamily,
+                  color: AppColors.primary,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: CupertinoColors.black.withValues(alpha: 0.08),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
+                      decoration: BoxDecoration(
+                        color: CupertinoColors.white.withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.2),
+                          width: 1.5,
                         ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // Avatar
-                        Container(
-                          width: 42,
-                          height: 42,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            blurRadius: 14,
+                            offset: const Offset(0, 4),
                           ),
-                          clipBehavior: Clip.antiAlias,
-                          child: widget.avatarUrl != null && widget.avatarUrl!.isNotEmpty
-                              ? Image.network(
-                                  widget.avatarUrl!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (c, e, s) => Container(
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Avatar
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: widget.avatarUrl != null &&
+                                    widget.avatarUrl!.isNotEmpty
+                                ? Image.network(
+                                    widget.avatarUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (c, e, s) => Container(
+                                      color: const Color(0xFFE5E5EA),
+                                      child: const Icon(
+                                        CupertinoIcons.person_fill,
+                                        size: 14,
+                                        color: Color(0xFF8E8E93),
+                                      ),
+                                    ),
+                                  )
+                                : Container(
                                     color: const Color(0xFFE5E5EA),
                                     child: const Icon(
                                       CupertinoIcons.person_fill,
-                                      size: 20,
+                                      size: 14,
                                       color: Color(0xFF8E8E93),
                                     ),
                                   ),
-                                )
-                              : Container(
-                                  color: const Color(0xFFE5E5EA),
-                                  child: const Icon(
-                                    CupertinoIcons.person_fill,
-                                    size: 20,
-                                    color: Color(0xFF8E8E93),
-                                  ),
-                                ),
-                        ),
-                        const SizedBox(width: 12),
-                        // Text details
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.displayName,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              const Text(
-                                'just finished focusing!',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.mutedForeground,
-                                ),
-                              ),
-                            ],
                           ),
-                        ),
-                        // Points award bubble
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
+                          const SizedBox(width: 8),
+                          // Name
+                          Text(
+                            widget.displayName,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primary,
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE2FBE9),
-                            borderRadius: BorderRadius.circular(20),
+                          const SizedBox(width: 6),
+                          // Points
+                          Text(
+                            '+${widget.earnedPoints} pts',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '+${widget.earnedPoints} pts',
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1B5E20),
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Text(
-                                '🔥',
-                                style: TextStyle(fontSize: 13),
-                              ),
-                            ],
+                          const SizedBox(width: 3),
+                          const Text(
+                            '🔥',
+                            style: TextStyle(fontSize: 12),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

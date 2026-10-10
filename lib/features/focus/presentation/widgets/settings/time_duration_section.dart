@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lorofy/components/ui/number_flow.dart';
 import 'package:lorofy/core/theme/app_theme.dart';
 import 'package:lorofy/features/focus/presentation/providers/pomodoro_settings.dart';
 
@@ -13,22 +14,30 @@ class TimeDurationSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        RichText(
-          text: TextSpan(
-            style: const TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.mutedForeground,
-            ),
-            children: [
-              const TextSpan(text: 'Time durations: '),
-              TextSpan(
-                text: '${settings.focusMinutes} mins',
-                style: const TextStyle(color: AppColors.primary),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              'Time durations: ',
+              style: TextStyle(
+                fontFamily: AppTextStyles.fontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.mutedForeground,
               ),
-            ],
-          ),
+            ),
+            NumberFlow(
+              value: settings.focusMinutes,
+              suffix: ' mins',
+              enableFloatingDelta: false,
+              style: const TextStyle(
+                fontFamily: AppTextStyles.fontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         SizedBox(

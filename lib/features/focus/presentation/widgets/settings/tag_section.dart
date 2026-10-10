@@ -22,6 +22,7 @@ class TagSection extends ConsumerWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
               'Tag',
@@ -34,6 +35,7 @@ class TagSection extends ConsumerWidget {
             ),
             CupertinoButton(
               padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
               onPressed: () {
                 Navigator.push(
                   context,

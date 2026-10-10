@@ -62,6 +62,7 @@ class AdvancedModeSection extends ConsumerWidget {
         // Header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text(
               'Block Mode',
@@ -74,6 +75,7 @@ class AdvancedModeSection extends ConsumerWidget {
             ),
             CupertinoButton(
               padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
               onPressed: () => _openBlockModeSelection(context),
               child: Container(
                 width: 32,
